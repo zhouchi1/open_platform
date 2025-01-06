@@ -91,4 +91,23 @@ public class RabbitMqSender {
             System.err.println("Failed to send delayed message: " + e.getMessage());
         }
     }
+
+    /**
+     * 发送消息到 Topic 交换机
+     *
+     * @param exchangeName 交换机名称（Topic 类型）
+     * @param routingKey   路由键
+     * @param message      消息内容
+     */
+    public void sendTopicMessage(String exchangeName, String routingKey, Object message) {
+        try {
+            rabbitTemplate.convertAndSend(exchangeName, routingKey, message, msg -> {
+                msg.getMessageProperties().setHeader("traceId", UUID.randomUUID().toString());
+                return msg;
+            });
+            System.out.println("Topic message sent to exchange: " + exchangeName + " with routing key: " + routingKey);
+        } catch (Exception e) {
+            System.err.println("Failed to send topic message: " + e.getMessage());
+        }
+    }
 }

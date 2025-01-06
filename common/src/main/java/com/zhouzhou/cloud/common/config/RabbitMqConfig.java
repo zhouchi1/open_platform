@@ -1,7 +1,12 @@
 package com.zhouzhou.cloud.common.config;
 
+import org.springframework.amqp.core.AcknowledgeMode;
+import org.springframework.amqp.rabbit.config.SimpleRabbitListenerContainerFactory;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.amqp.rabbit.listener.RabbitListenerContainerFactory;
+import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
+import org.springframework.amqp.support.converter.MessageConverter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.retry.support.RetryTemplateBuilder;
@@ -52,6 +57,20 @@ public class RabbitMqConfig {
         });
 
         return rabbitTemplate;
+    }
+
+    @Bean
+    public RabbitListenerContainerFactory<?> rabbitListenerContainerFactory(ConnectionFactory connectionFactory) {
+        SimpleRabbitListenerContainerFactory factory = new SimpleRabbitListenerContainerFactory();
+        factory.setConnectionFactory(connectionFactory);
+        factory.setMessageConverter(jsonMessageConverter());
+        factory.setAcknowledgeMode(AcknowledgeMode.MANUAL); // 手动确认模式
+        return factory;
+    }
+
+    @Bean
+    public MessageConverter jsonMessageConverter() {
+        return new Jackson2JsonMessageConverter();
     }
 }
 

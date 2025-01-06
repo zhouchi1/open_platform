@@ -126,6 +126,10 @@ public class RabbitMqStartConfig {
             if ("direct".equalsIgnoreCase(exchangeConfig.getType())) {
                 exchangeList.add(new DirectExchange(exchangeConfig.getName()));
             }
+
+            if ("topic".equalsIgnoreCase(exchangeConfig.getType())) {
+                exchangeList.add(new TopicExchange(exchangeConfig.getName()));
+            }
             // 可以根据类型扩展更多的交换机类型
         }
         return exchangeList;
@@ -171,10 +175,26 @@ public class RabbitMqStartConfig {
     /**
      * 注册交换机、队列、绑定
      */
+    @Bean
     public void registerRabbitComponents() {
+
+        // 删除所有队列（可选）
+        if (queues != null) {
+            for (QueueConfig queueConfig : queues) {
+                amqpAdmin.deleteQueue(queueConfig.getName());
+            }
+        }
+
         // 声明交换机
         for (ExchangeConfig exchangeConfig : exchanges) {
-            Exchange exchange = new DirectExchange(exchangeConfig.getName(), true, false);
+            Exchange exchange;
+            if ("direct".equalsIgnoreCase(exchangeConfig.getType())) {
+                exchange = new DirectExchange(exchangeConfig.getName(), true, false);
+            } else if ("topic".equalsIgnoreCase(exchangeConfig.getType())) {
+                exchange = new TopicExchange(exchangeConfig.getName(), true, false);
+            } else {
+                throw new IllegalArgumentException("Unsupported exchange type: " + exchangeConfig.getType());
+            }
             amqpAdmin.declareExchange(exchange);
         }
 
