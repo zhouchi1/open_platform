@@ -14,6 +14,7 @@
         <module name="address_service" />
         <module name="common" />
         <module name="login_service" />
+        <module name="register_service" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
@@ -28,6 +29,7 @@
       <module name="login_service" options="-parameters" />
       <module name="order_service" options="-parameters" />
       <module name="pay_service" options="-parameters" />
+      <module name="register_service" options="-parameters" />
       <module name="server_config" options="-parameters" />
       <module name="warehouse_service" options="-parameters" />
     </option>

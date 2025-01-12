@@ -26,8 +26,9 @@ public enum WxPayTradeStateEnum {
 
     USERPAYING("USERPAYING","用户支付中"),
 
-    PAYERROR("PAYERROR","支付失败(其他原因，如银行返回失败)")
+    PAYERROR("PAYERROR","支付失败(其他原因，如银行返回失败)"),
 
+    CANCEL("CANCEL","订单超时取消")
     ;
 
     /**

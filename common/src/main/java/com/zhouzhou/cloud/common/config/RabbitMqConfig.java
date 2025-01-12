@@ -1,5 +1,6 @@
 package com.zhouzhou.cloud.common.config;
 
+import com.zhouzhou.cloud.common.utils.RabbitMqSender;
 import org.springframework.amqp.core.AcknowledgeMode;
 import org.springframework.amqp.rabbit.config.SimpleRabbitListenerContainerFactory;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
@@ -12,8 +13,11 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.retry.support.RetryTemplateBuilder;
 import org.springframework.retry.support.RetryTemplate;
 
+import javax.annotation.Resource;
+
 @Configuration
 public class RabbitMqConfig {
+
 
     /**
      * 配置 RabbitTemplate，包含重试机制和异常处理
@@ -34,7 +38,6 @@ public class RabbitMqConfig {
         rabbitTemplate.setRecoveryCallback(context -> {
             Throwable cause = context.getLastThrowable();
             // 发送给死信队列
-            System.err.println("Message failed permanently: " + cause.getMessage());
             return null;
         });
 
@@ -44,7 +47,6 @@ public class RabbitMqConfig {
                 System.out.println("Message confirmed successfully.");
             } else {
                 // 如果消息没有到达交换机 则将消息发送给死信队列
-
                 System.err.println("Message confirmation failed: " + cause);
             }
         });

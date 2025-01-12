@@ -26,6 +26,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 
@@ -43,7 +44,9 @@ import static com.zhouzhou.cloud.payservice.constants.WxConstants.*;
 @RefreshScope
 public class WxPayServiceImpl implements WxPayService {
 
-    @Reference
+    // version：调用的微服务版本号
+    // loadbalance：负载均衡策略 1、random：随机；2、roundrobin：轮训；3、consistentHash：一致性哈希；4、leastActive：最小活跃度
+    @Reference(version = "1.0.0", loadbalance = "leastActive")
     private WxPayOrderService wxPayOrderService;
 
     @Resource
@@ -63,6 +66,7 @@ public class WxPayServiceImpl implements WxPayService {
 
     @Value("${warehouse.routeKey}")
     private String routeKey;
+
 
     @Override
     public WxPayPrePayInformationResp wxPayPreRequest(WxPayOrderDTO wxPayOrderDTO) {
@@ -134,12 +138,12 @@ public class WxPayServiceImpl implements WxPayService {
 
             // 处理解密后的数据
             String transactionId = wxPayCallBackDecryptDTO.getTransaction_id(); // 微信支付订单号
-            String outTradeNo = wxPayCallBackDecryptDTO.getOut_trade_no();      // 每日橙订单号
+            String outTradeNo = wxPayCallBackDecryptDTO.getOut_trade_no();      // 商城订单号
             String tradeState = wxPayCallBackDecryptDTO.getTrade_state();       // 支付状态
 
             // 根据支付结果处理商户业务逻辑 【Dubbo调用订单服务】
             if (WxPayTradeStateEnum.SUCCESS.getCode().equals(tradeState)) {
-                wxPayCallBackHandle(outTradeNo, transactionId);
+                wxPayCallBackHandle(outTradeNo, transactionId, wxPayConfigDTO);
 
                 // 【RabbitMQ发送消息到仓库服务】扣减库存
                 rabbitMQSender.sendRoutingMessage(exchangeName, routeKey, outTradeNo);
@@ -200,10 +204,31 @@ public class WxPayServiceImpl implements WxPayService {
      * @param outTradeNo    商户订单号
      * @param transactionId 微信支付订单号
      */
-    private void wxPayCallBackHandle(String outTradeNo, String transactionId) {
+    private void wxPayCallBackHandle(String outTradeNo, String transactionId, WxPayConfigDTO wxPayConfigDTO) {
+
+        // 如果有退款的情况 先集中组装参数
+        WxPayReFoundReq wxPayReFoundReq = new WxPayReFoundReq();
+        wxPayReFoundReq.setSub_mchid(wxPayConfigDTO.getSub_mch_id());
+        wxPayReFoundReq.setOut_refund_no(RandomUtil.randomString(32));
+        wxPayReFoundReq.setTransaction_id(transactionId);
+        wxPayReFoundReq.setNotify_url(wxPayConfigDTO.getRefund_notify_url());
 
         // 【Dubbo调用订单服务】 查询订单信息
         OrderInfoResp orderInfoResp = wxPayOrderService.getOrderInfoByOutTradeNo(outTradeNo);
+
+        // 如果查询订单失败 说明订单信息异常 直接退款给用户
+        if (ObjectUtils.isEmpty(orderInfoResp) && ObjectUtils.isEmpty(orderInfoResp.getShopOrder()) && CollectionUtils.isEmpty(orderInfoResp.getShopOrderDetailsList())) {
+
+            // 【openFeign调用微信订单查询接口 用来查询金额】
+            WxPayStatusDTO wxPayStatusDTO = wxPayOpenFeignApi.wxPayStatusQuery(transactionId, wxPayConfigDTO.getSp_mch_id(), wxPayConfigDTO.getSub_mch_id());
+            Integer payerTotal = wxPayStatusDTO.getAmount().getPayer_total();
+
+            // 【openFeign调用微信退款接口】
+            wxPayReFoundReq.setReason("商城订单信息异常，全额退款已发起");
+            wxPayReFoundReq.setAmount(new WxPayReFoundAmountDTO(payerTotal, payerTotal, PayCurrencyEnum.CNY.getCode()));
+            wxPayReFoundExecute(wxPayReFoundReq);
+            return;
+        }
 
         // 订单金额计算
         BigDecimal orderAmount = orderInfoResp.getShopOrderDetailsList().stream().map(ShopOrderDetails::getGoodsPrice).reduce(BigDecimal.ZERO, BigDecimal::add);
@@ -212,15 +237,11 @@ public class WxPayServiceImpl implements WxPayService {
         Integer orderTotalMoney = orderAmount.multiply(BigDecimal.valueOf(100)).intValue();
 
         // 如果对于商城来说订单已经超时 则直接进行退款
-        if (orderInfoResp.getShopOrder().getOrderStatus().equals(WxPayTradeStateEnum.NOTPAY.getCode())) {
-            WxPayConfigDTO wxPayConfigDTO = wxUtil.wxPayConfigQuery();
-            WxPayReFoundReq wxPayReFoundReq = new WxPayReFoundReq();
-            wxPayReFoundReq.setSub_mchid(wxPayConfigDTO.getSub_mch_id());
-            wxPayReFoundReq.setOut_refund_no(RandomUtil.randomString(32));
-            wxPayReFoundReq.setNotify_url(wxPayConfigDTO.getRefund_notify_url());
-            wxPayReFoundReq.setAmount(new WxPayReFoundAmountDTO(orderTotalMoney, orderTotalMoney, PayCurrencyEnum.CNY.getCode()));
+        if (orderInfoResp.getShopOrder().getOrderStatus().equals(WxPayTradeStateEnum.CANCEL.getCode())) {
 
             // 【OpenFeign调用微信退款服务】执行退款操作
+            wxPayReFoundReq.setReason("订单已超时，全额退款已发起");
+            wxPayReFoundReq.setAmount(new WxPayReFoundAmountDTO(orderTotalMoney, orderTotalMoney, PayCurrencyEnum.CNY.getCode()));
             wxPayReFoundExecute(wxPayReFoundReq);
 
             // 【Dubbo调用订单服务】 修改订单信息为退款
@@ -256,9 +277,7 @@ public class WxPayServiceImpl implements WxPayService {
     private void wxPayReFoundExecute(WxPayReFoundReq wxPayReFoundReq) {
         WxPayConfigDTO wxPayConfigDTO = wxUtil.wxPayConfigQuery();
         wxPayReFoundReq.setSub_mchid(wxPayConfigDTO.getSub_mch_id());
-        wxPayReFoundReq.setOut_refund_no(RandomUtil.randomString(32));
         wxPayReFoundReq.setNotify_url(wxPayConfigDTO.getRefund_notify_url());
-        wxPayReFoundReq.setAmount(wxPayReFoundReq.getAmount());
         String result = wxPayOpenFeignApi.wxPayReFound(wxPayReFoundReq);
         log.info("微信支付退款返回结果：{}", result);
     }

@@ -1,5 +1,6 @@
 package com.zhouzhou.cloud.payservice.dto.wxpay;
 
+import com.zhouzhou.cloud.common.service.base.BaseAMO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -16,7 +17,7 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class WxPayReFoundStatusDTO implements Serializable {
+public class WxPayReFoundStatusDTO extends BaseAMO {
 
 
     private static final long serialVersionUID = 6872364872368476232L;

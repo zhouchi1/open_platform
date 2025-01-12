@@ -42,8 +42,8 @@ public class WxPayReFoundReq implements Serializable {
 //    @ApiModelProperty("商城订单号----与微信支付单号二选一必传")
 //    private String out_trade_no;
 
-//    @ApiModelProperty("退款原因")
-//    private String reason;
+    @ApiModelProperty("退款原因")
+    private String reason;
 //
     @ApiModelProperty("退款通知url")
     private String notify_url;

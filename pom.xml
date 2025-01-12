@@ -17,6 +17,7 @@
         <module>login_service</module>
         <module>order_service</module>
         <module>pay_service</module>
+        <module>register_service</module>
     </modules>
 
     <parent>
@@ -32,13 +33,13 @@
         <dubbo.version>2.7.3</dubbo.version>
         <mysql.version>8.0.33</mysql.version>
         <baidu-protobuf.version>2.4.9</baidu-protobuf.version>
-        <swagger.version>1.5.20</swagger.version>
         <commons-lang3.version>3.12.0</commons-lang3.version>
         <persistence-api.version>1.0</persistence-api.version>
         <guava.version>31.1-jre</guava.version>
         <mybatis-plus.version>3.5.3.1</mybatis-plus.version>
         <hutool.version>5.8.12</hutool.version>
         <feign-httpclient.version>11.2</feign-httpclient.version>
+        <knfe4j.version>3.0.3</knfe4j.version>
         <spring-cloud.version>2021.0.5</spring-cloud.version>
         <spring-cloud-alibaba.version>2021.0.5.0</spring-cloud-alibaba.version>
         <wechatpay-apache-httpclient.version>0.4.9</wechatpay-apache-httpclient.version>
@@ -77,16 +78,20 @@
 
             <dependency>
                 <groupId>com.baomidou</groupId>
-                <artifactId>mybatis-plus-core</artifactId>
+                <artifactId>mybatis-plus-boot-starter</artifactId>
                 <version>${mybatis-plus.version}</version>
-                <scope>compile</scope>
             </dependency>
 
             <dependency>
-                <groupId>io.swagger</groupId>
-                <artifactId>swagger-annotations</artifactId>
-                <version>${swagger.version}</version>
-                <scope>compile</scope>
+                <groupId>com.baomidou</groupId>
+                <artifactId>mybatis-plus</artifactId>
+                <version>${mybatis-plus.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.github.xiaoymin</groupId>
+                <artifactId>knife4j-annotations</artifactId>
+                <version>${knfe4j.version}</version>
             </dependency>
 
             <dependency>

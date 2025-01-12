@@ -6,6 +6,15 @@
     </list>
   </component>
   <component name="ExternalStorageConfigurationManager" enabled="true" />
+  <component name="FrameworkDetectionExcludesConfiguration">
+    <file type="web" url="file://$PROJECT_DIR$/address_service" />
+    <file type="web" url="file://$PROJECT_DIR$/cart_service" />
+    <file type="web" url="file://$PROJECT_DIR$/login_service" />
+    <file type="web" url="file://$PROJECT_DIR$/order_service" />
+    <file type="web" url="file://$PROJECT_DIR$/pay_service" />
+    <file type="web" url="file://$PROJECT_DIR$/register_service" />
+    <file type="web" url="file://$PROJECT_DIR$/warehouse_service" />
+  </component>
   <component name="MavenProjectsManager">
     <option name="originalFiles">
       <list>
