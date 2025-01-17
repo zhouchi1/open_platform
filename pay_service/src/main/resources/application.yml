@@ -14,4 +14,4 @@ dubbo:
     address: nacos://127.0.0.1:8848
   protocol:
     name: dubbo
-    port: 20880
+    port: 20885

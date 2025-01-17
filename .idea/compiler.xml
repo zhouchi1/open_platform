@@ -14,6 +14,8 @@
         <module name="address_service" />
         <module name="common" />
         <module name="login_service" />
+        <module name="sentinel_dashboard_service" />
+        <module name="email_service" />
         <module name="register_service" />
       </profile>
     </annotationProcessing>
@@ -26,6 +28,7 @@
       <module name="address_service" options="-parameters" />
       <module name="cart_service" options="-parameters" />
       <module name="common" options="-parameters" />
+      <module name="email_service" options="-parameters" />
       <module name="login_service" options="-parameters" />
       <module name="order_service" options="-parameters" />
       <module name="pay_service" options="-parameters" />

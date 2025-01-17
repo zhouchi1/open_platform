@@ -20,6 +20,7 @@ com\zhouzhou\cloud\payservice\resp\wxpay\WxPayPrePayInformationResp.class
 com\zhouzhou\cloud\payservice\dto\wxpay\WxPayCallBackDecryptSceneInfoDTO.class
 com\zhouzhou\cloud\payservice\config\WxPayOpenFeignConfig.class
 com\zhouzhou\cloud\payservice\dto\wxpay\WxPayCallBackDecryptPromotionGoodsDTO.class
+com\zhouzhou\cloud\payservice\controller\WxPayController.class
 com\zhouzhou\cloud\payservice\enums\RecommendTypeEnum.class
 com\zhouzhou\cloud\payservice\req\wxpay\WxPayReFoundSubmitReq.class
 com\zhouzhou\cloud\payservice\dto\wxpay\WxPayOrderDTO.class

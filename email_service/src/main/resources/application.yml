@@ -1,0 +1,18 @@
+server:
+  port: 8089
+
+# 微服务可以自动刷新配置而无需重启
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+
+dubbo:
+  application:
+    name: email-service
+  registry:
+    address: nacos://127.0.0.1:8848
+  protocol:
+    name: dubbo
+    port: 20882

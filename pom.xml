@@ -8,7 +8,6 @@
     <packaging>pom</packaging>
     <version>1.0.0-SNAPSHOT</version>
 
-
     <modules>
         <module>common</module>
         <module>warehouse_service</module>
@@ -18,6 +17,7 @@
         <module>order_service</module>
         <module>pay_service</module>
         <module>register_service</module>
+        <module>email_service</module>
     </modules>
 
     <parent>

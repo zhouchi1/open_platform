@@ -16,7 +16,7 @@ import com.zhouzhou.cloud.payservice.resp.wxpay.WxPayCallBackResp;
 import com.zhouzhou.cloud.payservice.resp.wxpay.WxPayPrePayInformationResp;
 import com.zhouzhou.cloud.payservice.service.WxPayService;
 import com.zhouzhou.cloud.payservice.utils.WxUtil;
-import com.zhouzhou.cloud.common.service.interfaces.WxPayOrderService;
+import com.zhouzhou.cloud.common.service.interfaces.WxPayOrderServiceApi;
 import com.zhouzhou.cloud.common.utils.BizExUtil;
 import com.zhouzhou.cloud.common.utils.LoginUserContextHolder;
 import lombok.extern.slf4j.Slf4j;
@@ -47,7 +47,7 @@ public class WxPayServiceImpl implements WxPayService {
     // version：调用的微服务版本号
     // loadbalance：负载均衡策略 1、random：随机；2、roundrobin：轮训；3、consistentHash：一致性哈希；4、leastActive：最小活跃度
     @Reference(version = "1.0.0", loadbalance = "leastActive")
-    private WxPayOrderService wxPayOrderService;
+    private WxPayOrderServiceApi wxPayOrderServiceApi;
 
     @Resource
     private WxUtil wxUtil;
@@ -214,7 +214,7 @@ public class WxPayServiceImpl implements WxPayService {
         wxPayReFoundReq.setNotify_url(wxPayConfigDTO.getRefund_notify_url());
 
         // 【Dubbo调用订单服务】 查询订单信息
-        OrderInfoResp orderInfoResp = wxPayOrderService.getOrderInfoByOutTradeNo(outTradeNo);
+        OrderInfoResp orderInfoResp = wxPayOrderServiceApi.getOrderInfoByOutTradeNo(outTradeNo);
 
         // 如果查询订单失败 说明订单信息异常 直接退款给用户
         if (ObjectUtils.isEmpty(orderInfoResp) && ObjectUtils.isEmpty(orderInfoResp.getShopOrder()) && CollectionUtils.isEmpty(orderInfoResp.getShopOrderDetailsList())) {
@@ -246,7 +246,7 @@ public class WxPayServiceImpl implements WxPayService {
 
             // 【Dubbo调用订单服务】 修改订单信息为退款
             orderInfoResp.getShopOrder().setOrderStatus(WxPayTradeStateEnum.REFUND.getCode());
-            wxPayOrderService.modifyOrderInfo(orderInfoResp);
+            wxPayOrderServiceApi.modifyOrderInfo(orderInfoResp);
             return;
         }
 
@@ -256,7 +256,7 @@ public class WxPayServiceImpl implements WxPayService {
             orderInfoResp.getShopOrder().setWxOrderCode(transactionId);
 
             // 【Dubbo调用订单服务】 修改订单信息
-            wxPayOrderService.modifyOrderInfo(orderInfoResp);
+            wxPayOrderServiceApi.modifyOrderInfo(orderInfoResp);
 
             // 删除订单缓存值
             boolean tag = redisUtil.delete(ZHOUZHOU_ORDER_KEY + orderInfoResp.getShopOrder().getOrderCode());
@@ -267,11 +267,11 @@ public class WxPayServiceImpl implements WxPayService {
     private void wxPayReFoundCallBackHandle(String transactionId) {
 
         // 【Dubbo调用订单服务】 查询订单信息
-        OrderInfoResp orderInfoResp = wxPayOrderService.getOrderInfoByTransactionId(transactionId);
+        OrderInfoResp orderInfoResp = wxPayOrderServiceApi.getOrderInfoByTransactionId(transactionId);
         orderInfoResp.getShopOrder().setOrderStatus(WxPayTradeStateEnum.REFUND.getCode());
 
         // 【Dubbo调用订单服务】 修改订单信息
-        wxPayOrderService.modifyOrderInfo(orderInfoResp);
+        wxPayOrderServiceApi.modifyOrderInfo(orderInfoResp);
     }
 
     private void wxPayReFoundExecute(WxPayReFoundReq wxPayReFoundReq) {
