@@ -117,6 +117,12 @@
             <artifactId>netty-all</artifactId>
         </dependency>
 
+        <!-- JPA数据库访问-->
+        <dependency>
+            <groupId>javax.persistence</groupId>
+            <artifactId>persistence-api</artifactId>
+        </dependency>
+
         <!-- Mysql驱动 -->
         <dependency>
             <groupId>mysql</groupId>
