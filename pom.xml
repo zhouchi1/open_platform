@@ -30,15 +30,15 @@
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
         <lombok.version>1.18.24</lombok.version>
-        <dubbo.version>2.7.3</dubbo.version>
+        <dubbo.version>3.2.16</dubbo.version>
         <mysql.version>8.0.33</mysql.version>
         <baidu-protobuf.version>2.4.9</baidu-protobuf.version>
         <commons-lang3.version>3.12.0</commons-lang3.version>
-        <persistence-api.version>1.0</persistence-api.version>
         <guava.version>31.1-jre</guava.version>
         <mybatis-plus.version>3.5.3.1</mybatis-plus.version>
         <hutool.version>5.8.12</hutool.version>
         <feign-httpclient.version>11.2</feign-httpclient.version>
+        <xxl.job.version>2.2.0</xxl.job.version>
         <knfe4j.version>3.0.3</knfe4j.version>
         <spring-cloud.version>2021.0.5</spring-cloud.version>
         <spring-cloud-alibaba.version>2021.0.5.0</spring-cloud-alibaba.version>
@@ -101,6 +101,12 @@
             </dependency>
 
             <dependency>
+                <groupId>com.xuxueli</groupId>
+                <artifactId>xxl-job-core</artifactId>
+                <version>${xxl.job.version}</version>
+            </dependency>
+
+            <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-lang3</artifactId>
                 <version>${commons-lang3.version}</version>
@@ -108,14 +114,14 @@
 
             <dependency>
                 <groupId>org.apache.dubbo</groupId>
-                <artifactId>dubbo</artifactId>
+                <artifactId>dubbo-spring-boot-starter</artifactId>
                 <version>${dubbo.version}</version>
             </dependency>
 
             <dependency>
-                <groupId>javax.persistence</groupId>
-                <artifactId>persistence-api</artifactId>
-                <version>${persistence-api.version}</version>
+                <groupId>org.apache.dubbo</groupId>
+                <artifactId>dubbo</artifactId>
+                <version>${dubbo.version}</version>
             </dependency>
 
             <dependency>

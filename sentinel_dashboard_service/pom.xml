@@ -6,7 +6,7 @@
     <parent>
         <groupId>com.alibaba.csp</groupId>
         <artifactId>sentinel-parent</artifactId>
-        <version>1.8.4</version>
+        <version>1.8.6</version>
     </parent>
 
     <artifactId>sentinel_dashboard_service</artifactId>
@@ -134,11 +134,17 @@
             <artifactId>fastjson</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>com.alibaba.csp</groupId>
+            <artifactId>sentinel-apache-dubbo3-adapter</artifactId>
+            <version>1.8.8</version>
+        </dependency>
+
         <!-- for Nacos rule publisher sample -->
         <dependency>
             <groupId>com.alibaba.csp</groupId>
             <artifactId>sentinel-datasource-nacos</artifactId>
-<!--            <scope>test</scope>-->
+            <!--            <scope>test</scope>-->
         </dependency>
         <!-- for Apollo rule publisher sample -->
         <dependency>
@@ -167,10 +173,10 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-        	<groupId>com.github.stefanbirkner</groupId>
-        	<artifactId>system-rules</artifactId>
-        	<version>1.16.1</version>
-        	<scope>test</scope>
+            <groupId>com.github.stefanbirkner</groupId>
+            <artifactId>system-rules</artifactId>
+            <version>1.16.1</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 

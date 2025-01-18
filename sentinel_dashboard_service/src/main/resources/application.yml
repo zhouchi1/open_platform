@@ -1,19 +1,35 @@
 spring:
   cloud:
     sentinel:
+      filter:
+        enabled: true
       transport:
         dashboard: 127.0.0.1:8080
+        port: 8721
       datasource:
         ds1:
           nacos:
             server-addr: 127.0.0.1:8848
-            namespace: public
+            namespace:
             username: nacos
             password: nacos
             group-id: DEFAULT_GROUP
             data-id: sentinel-dashboard-service
             data-type: json
             rule-type: flow
+        ds2:
+          nacos:
+            server-addr: 127.0.0.1:8848
+            namespace:
+            username: nacos
+            password: nacos
+            dataId: sentinel-dashboard-service
+            groupId: DEFAULT_GROUP
+            data-type: json
+            rule-type: degrade
+    nacos:
+      discovery:
+        server-addr: 127.0.0.1:8848
 
 # spring settings
 # cookie name setting

@@ -21,6 +21,7 @@ import com.zhouzhou.cloud.common.utils.BizExUtil;
 import com.zhouzhou.cloud.common.utils.LoginUserContextHolder;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
+import org.apache.dubbo.config.annotation.DubboReference;
 import org.apache.dubbo.config.annotation.Reference;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
@@ -46,7 +47,7 @@ public class WxPayServiceImpl implements WxPayService {
 
     // version：调用的微服务版本号
     // loadbalance：负载均衡策略 1、random：随机；2、roundrobin：轮训；3、consistentHash：一致性哈希；4、leastActive：最小活跃度
-    @Reference(version = "1.0.0", loadbalance = "leastActive")
+    @DubboReference(version = "1.0.0")
     private WxPayOrderServiceApi wxPayOrderServiceApi;
 
     @Resource

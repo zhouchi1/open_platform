@@ -9,7 +9,7 @@ import com.zhouzhou.cloud.common.entity.ShopOrderDetails;
 import com.zhouzhou.cloud.common.service.interfaces.WxPayOrderServiceApi;
 import com.zhouzhou.cloud.orderservice.mapper.ShopOrderDetailsMapper;
 import com.zhouzhou.cloud.orderservice.mapper.ShopOrderMapper;
-import org.apache.dubbo.config.annotation.Service;
+import org.apache.dubbo.config.annotation.DubboService;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
@@ -21,7 +21,7 @@ import java.util.List;
  * @CreateTime: 2024-12-03
  * @Description: 支付所需信息服务类
  */
-@Service(version = "1.0.0")
+@DubboService(version = "1.0.0")
 public class WxPayOrderServiceApiImplV1 implements WxPayOrderServiceApi {
 
     @Resource
