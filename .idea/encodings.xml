@@ -1,23 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="Encoding">
-    <file url="file://$PROJECT_DIR$/address_service/src/main/java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/address_service/src/main/resources" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/cart_service/src/main/java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/cart_service/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/address-service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/address-service/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/cart-service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/cart-service/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/common/src/main/java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/email_service/src/main/java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/login_service/src/main/java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/login_service/src/main/resources" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/order_service/src/main/java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/order_service/src/main/resources" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/pay_service/src/main/java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/pay_service/src/main/resources" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/register_service/src/main/java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/sentinel_dashboard_service/src/main/java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/sentinel_dashboard_service/src/main/resources" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/sentinel_dashboard_service/src/main/webapp" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/warehouse_service/src/main/java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/warehouse_service/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/email-service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/email-service/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/login-service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/login-service/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/order-service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/order-service/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/pay-service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/pay-service/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/register-service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/register-service/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/sentinel-dashboard-service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/sentinel-dashboard-service/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/sentinel-dashboard-service/src/main/webapp" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/warehouse-service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/warehouse-service/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/xxl-job-admin/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/xxl-job-admin/src/main/resources" charset="UTF-8" />
   </component>
 </project>

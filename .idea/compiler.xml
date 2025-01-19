@@ -7,16 +7,17 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="warehouse_service" />
-        <module name="cart_service" />
-        <module name="order_service" />
-        <module name="pay_service" />
-        <module name="address_service" />
+        <module name="login-service" />
+        <module name="cart-service" />
+        <module name="register-service" />
+        <module name="address-service" />
+        <module name="pay-service" />
         <module name="common" />
-        <module name="login_service" />
-        <module name="sentinel_dashboard_service" />
-        <module name="email_service" />
-        <module name="register_service" />
+        <module name="warehouse-service" />
+        <module name="email-service" />
+        <module name="order-service" />
+        <module name="sentinel-dashboard-service" />
+        <module name="xxl-job-admin" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
@@ -25,16 +26,16 @@
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
-      <module name="address_service" options="-parameters" />
-      <module name="cart_service" options="-parameters" />
+      <module name="address-service" options="-parameters" />
+      <module name="cart-service" options="-parameters" />
       <module name="common" options="-parameters" />
-      <module name="email_service" options="-parameters" />
-      <module name="login_service" options="-parameters" />
-      <module name="order_service" options="-parameters" />
-      <module name="pay_service" options="-parameters" />
-      <module name="register_service" options="-parameters" />
+      <module name="email-service" options="-parameters" />
+      <module name="login-service" options="-parameters" />
+      <module name="order-service" options="-parameters" />
+      <module name="pay-service" options="-parameters" />
+      <module name="register-service" options="-parameters" />
       <module name="server_config" options="-parameters" />
-      <module name="warehouse_service" options="-parameters" />
+      <module name="warehouse-service" options="-parameters" />
     </option>
   </component>
 </project>

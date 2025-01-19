@@ -1,0 +1,19 @@
+server:
+  port: 8083
+
+# 微服务可以自动刷新配置而无需重启
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+
+dubbo:
+  application:
+    name: login-service
+    qos-enable: false
+  registry:
+    address: nacos://127.0.0.1:8848
+  protocol:
+    name: dubbo
+    port: 20883

@@ -10,14 +10,14 @@
 
     <modules>
         <module>common</module>
-        <module>warehouse_service</module>
-        <module>address_service</module>
-        <module>cart_service</module>
-        <module>login_service</module>
-        <module>order_service</module>
-        <module>pay_service</module>
-        <module>register_service</module>
-        <module>email_service</module>
+        <module>warehouse-service</module>
+        <module>address-service</module>
+        <module>cart-service</module>
+        <module>login-service</module>
+        <module>order-service</module>
+        <module>pay-service</module>
+        <module>register-service</module>
+        <module>email-service</module>
     </modules>
 
     <parent>

@@ -7,14 +7,15 @@
   </component>
   <component name="ExternalStorageConfigurationManager" enabled="true" />
   <component name="FrameworkDetectionExcludesConfiguration">
-    <file type="web" url="file://$PROJECT_DIR$/address_service" />
-    <file type="web" url="file://$PROJECT_DIR$/cart_service" />
-    <file type="web" url="file://$PROJECT_DIR$/email_service" />
-    <file type="web" url="file://$PROJECT_DIR$/login_service" />
-    <file type="web" url="file://$PROJECT_DIR$/order_service" />
-    <file type="web" url="file://$PROJECT_DIR$/pay_service" />
-    <file type="web" url="file://$PROJECT_DIR$/register_service" />
-    <file type="web" url="file://$PROJECT_DIR$/warehouse_service" />
+    <file type="web" url="file://$PROJECT_DIR$/address-service" />
+    <file type="web" url="file://$PROJECT_DIR$/cart-service" />
+    <file type="web" url="file://$PROJECT_DIR$/email-service" />
+    <file type="web" url="file://$PROJECT_DIR$/login-service" />
+    <file type="web" url="file://$PROJECT_DIR$/order-service" />
+    <file type="web" url="file://$PROJECT_DIR$/pay-service" />
+    <file type="web" url="file://$PROJECT_DIR$/register-service" />
+    <file type="web" url="file://$PROJECT_DIR$/sentinel-dashboard-service" />
+    <file type="web" url="file://$PROJECT_DIR$/warehouse-service" />
   </component>
   <component name="MavenProjectsManager">
     <option name="originalFiles">
@@ -27,6 +28,15 @@
         <option value="$PROJECT_DIR$/pay_service/pom.xml" />
         <option value="$PROJECT_DIR$/sentinel-dashboard-service/pom.xml" />
         <option value="$PROJECT_DIR$/sentinel_dashboard_service/pom.xml" />
+        <option value="$PROJECT_DIR$/xxl-job-admin/pom.xml" />
+        <option value="$PROJECT_DIR$/address-service/pom.xml" />
+        <option value="$PROJECT_DIR$/cart-service/pom.xml" />
+        <option value="$PROJECT_DIR$/email-service/pom.xml" />
+        <option value="$PROJECT_DIR$/login-service/pom.xml" />
+        <option value="$PROJECT_DIR$/order-service/pom.xml" />
+        <option value="$PROJECT_DIR$/pay-service/pom.xml" />
+        <option value="$PROJECT_DIR$/register-service/pom.xml" />
+        <option value="$PROJECT_DIR$/warehouse-service/pom.xml" />
       </list>
     </option>
     <option name="ignoredFiles">
