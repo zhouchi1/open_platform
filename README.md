@@ -14,6 +14,7 @@ open_platform
 ├── register_service          # 注册服务
 ├── sentinel_dashboard_service # Sentinel Dashboard 服务
 ├── warehouse_service         # 仓库服务
+├── xxl-job-admin             # 定时任务服务
 └── pom.xml                   # 根 POM 文件
 ```
 
