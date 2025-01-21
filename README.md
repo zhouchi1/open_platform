@@ -42,4 +42,4 @@ open_platform
 
 **11、分布式事务采用Alibaba Seata，用于解决分布式环境下事务的统一。**
 
-**12、数据库兼容分库分表设计，使用中间件ShardingSPhere兼容Mybatis-Plus进行分库分表。**
+**12、数据库兼容分库分表设计，使用中间件ShardingSphere兼容Mybatis-Plus进行分库分表。**
