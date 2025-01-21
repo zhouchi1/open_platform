@@ -15,6 +15,7 @@
         <module name="common" />
         <module name="warehouse-service" />
         <module name="email-service" />
+        <module name="task-service" />
         <module name="order-service" />
         <module name="sentinel-dashboard-service" />
         <module name="xxl-job-admin" />
@@ -35,6 +36,7 @@
       <module name="pay-service" options="-parameters" />
       <module name="register-service" options="-parameters" />
       <module name="server_config" options="-parameters" />
+      <module name="task-service" options="-parameters" />
       <module name="warehouse-service" options="-parameters" />
     </option>
   </component>

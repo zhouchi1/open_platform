@@ -18,6 +18,7 @@
         <module>pay-service</module>
         <module>register-service</module>
         <module>email-service</module>
+        <module>task-service</module>
     </modules>
 
     <parent>
@@ -36,6 +37,7 @@
         <commons-lang3.version>3.12.0</commons-lang3.version>
         <guava.version>31.1-jre</guava.version>
         <mybatis-plus.version>3.5.3.1</mybatis-plus.version>
+        <shardingsphere.version>5.1.0</shardingsphere.version>
         <persistence-api.version>1.0</persistence-api.version>
         <hutool.version>5.8.12</hutool.version>
         <feign-httpclient.version>11.2</feign-httpclient.version>
@@ -154,6 +156,12 @@
                 <groupId>mysql</groupId>
                 <artifactId>mysql-connector-java</artifactId>
                 <version>${mysql.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.shardingsphere</groupId>
+                <artifactId>shardingsphere-jdbc-core-spring-boot-starter</artifactId>
+                <version>${shardingsphere.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
