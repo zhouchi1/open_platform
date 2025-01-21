@@ -4,17 +4,18 @@
 
 ```bash
 open_platform
-├── address_service           # 地址服务
-├── cart_service              # 购物车服务
+├── address-service           # 地址服务
+├── cart-service              # 购物车服务
 ├── common                    # 公共模块
-├── email_service             # 邮箱服务
-├── login_service             # 登录服务
-├── order_service             # 订单服务
-├── pay_service               # 支付服务
-├── register_service          # 注册服务
-├── sentinel_dashboard_service # Sentinel Dashboard 服务
-├── warehouse_service         # 仓库服务
-├── xxl-job-admin             # 定时任务服务
+├── email-service             # 邮箱服务
+├── login-service             # 登录服务
+├── order-service             # 订单服务
+├── pay-service               # 支付服务
+├── register-service          # 注册服务
+├── sentinel-dashboard-service # Sentinel Dashboard 控制台
+├── warehouse-service         # 仓库服务
+├── task-service              # 定时任务服务
+├── xxl-job-admin             # xxl-job 控制台
 └── pom.xml                   # 根 POM 文件
 ```
 
