@@ -1,4 +1,4 @@
-package com.zhouzhou.cloud.orderservice.config;
+package com.zhouzhou.cloud.taskservice.config;
 
 import com.xxl.job.core.executor.impl.XxlJobSpringExecutor;
 import org.slf4j.Logger;

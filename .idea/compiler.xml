@@ -9,11 +9,12 @@
         <outputRelativeToContentRoot value="true" />
         <module name="login-service" />
         <module name="cart-service" />
-        <module name="register-service" />
         <module name="address-service" />
         <module name="pay-service" />
-        <module name="common" />
         <module name="warehouse-service" />
+        <module name="message-service" />
+        <module name="register-service" />
+        <module name="common" />
         <module name="email-service" />
         <module name="task-service" />
         <module name="order-service" />
@@ -32,6 +33,7 @@
       <module name="common" options="-parameters" />
       <module name="email-service" options="-parameters" />
       <module name="login-service" options="-parameters" />
+      <module name="message-service" options="-parameters" />
       <module name="order-service" options="-parameters" />
       <module name="pay-service" options="-parameters" />
       <module name="register-service" options="-parameters" />

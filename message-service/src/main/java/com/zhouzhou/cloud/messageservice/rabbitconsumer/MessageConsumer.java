@@ -1,7 +1,7 @@
-package com.zhouzhou.cloud.warehouseservice.rabbitconsumer;
+package com.zhouzhou.cloud.messageservice.rabbitconsumer;
 
 import com.rabbitmq.client.Channel;
-import com.zhouzhou.cloud.common.rabbitmqmessage.MessageProcessingContext;
+import com.zhouzhou.cloud.messageservice.rabbitmqmessage.MessageProcessingContext;
 import com.zhouzhou.cloud.common.utils.RedisUtil;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;

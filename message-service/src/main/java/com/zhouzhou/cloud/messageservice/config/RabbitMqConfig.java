@@ -1,6 +1,5 @@
-package com.zhouzhou.cloud.common.config;
+package com.zhouzhou.cloud.messageservice.config;
 
-import com.zhouzhou.cloud.common.utils.RabbitMqSender;
 import org.springframework.amqp.core.AcknowledgeMode;
 import org.springframework.amqp.rabbit.config.SimpleRabbitListenerContainerFactory;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
@@ -13,7 +12,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.retry.support.RetryTemplateBuilder;
 import org.springframework.retry.support.RetryTemplate;
 
-import javax.annotation.Resource;
 
 @Configuration
 public class RabbitMqConfig {

@@ -19,6 +19,7 @@
         <module>register-service</module>
         <module>email-service</module>
         <module>task-service</module>
+        <module>message-service</module>
     </modules>
 
     <parent>

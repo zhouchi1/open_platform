@@ -1,4 +1,4 @@
-package com.zhouzhou.cloud.common.utils;
+package com.zhouzhou.cloud.messageservice.utils;
 
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Component;

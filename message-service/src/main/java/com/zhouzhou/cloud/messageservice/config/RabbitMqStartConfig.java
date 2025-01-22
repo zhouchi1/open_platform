@@ -1,4 +1,4 @@
-package com.zhouzhou.cloud.common.config;
+package com.zhouzhou.cloud.messageservice.config;
 
 import org.springframework.amqp.core.*;
 import org.springframework.boot.context.properties.ConfigurationProperties;

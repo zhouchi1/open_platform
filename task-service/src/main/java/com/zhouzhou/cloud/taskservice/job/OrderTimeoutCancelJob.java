@@ -1,4 +1,4 @@
-package com.zhouzhou.cloud.orderservice.job;
+package com.zhouzhou.cloud.taskservice.job;
 
 import com.xxl.job.core.biz.model.ReturnT;
 import com.xxl.job.core.handler.annotation.XxlJob;

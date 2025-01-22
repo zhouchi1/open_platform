@@ -22,7 +22,6 @@ import com.zhouzhou.cloud.common.utils.LoginUserContextHolder;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.dubbo.config.annotation.DubboReference;
-import org.apache.dubbo.config.annotation.Reference;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.http.ResponseEntity;
