@@ -25,20 +25,30 @@ public class ShopOrderDetails extends BaseEntity {
     /**
      * 关联订单号
      */
-    private String orderCode;
+    private String orderId;
 
     /**
-     * 商品编码
+     * 关联商品id
      */
-    private String orderGoodsCode;
-
-    /**
-     * 商品价格
-     */
-    private BigDecimal goodsPrice;
+    private Long skuId;
 
     /**
      * 商品数量
      */
-    private Integer goodsNum;
+    private Integer quantity;
+
+    /**
+     * 单价
+     */
+    private BigDecimal unitPrice;
+
+    /**
+     * 商品小计
+     */
+    private BigDecimal subTotal;
+
+    /**
+     * 商品状态（已发货/未发货）
+     */
+    private String status;
 }

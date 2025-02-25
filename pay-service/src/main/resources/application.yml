@@ -1,5 +1,5 @@
 server:
-  port: 8085
+  port: 8087
 
 management:
   endpoints:
@@ -12,7 +12,8 @@ dubbo:
     name: pay-service
     qos-enable: false
   registry:
-    address: nacos://127.0.0.1:8848
+    address: nacos://127.0.0.1:8848,127.0.0.1:8850,127.0.0.1:8852
+    register-mode: instance
   protocol:
     name: dubbo
-    port: 20885
+    port: 20887

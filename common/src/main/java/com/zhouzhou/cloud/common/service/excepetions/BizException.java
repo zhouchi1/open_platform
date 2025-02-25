@@ -3,13 +3,15 @@ package com.zhouzhou.cloud.common.service.excepetions;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.io.Serializable;
+
 /**
  * @Author: sunqr
  * @Date: 2022/10/12 9:56
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class BizException extends RuntimeException {
+public class BizException extends RuntimeException  {
   private IErrorCode bizCode;
   private String msg;
 

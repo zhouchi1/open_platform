@@ -2,17 +2,25 @@ server:
   port: 8082
 
 management:
+  server:
+    port: 18082
+    address: 127.0.0.1
+    base-path: /actuator
   endpoints:
     web:
       exposure:
-        include: '*'
+        include: health,info,metrics,env,loggers
+  endpoint:
+    health:
+      show-details: always
 
 dubbo:
   application:
     name: cart-service
     qos-enable: false
   registry:
-    address: nacos://127.0.0.1:8848
+    address: nacos://127.0.0.1:8848,127.0.0.1:8850,127.0.0.1:8852
+    register-mode: instance
   protocol:
     name: dubbo
-    port: 20881
+    port: 20882

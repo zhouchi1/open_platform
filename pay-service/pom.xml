@@ -56,5 +56,11 @@
             <artifactId>feign-httpclient</artifactId>
             <scope>compile</scope>
         </dependency>
+
+        <!-- Alibaba分布式事务 Seata -->
+        <dependency>
+            <groupId>io.seata</groupId>
+            <artifactId>seata-spring-boot-starter</artifactId>
+        </dependency>
     </dependencies>
 </project>

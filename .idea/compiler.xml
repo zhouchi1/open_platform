@@ -12,6 +12,7 @@
         <module name="address-service" />
         <module name="pay-service" />
         <module name="warehouse-service" />
+        <module name="product-service" />
         <module name="message-service" />
         <module name="register-service" />
         <module name="common" />
@@ -36,6 +37,7 @@
       <module name="message-service" options="-parameters" />
       <module name="order-service" options="-parameters" />
       <module name="pay-service" options="-parameters" />
+      <module name="product-service" options="-parameters" />
       <module name="register-service" options="-parameters" />
       <module name="server_config" options="-parameters" />
       <module name="task-service" options="-parameters" />

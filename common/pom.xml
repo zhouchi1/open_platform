@@ -16,7 +16,7 @@
     </properties>
 
     <dependencies>
-        <!-- 微服务实时刷新配置-->
+        <!-- 服务基础端点-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
@@ -52,10 +52,10 @@
             <artifactId>dubbo-spring-boot-starter</artifactId>
         </dependency>
 
-        <!-- 分布式RPC通讯-Dubbo 原生Dubbo-->
+        <!-- 分布式RPC通讯-Dubbo 使用Nacos作为注册中心和配置中心-->
         <dependency>
             <groupId>org.apache.dubbo</groupId>
-            <artifactId>dubbo</artifactId>
+            <artifactId>dubbo-nacos-spring-boot-starter</artifactId>
         </dependency>
 
         <!-- Commons 通用工具类-->
@@ -148,9 +148,9 @@
         </dependency>
 
         <!-- ShardingSphere jdbc 分库分表-->
-        <dependency>
-            <groupId>org.apache.shardingsphere</groupId>
-            <artifactId>shardingsphere-jdbc-core-spring-boot-starter</artifactId>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>org.apache.shardingsphere</groupId>-->
+<!--            <artifactId>shardingsphere-jdbc-core-spring-boot-starter</artifactId>-->
+<!--        </dependency>-->
     </dependencies>
 </project>

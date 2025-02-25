@@ -1,5 +1,5 @@
 server:
-  port: 8083
+  port: 8084
 
 # 微服务可以自动刷新配置而无需重启
 management:
@@ -13,7 +13,8 @@ dubbo:
     name: login-service
     qos-enable: false
   registry:
-    address: nacos://127.0.0.1:8848
+    address: nacos://127.0.0.1:8848,127.0.0.1:8850,127.0.0.1:8852
+    register-mode: instance
   protocol:
     name: dubbo
-    port: 20883
+    port: 20884

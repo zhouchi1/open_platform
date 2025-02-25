@@ -33,7 +33,7 @@ public class WxPayOrderServiceApiImplV1 implements WxPayOrderServiceApi {
     @Override
     public OrderInfoResp getOrderInfoByOutTradeNo(String outTradeNo) {
         // 查询订单主表
-        ShopOrder shopOrder = shopOrderMapper.selectOne(new LambdaQueryWrapper<ShopOrder>().eq(ShopOrder::getOrderCode, outTradeNo));
+        ShopOrder shopOrder = shopOrderMapper.selectOne(new LambdaQueryWrapper<ShopOrder>().eq(ShopOrder::getId, outTradeNo));
         if (shopOrder == null) {
             return null;
         }
@@ -41,7 +41,7 @@ public class WxPayOrderServiceApiImplV1 implements WxPayOrderServiceApi {
         orderInfoResp.setShopOrder(shopOrder);
         // 查询订单详情信息
         List<ShopOrderDetails> shopOrderDetailsList = shopOrderDetailsMapper.selectList(new LambdaQueryWrapper<ShopOrderDetails>()
-                .eq(ShopOrderDetails::getOrderCode, outTradeNo));
+                .eq(ShopOrderDetails::getOrderId, outTradeNo));
 
         if (CollectionUtils.isEmpty(shopOrderDetailsList)){
             orderInfoResp.setShopOrderDetailsList(null);
@@ -56,7 +56,7 @@ public class WxPayOrderServiceApiImplV1 implements WxPayOrderServiceApi {
     @SentinelResource(value = "getOrderInfoByTransactionId", fallback = "getOrderInfoByTransactionId")
     public OrderInfoResp getOrderInfoByTransactionId(String transactionId) {
         // 查询订单主表
-        ShopOrder shopOrder = shopOrderMapper.selectOne(new LambdaQueryWrapper<ShopOrder>().eq(ShopOrder::getWxOrderCode, transactionId));
+        ShopOrder shopOrder = shopOrderMapper.selectOne(new LambdaQueryWrapper<ShopOrder>().eq(ShopOrder::getWxOrderId, transactionId));
         if (shopOrder == null) {
             return null;
         }
@@ -64,7 +64,7 @@ public class WxPayOrderServiceApiImplV1 implements WxPayOrderServiceApi {
         orderInfoResp.setShopOrder(shopOrder);
         // 查询订单详情信息
         List<ShopOrderDetails> shopOrderDetailsList = shopOrderDetailsMapper.selectList(new LambdaQueryWrapper<ShopOrderDetails>()
-                .eq(ShopOrderDetails::getOrderCode, shopOrder.getOrderCode()));
+                .eq(ShopOrderDetails::getOrderId, shopOrder.getId()));
 
         if (CollectionUtils.isEmpty(shopOrderDetailsList)){
             orderInfoResp.setShopOrderDetailsList(null);

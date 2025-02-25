@@ -1,6 +1,5 @@
 package com.zhouzhou.cloud.addressservice.fallback;
 
-import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
 @Component

@@ -151,8 +151,4 @@ public class BizExUtil {
     private static <T> T throwBizException(IErrorCode errorCode) throws BizException {
         throw new BizException(errorCode);
     }
-
-    public static void main(String[] args) {
-        notNull(null, "写代码，费死劲");
-    }
 }

@@ -4,17 +4,18 @@ import cn.hutool.core.util.RandomUtil;
 import com.alibaba.fastjson.JSON;
 import com.zhouzhou.cloud.common.dubboresp.OrderInfoResp;
 import com.zhouzhou.cloud.common.entity.ShopOrderDetails;
-import com.zhouzhou.cloud.common.utils.RabbitMqSender;
+import com.zhouzhou.cloud.common.service.interfaces.RabbitMqSenderApi;
 import com.zhouzhou.cloud.common.utils.RedisUtil;
 import com.zhouzhou.cloud.payservice.dto.wxpay.*;
-import com.zhouzhou.cloud.payservice.enums.PayCurrencyEnum;
-import com.zhouzhou.cloud.payservice.enums.WxPayTradeStateEnum;
+import com.zhouzhou.cloud.common.enums.orderPay.PayCurrencyEnum;
+import com.zhouzhou.cloud.common.enums.orderPay.WxPayTradeStateEnum;
 import com.zhouzhou.cloud.payservice.openfeign.WxPayOpenFeignApi;
 import com.zhouzhou.cloud.payservice.req.wxpay.WxPayCallBackReq;
 import com.zhouzhou.cloud.payservice.req.wxpay.WxPayReFoundReq;
 import com.zhouzhou.cloud.payservice.resp.wxpay.WxPayCallBackResp;
 import com.zhouzhou.cloud.payservice.resp.wxpay.WxPayPrePayInformationResp;
 import com.zhouzhou.cloud.payservice.service.WxPayService;
+import com.zhouzhou.cloud.payservice.utils.ExchangeQueueQueryUtil;
 import com.zhouzhou.cloud.payservice.utils.WxUtil;
 import com.zhouzhou.cloud.common.service.interfaces.WxPayOrderServiceApi;
 import com.zhouzhou.cloud.common.utils.BizExUtil;
@@ -22,8 +23,6 @@ import com.zhouzhou.cloud.common.utils.LoginUserContextHolder;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.dubbo.config.annotation.DubboReference;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -41,7 +40,6 @@ import static com.zhouzhou.cloud.payservice.constants.WxConstants.*;
  */
 @Slf4j
 @Service
-@RefreshScope
 public class WxPayServiceImpl implements WxPayService {
 
     // version：调用的微服务版本号
@@ -49,24 +47,20 @@ public class WxPayServiceImpl implements WxPayService {
     @DubboReference(version = "1.0.0")
     private WxPayOrderServiceApi wxPayOrderServiceApi;
 
-    @Resource
-    private WxUtil wxUtil;
+    @DubboReference(version = "1.0.0")
+    private RabbitMqSenderApi rabbitMqSenderApi;
 
     @Resource
-    private RabbitMqSender rabbitMQSender;
+    private WxPayOpenFeignApi wxPayOpenFeignApi;
+
+    @Resource
+    private WxUtil wxUtil;
 
     @Resource
     private RedisUtil redisUtil;
 
     @Resource
-    private WxPayOpenFeignApi wxPayOpenFeignApi;
-
-    @Value("${warehouse.exchangeName}")
-    private String exchangeName;
-
-    @Value("${warehouse.routeKey}")
-    private String routeKey;
-
+    private ExchangeQueueQueryUtil exchangeQueueQueryUtil;
 
     @Override
     public WxPayPrePayInformationResp wxPayPreRequest(WxPayOrderDTO wxPayOrderDTO) {
@@ -143,10 +137,14 @@ public class WxPayServiceImpl implements WxPayService {
 
             // 根据支付结果处理商户业务逻辑 【Dubbo调用订单服务】
             if (WxPayTradeStateEnum.SUCCESS.getCode().equals(tradeState)) {
-                wxPayCallBackHandle(outTradeNo, transactionId, wxPayConfigDTO);
+                boolean isSuccess = wxPayCallBackHandle(outTradeNo, transactionId, wxPayConfigDTO);
 
-                // 【RabbitMQ发送消息到仓库服务】扣减库存
-                rabbitMQSender.sendRoutingMessage(exchangeName, routeKey, outTradeNo);
+                if (isSuccess){
+                    // 扣减库存 【Dubbo调用消息服务】
+                    rabbitMqSenderApi.sendRoutingMessage(exchangeQueueQueryUtil.getWarehouseExchangeName(), exchangeQueueQueryUtil.getWarehouseRouteKey(), outTradeNo);
+                }else {
+                    return new WxPayCallBackResp(WxPayTradeStateEnum.PAYERROR.getCode(), WxPayTradeStateEnum.PAYERROR.getDesc());
+                }
             }
 
             // 返回处理结果，通知微信支付停止回调
@@ -204,7 +202,7 @@ public class WxPayServiceImpl implements WxPayService {
      * @param outTradeNo    商户订单号
      * @param transactionId 微信支付订单号
      */
-    private void wxPayCallBackHandle(String outTradeNo, String transactionId, WxPayConfigDTO wxPayConfigDTO) {
+    private boolean wxPayCallBackHandle(String outTradeNo, String transactionId, WxPayConfigDTO wxPayConfigDTO) {
 
         // 如果有退款的情况 先集中组装参数
         WxPayReFoundReq wxPayReFoundReq = new WxPayReFoundReq();
@@ -227,11 +225,11 @@ public class WxPayServiceImpl implements WxPayService {
             wxPayReFoundReq.setReason("商城订单信息异常，全额退款已发起");
             wxPayReFoundReq.setAmount(new WxPayReFoundAmountDTO(payerTotal, payerTotal, PayCurrencyEnum.CNY.getCode()));
             wxPayReFoundExecute(wxPayReFoundReq);
-            return;
+            return false;
         }
 
         // 订单金额计算
-        BigDecimal orderAmount = orderInfoResp.getShopOrderDetailsList().stream().map(ShopOrderDetails::getGoodsPrice).reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal orderAmount = orderInfoResp.getShopOrderDetailsList().stream().map(ShopOrderDetails::getSubTotal).reduce(BigDecimal.ZERO, BigDecimal::add);
 
         // 转换为分
         Integer orderTotalMoney = orderAmount.multiply(BigDecimal.valueOf(100)).intValue();
@@ -247,21 +245,24 @@ public class WxPayServiceImpl implements WxPayService {
             // 【Dubbo调用订单服务】 修改订单信息为退款
             orderInfoResp.getShopOrder().setOrderStatus(WxPayTradeStateEnum.REFUND.getCode());
             wxPayOrderServiceApi.modifyOrderInfo(orderInfoResp);
-            return;
+            return false;
         }
 
         // 商城中该订单当前状态不为SUCCESS 说明还未支付 则修改单据通过
         if (!WxPayTradeStateEnum.SUCCESS.getCode().equals(orderInfoResp.getShopOrder().getOrderStatus())) {
             orderInfoResp.getShopOrder().setOrderStatus(WxPayTradeStateEnum.SUCCESS.getCode());
-            orderInfoResp.getShopOrder().setWxOrderCode(transactionId);
+            orderInfoResp.getShopOrder().setWxOrderId(transactionId);
 
             // 【Dubbo调用订单服务】 修改订单信息
             wxPayOrderServiceApi.modifyOrderInfo(orderInfoResp);
 
             // 删除订单缓存值
-            boolean tag = redisUtil.delete(ZHOUZHOU_ORDER_KEY + orderInfoResp.getShopOrder().getOrderCode());
+            boolean tag = redisUtil.delete(ZHOUZHOU_ORDER_KEY + orderInfoResp.getShopOrder().getId());
             BizExUtil.requirefalse(!tag, "删除订单缓存失败");
+
+            return true;
         }
+        return true;
     }
 
     private void wxPayReFoundCallBackHandle(String transactionId) {
