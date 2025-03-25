@@ -1,6 +1,6 @@
 spring:
   application:
-    name: order-service
+    name: websocket-service
   cloud:
     nacos:
       config:
@@ -8,12 +8,8 @@ spring:
         file-extension: yaml
         group: DEFAULT_GROUP
         namespace: public
-      discovery:
-        heart-beat-interval: 5000
-        heart-beat-timeout: 5000
-        ip-delete-timeout: 30000
   main:
     allow-bean-definition-overriding: true
   config:
     import:
-      - optional:nacos:order-service
+      - optional:nacos:websocket-service

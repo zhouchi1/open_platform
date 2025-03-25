@@ -1,0 +1,35 @@
+package com.zhouzhou.cloud.websocketservice.hanlder;
+
+import com.zhouzhou.cloud.websocketservice.service.TokenService;
+import io.netty.channel.ChannelInitializer;
+import io.netty.channel.ChannelPipeline;
+import io.netty.channel.socket.SocketChannel;
+import io.netty.handler.codec.http.HttpObjectAggregator;
+import io.netty.handler.codec.http.HttpServerCodec;
+import io.netty.handler.stream.ChunkedWriteHandler;
+import org.springframework.data.redis.core.StringRedisTemplate;
+
+import static com.zhouzhou.cloud.websocketservice.constant.ConnectConstants.*;
+
+public class WebSocketChannelInitializer extends ChannelInitializer<SocketChannel> {
+
+    private final TokenService tokenService;
+
+    private final StringRedisTemplate stringRedisTemplate;
+
+    public WebSocketChannelInitializer(TokenService tokenService, StringRedisTemplate stringRedisTemplate) {
+        this.tokenService = tokenService;
+        this.stringRedisTemplate = stringRedisTemplate;
+    }
+
+    @Override
+    protected void initChannel(SocketChannel ch) {
+        ChannelPipeline pipeline = ch.pipeline();
+        pipeline.addLast(new HttpServerCodec());
+        pipeline.addLast(new HttpObjectAggregator(MAX_CONTENT_LENGTH));
+        pipeline.addLast(new ChunkedWriteHandler());
+        pipeline.addLast(new AuthHandler(tokenService, stringRedisTemplate));
+        pipeline.addLast(new WebSocketHandler(stringRedisTemplate));
+        pipeline.addLast(new CustomWebSocketServerProtocolHandler(WEBSOCKET_URL, SUB_PROTOCOLS, ALLOW_EXTENSIONS, MAX_FRAME_SIZE,true));
+    }
+}

@@ -129,6 +129,12 @@
             <artifactId>mysql-connector-java</artifactId>
         </dependency>
 
+        <!-- JWT 鉴权 -->
+        <dependency>
+            <groupId>com.auth0</groupId>
+            <artifactId>java-jwt</artifactId>
+        </dependency>
+
         <!-- 分布式缓存 Redis -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
