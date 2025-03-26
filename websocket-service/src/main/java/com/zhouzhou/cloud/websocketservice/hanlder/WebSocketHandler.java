@@ -1,17 +1,28 @@
 package com.zhouzhou.cloud.websocketservice.hanlder;
 
+import com.alibaba.fastjson2.JSON;
+import com.zhouzhou.cloud.websocketservice.config.ChannelConfig;
+import com.zhouzhou.cloud.websocketservice.dto.MessageTransportDTO;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
+import io.netty.channel.group.ChannelGroup;
+import io.netty.channel.group.DefaultChannelGroup;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
+import io.netty.util.concurrent.GlobalEventExecutor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.util.ObjectUtils;
 
 import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
 public class WebSocketHandler extends SimpleChannelInboundHandler<TextWebSocketFrame> {
 
     private final StringRedisTemplate stringRedisTemplate;
+
+    public static final ChannelGroup channels = new DefaultChannelGroup(GlobalEventExecutor.INSTANCE);
 
     public WebSocketHandler(StringRedisTemplate stringRedisTemplate) {
         this.stringRedisTemplate = stringRedisTemplate;
@@ -43,17 +54,31 @@ public class WebSocketHandler extends SimpleChannelInboundHandler<TextWebSocketF
         // 构造实例专属频道名称
         String channel = "websocket.send." + ctx.channel().id().asLongText();
 
+        channels.add(ctx.channel());
+        ChannelConfig.addChannel(ctx.channel().id().asLongText(), ctx.channel());
+
+        ConcurrentHashMap<String, Channel> channelConcurrentHashMap = ChannelConfig.getChannelMap();
+
+        log.info("channelConcurrentHashMap" + channelConcurrentHashMap);
+
         // 获取 Redis 连接并订阅指定频道
         Objects.requireNonNull(stringRedisTemplate.getConnectionFactory()).getConnection().subscribe((message, pattern) -> ctx.writeAndFlush(new TextWebSocketFrame(message.toString())), channel.getBytes());
     }
 
+    @Override
+    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+        super.channelInactive(ctx);
+        ChannelConfig.removeChannel(ctx.channel().id().asLongText());
+        channels.remove(ctx.channel());
+    }
+
     private boolean isBroadcast(String message) {
-        // JSON反序列化消息实体 从中取出消息类型
-        return true;
+        MessageTransportDTO messageTransportDTO = JSON.parseObject(message, MessageTransportDTO.class);
+        return messageTransportDTO.isBroadcast();
     }
 
     private String extractTargetUserId(String message) {
-        // JSON反序列化消息实体 从中取出目标用户ID
-        return null;
+        MessageTransportDTO messageTransportDTO = JSON.parseObject(message, MessageTransportDTO.class);
+        return ObjectUtils.isEmpty(messageTransportDTO.getAcceptMessageUserId()) ? null : messageTransportDTO.getAcceptMessageUserId();
     }
 }
