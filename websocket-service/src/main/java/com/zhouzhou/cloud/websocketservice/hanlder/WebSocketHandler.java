@@ -3,7 +3,6 @@ package com.zhouzhou.cloud.websocketservice.hanlder;
 import com.alibaba.fastjson2.JSON;
 import com.zhouzhou.cloud.websocketservice.config.ChannelConfig;
 import com.zhouzhou.cloud.websocketservice.dto.MessageTransportDTO;
-import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.group.ChannelGroup;
@@ -15,7 +14,8 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.util.ObjectUtils;
 
 import java.util.Objects;
-import java.util.concurrent.ConcurrentHashMap;
+
+import static com.zhouzhou.cloud.websocketservice.constant.ConnectConstants.*;
 
 @Slf4j
 public class WebSocketHandler extends SimpleChannelInboundHandler<TextWebSocketFrame> {
@@ -32,36 +32,28 @@ public class WebSocketHandler extends SimpleChannelInboundHandler<TextWebSocketF
     protected void channelRead0(ChannelHandlerContext ctx, TextWebSocketFrame msg) {
 
         String message = msg.text();
-
-        log.info("收到消息：" + message);
-
         if (isBroadcast(message)) {
-            log.info("广播消息：" + message);
-            stringRedisTemplate.convertAndSend("websocket.broadcast", message);
+            stringRedisTemplate.convertAndSend(WEBSOCKET_BROADCAST, message);
         } else {
-            log.info("私聊消息：" + message);
             String targetUserId = extractTargetUserId(message);
-            String targetChannelId = stringRedisTemplate.opsForValue().get("user:" + targetUserId);
+            String targetChannelId = stringRedisTemplate.opsForValue().get(USER + targetUserId);
             if (targetChannelId != null) {
-                stringRedisTemplate.convertAndSend("websocket.send." + targetChannelId, message);
+                stringRedisTemplate.convertAndSend(WEBSOCKET_PRIVATE + targetChannelId, message);
             }
         }
     }
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
+
         super.channelActive(ctx);
-        // 构造实例专属频道名称
-        String channel = "websocket.send." + ctx.channel().id().asLongText();
+
+        String channel = WEBSOCKET_PRIVATE + ctx.channel().id().asLongText();
 
         channels.add(ctx.channel());
+
         ChannelConfig.addChannel(ctx.channel().id().asLongText(), ctx.channel());
 
-        ConcurrentHashMap<String, Channel> channelConcurrentHashMap = ChannelConfig.getChannelMap();
-
-        log.info("channelConcurrentHashMap" + channelConcurrentHashMap);
-
-        // 获取 Redis 连接并订阅指定频道
         Objects.requireNonNull(stringRedisTemplate.getConnectionFactory()).getConnection().subscribe((message, pattern) -> ctx.writeAndFlush(new TextWebSocketFrame(message.toString())), channel.getBytes());
     }
 

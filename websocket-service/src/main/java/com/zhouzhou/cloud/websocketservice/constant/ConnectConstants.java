@@ -34,4 +34,10 @@ public class ConnectConstants {
     public static final String RECEIVE_MESSAGE_TYPE = "messageType";
 
     public static final String RECEIVE_MESSAGE = "message";
+
+    public static final String WEBSOCKET_BROADCAST = "websocket-broadcast";
+
+    public static final String WEBSOCKET_PRIVATE = "websocket-private";
+
+    public static final String USER = "user";
 }

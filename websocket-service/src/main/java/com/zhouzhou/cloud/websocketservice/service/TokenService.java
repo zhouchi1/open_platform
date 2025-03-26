@@ -22,9 +22,7 @@ public class TokenService {
 
     public boolean validateToken(String token) {
         try {
-            // 验证JWT签名和过期时间
             DecodedJWT decodedJWT = verifier.verify(token);
-            // 检查Redis中Token是否存在（可选，用于强制失效场景）
             return stringRedisTemplate.hasKey(token);
         } catch (JWTVerificationException | IllegalArgumentException e) {
             return false;
@@ -33,6 +31,6 @@ public class TokenService {
 
     public String getUserIdFromToken(String token) {
         DecodedJWT decodedJWT = verifier.verify(token);
-        return decodedJWT.getSubject(); // 或根据Claim名称获取：decodedJWT.getClaim("userId").asString()
+        return decodedJWT.getSubject();
     }
 }

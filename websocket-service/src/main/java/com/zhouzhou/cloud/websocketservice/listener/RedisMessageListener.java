@@ -16,7 +16,8 @@ import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.util.ObjectUtils;
 
 import javax.annotation.Resource;
-import java.util.concurrent.ConcurrentHashMap;
+
+import static com.zhouzhou.cloud.websocketservice.constant.ConnectConstants.*;
 
 @Slf4j
 @Configuration
@@ -35,16 +36,15 @@ public class RedisMessageListener {
     public RedisMessageListenerContainer container() {
         RedisMessageListenerContainer container = new RedisMessageListenerContainer();
         container.setConnectionFactory(factory);
-        container.addMessageListener((message, pattern) -> {
 
-            log.info("收到广播消息" + message);
+        // 广播
+        container.addMessageListener((message, pattern) -> {
             String payload = new String(message.getBody());
-            // 广播给所有 WebSocket 客户端
             webSocketChannels.writeAndFlush(new TextWebSocketFrame(payload));
-        }, new PatternTopic("websocket.broadcast"));
+        }, new PatternTopic(WEBSOCKET_BROADCAST));
 
+        // 私聊
         container.addMessageListener((message, pattern) -> {
-            log.info("收到私聊消息" + message);
             String payload = new String(message.getBody());
 
             String targetUserId = extractTargetUserId(payload);
@@ -52,17 +52,15 @@ public class RedisMessageListener {
             if (ObjectUtils.isEmpty(targetUserId)) {
                 return;
             }
-            String targetChannelId = stringRedisTemplate.opsForValue().get("user:" + targetUserId);
-            ConcurrentHashMap<String, Channel> channelConcurrentHashMap =  ChannelConfig.getChannelMap();
+            String targetChannelId = stringRedisTemplate.opsForValue().get(USER + targetUserId);
 
             Channel channel = ChannelConfig.getChannel(targetChannelId);
 
             if (ObjectUtils.isEmpty(channel)){
                 return;
             }
-
             channel.writeAndFlush(new TextWebSocketFrame(payload));
-        }, new PatternTopic("websocket.send"));
+        }, new PatternTopic(WEBSOCKET_PRIVATE));
         return container;
     }
 
