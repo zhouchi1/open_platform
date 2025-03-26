@@ -11,6 +11,11 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 
 import static com.zhouzhou.cloud.websocketservice.constant.ConnectConstants.*;
 
+/**
+ * @Author: Sr.Zhou
+ * @CreateTime: 2025-03-26
+ * @Description: 处理器链
+ */
 public class WebSocketChannelInitializer extends ChannelInitializer<SocketChannel> {
 
     private final TokenService tokenService;

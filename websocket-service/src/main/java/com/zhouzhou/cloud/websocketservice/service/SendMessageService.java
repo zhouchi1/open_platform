@@ -11,6 +11,11 @@ import javax.annotation.Resource;
 import static com.zhouzhou.cloud.websocketservice.constant.ConnectConstants.WEBSOCKET_BROADCAST;
 import static com.zhouzhou.cloud.websocketservice.constant.ConnectConstants.WEBSOCKET_PRIVATE;
 
+/**
+ * @Author: Sr.Zhou
+ * @CreateTime: 2025-03-26
+ * @Description: 消息发送服务
+ */
 @Slf4j
 @Service
 public class SendMessageService {

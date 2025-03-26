@@ -7,6 +7,11 @@ import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 
+/**
+ * @Author: Sr.Zhou
+ * @CreateTime: 2025-03-26
+ * @Description: 消息传输对象
+ */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

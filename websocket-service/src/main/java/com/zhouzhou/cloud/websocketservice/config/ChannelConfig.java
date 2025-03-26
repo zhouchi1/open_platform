@@ -6,6 +6,11 @@ import org.springframework.util.ObjectUtils;
 
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * @Author: Sr.Zhou
+ * @CreateTime: 2025-03-26
+ * @Description: 通道配置
+ */
 @Component
 public class ChannelConfig {
 

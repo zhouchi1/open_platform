@@ -10,6 +10,11 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 
+/**
+ * @Author: Sr.Zhou
+ * @CreateTime: 2025-03-26
+ * @Description: Token身份认证服务
+ */
 @Component
 public class TokenService {
 

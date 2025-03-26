@@ -19,6 +19,11 @@ import javax.annotation.Resource;
 
 import static com.zhouzhou.cloud.websocketservice.constant.ConnectConstants.*;
 
+/**
+ * @Author: Sr.Zhou
+ * @CreateTime: 2025-03-26
+ * @Description: 消息分布式中转监听器
+ */
 @Slf4j
 @Configuration
 public class RedisMessageListener {

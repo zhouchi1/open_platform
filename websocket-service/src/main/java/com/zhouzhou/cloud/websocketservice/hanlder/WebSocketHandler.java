@@ -17,6 +17,11 @@ import java.util.Objects;
 
 import static com.zhouzhou.cloud.websocketservice.constant.ConnectConstants.*;
 
+/**
+ * @Author: Sr.Zhou
+ * @CreateTime: 2025-03-26
+ * @Description: 客户端消息处理
+ */
 @Slf4j
 public class WebSocketHandler extends SimpleChannelInboundHandler<TextWebSocketFrame> {
 
