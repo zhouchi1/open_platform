@@ -2,8 +2,13 @@ package com.zhouzhou.cloud.websocketservice.controller;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
+import com.zhouzhou.cloud.common.resp.BaseListResp;
+import com.zhouzhou.cloud.common.service.base.ResponseData;
+import com.zhouzhou.cloud.common.utils.ResponseDataUtil;
 import com.zhouzhou.cloud.websocketservice.dto.MessageTransportDTO;
+import com.zhouzhou.cloud.websocketservice.resp.AllUserInfoResp;
 import com.zhouzhou.cloud.websocketservice.service.SendMessageService;
+import com.zhouzhou.cloud.websocketservice.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -29,6 +34,9 @@ public class TestConnectController {
     @Resource
     private SendMessageService sendMessageService;
 
+    @Resource
+    private UserService userService;
+
     @PostMapping("/login")
     public String login(String userId) {
         // 验证用户密码逻辑...
@@ -51,5 +59,10 @@ public class TestConnectController {
     @PostMapping("/testSendPrivateMessage")
     public void testSendPrivateMessage(@RequestBody MessageTransportDTO messageTransportDTO){
         sendMessageService.sendPrivateMessage(messageTransportDTO);
+    }
+
+    @PostMapping("/getAllCurrentUser")
+    public ResponseData<BaseListResp<AllUserInfoResp>> getAllCurrentUser() {
+        return ResponseDataUtil.success(userService.getAllCurrentUser());
     }
 }
