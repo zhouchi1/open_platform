@@ -2,6 +2,7 @@ package com.zhouzhou.cloud.websocketservice.config;
 
 import io.netty.channel.Channel;
 import org.springframework.stereotype.Component;
+import org.springframework.util.ObjectUtils;
 
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -23,6 +24,6 @@ public class ChannelConfig {
     }
 
     public static Channel getChannel(String channelId) {
-        return channelMap.get(channelId);
+        return ObjectUtils.isEmpty(channelMap.get(channelId)) ? null : channelMap.get(channelId);
     }
 }

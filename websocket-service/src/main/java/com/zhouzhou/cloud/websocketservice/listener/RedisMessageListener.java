@@ -54,6 +54,10 @@ public class RedisMessageListener {
             }
             String targetChannelId = stringRedisTemplate.opsForValue().get(USER + targetUserId);
 
+            if (ObjectUtils.isEmpty(targetChannelId)){
+                return;
+            }
+
             Channel channel = ChannelConfig.getChannel(targetChannelId);
 
             if (ObjectUtils.isEmpty(channel)){

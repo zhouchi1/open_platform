@@ -26,7 +26,7 @@ public class AuthHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
         String token = getTokenFromRequest(request);
         if (tokenService.validateToken(token)) {
             String userId = tokenService.getUserIdFromToken(token);
-            stringRedisTemplate.opsForValue().set("user:" + userId, ctx.channel().id().asLongText());
+            stringRedisTemplate.opsForValue().set(USER + userId, ctx.channel().id().asLongText());
             ctx.fireChannelRead(request.retain());
 
             // 创建WebSocket握手工厂
