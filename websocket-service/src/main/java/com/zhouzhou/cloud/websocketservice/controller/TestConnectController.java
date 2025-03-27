@@ -51,16 +51,27 @@ public class TestConnectController {
         return token;
     }
 
+    /**
+     * 测试发送广播消息
+     * @param messageTransportDTO 消息传输对象
+     */
     @PostMapping("/testSendBroadcastMessage")
     public void testSendBroadcastMessage(@RequestBody MessageTransportDTO messageTransportDTO){
         sendMessageService.sendBroadcastMessage(messageTransportDTO);
     }
 
+    /**
+     * 测试发送私人消息
+     * @param messageTransportDTO 消息传输对象
+     */
     @PostMapping("/testSendPrivateMessage")
     public void testSendPrivateMessage(@RequestBody MessageTransportDTO messageTransportDTO){
         sendMessageService.sendPrivateMessage(messageTransportDTO);
     }
 
+    /**
+     * 获取登陆人信息
+     */
     @PostMapping("/getAllCurrentUser")
     public ResponseData<BaseListResp<AllUserInfoResp>> getAllCurrentUser() {
         return ResponseDataUtil.success(userService.getAllCurrentUser());
