@@ -23,7 +23,7 @@ public class ConnectConstants {
 
     public static final Integer THREAD_WAIT_NUM = 128;
 
-    public static final Integer READER_IDLE_TIME = 300;
+    public static final Integer READER_IDLE_TIME = 2;
 
     public static final Integer WRITER_IDLE_TIME = 2;
 
@@ -39,5 +39,7 @@ public class ConnectConstants {
 
     public static final String WEBSOCKET_PRIVATE = "websocket-private";
 
-    public static final String USER = "user";
+    public static final String USER = "user:";
+
+    public static final String CHANNEL_ID = "channelId:";
 }

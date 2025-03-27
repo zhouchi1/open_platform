@@ -23,4 +23,7 @@ public class AllUserInfoResp extends BaseAMO {
     @ApiModelProperty("用户Id")
     private String userId;
 
+    @ApiModelProperty("通道Id")
+    private String channelId;
+
 }

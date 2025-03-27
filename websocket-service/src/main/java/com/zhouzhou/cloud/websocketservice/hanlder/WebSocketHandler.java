@@ -40,8 +40,7 @@ public class WebSocketHandler extends SimpleChannelInboundHandler<TextWebSocketF
         if (isBroadcast(message)) {
             stringRedisTemplate.convertAndSend(WEBSOCKET_BROADCAST, message);
         } else {
-            String targetUserId = extractTargetUserId(message);
-            String targetChannelId = stringRedisTemplate.opsForValue().get(USER + targetUserId);
+            String targetChannelId = extractTargetChannelId(message);
             if (targetChannelId != null) {
                 stringRedisTemplate.convertAndSend(WEBSOCKET_PRIVATE + targetChannelId, message);
             }
@@ -64,9 +63,15 @@ public class WebSocketHandler extends SimpleChannelInboundHandler<TextWebSocketF
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+
         super.channelInactive(ctx);
+
         ChannelConfig.removeChannel(ctx.channel().id().asLongText());
+
         channels.remove(ctx.channel());
+
+        // 删除Redis中当前通道的登录信息
+        stringRedisTemplate.delete(CHANNEL_ID + ctx.channel().id().asLongText());
     }
 
     private boolean isBroadcast(String message) {
@@ -74,8 +79,8 @@ public class WebSocketHandler extends SimpleChannelInboundHandler<TextWebSocketF
         return messageTransportDTO.isBroadcast();
     }
 
-    private String extractTargetUserId(String message) {
+    private String extractTargetChannelId(String message) {
         MessageTransportDTO messageTransportDTO = JSON.parseObject(message, MessageTransportDTO.class);
-        return ObjectUtils.isEmpty(messageTransportDTO.getAcceptMessageUserId()) ? null : messageTransportDTO.getAcceptMessageUserId();
+        return ObjectUtils.isEmpty(messageTransportDTO.getAcceptMessageChannelId()) ? null : messageTransportDTO.getAcceptMessageChannelId();
     }
 }

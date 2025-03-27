@@ -22,8 +22,11 @@ public class MessageTransportDTO implements Serializable {
     @ApiModelProperty("消息内容")
     private String message;
 
-    @ApiModelProperty("接收消息方用户Id")
-    private String acceptMessageUserId;
+    @ApiModelProperty("发送消息方通道Id")
+    private String sendMessageChannelId;
+
+    @ApiModelProperty("接收消息方通道Id")
+    private String acceptMessageChannelId;
 
     @ApiModelProperty("消息是否广播发送到所有人")
     private boolean broadcast;

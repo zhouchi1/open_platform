@@ -20,10 +20,12 @@ abstract class CustomWebSocketProtocolHandler extends MessageToMessageDecoder<We
     protected void decode(ChannelHandlerContext ctx, WebSocketFrame frame, List<Object> out) throws Exception {
         if (frame instanceof PingWebSocketFrame) {
             frame.content().retain();
+            log.info("接收到Ping帧 FROM ->" + ctx.channel().id().asLongText());
             ctx.channel().writeAndFlush(new PongWebSocketFrame(frame.content()));
             return;
         }
         if (frame instanceof PongWebSocketFrame) {
+            log.info("接收到Pong帧 FROM ->" + ctx.channel().id().asLongText());
             frame.content().retain();
             return;
         }

@@ -31,7 +31,7 @@ public class AuthHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
         String token = getTokenFromRequest(request);
         if (tokenService.validateToken(token)) {
             String userId = tokenService.getUserIdFromToken(token);
-            stringRedisTemplate.opsForValue().set(USER + userId, ctx.channel().id().asLongText());
+            stringRedisTemplate.opsForValue().set(CHANNEL_ID + ctx.channel().id().asLongText(), USER + userId);
             ctx.fireChannelRead(request.retain());
 
             // 创建WebSocket握手工厂
@@ -62,7 +62,7 @@ public class AuthHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
                 CustomWebSocketServerProtocolHandler.setHandshaker(ctx.channel(), handshaker);
             }
 
-        }else{
+        } else {
             sendUnauthorizedResponse(ctx);
         }
     }

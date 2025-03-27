@@ -52,12 +52,11 @@ public class RedisMessageListener {
         container.addMessageListener((message, pattern) -> {
             String payload = new String(message.getBody());
 
-            String targetUserId = extractTargetUserId(payload);
+            String targetChannelId = extractTargetChannelId(payload);
 
-            if (ObjectUtils.isEmpty(targetUserId)) {
+            if (ObjectUtils.isEmpty(targetChannelId)) {
                 return;
             }
-            String targetChannelId = stringRedisTemplate.opsForValue().get(USER + targetUserId);
 
             if (ObjectUtils.isEmpty(targetChannelId)){
                 return;
@@ -73,8 +72,8 @@ public class RedisMessageListener {
         return container;
     }
 
-    private String extractTargetUserId(String message) {
+    private String extractTargetChannelId(String message) {
         MessageTransportDTO messageTransportDTO = JSON.parseObject(message, MessageTransportDTO.class);
-        return ObjectUtils.isEmpty(messageTransportDTO.getAcceptMessageUserId()) ? null : messageTransportDTO.getAcceptMessageUserId();
+        return ObjectUtils.isEmpty(messageTransportDTO.getAcceptMessageChannelId()) ? null : messageTransportDTO.getAcceptMessageChannelId();
     }
 }
