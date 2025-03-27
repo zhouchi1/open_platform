@@ -16,27 +16,23 @@ import java.util.concurrent.ThreadPoolExecutor;
 @Configuration
 public class ExecutorConfig {
 
-    public static final String MY_EXECUTOR = "MyExecutor";
+    public static final String WEBSOCKET_EXECUTOR = "Websocket_Executor";
 
-    @Bean(MY_EXECUTOR)
+    @Bean(WEBSOCKET_EXECUTOR)
     public ThreadPoolTaskExecutor asyncServiceExecutor() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        // 配置核心线程数
+
         executor.setCorePoolSize(16);
-        // 配置最大线程数
+
         executor.setMaxPoolSize(32);
 
-        // 配置队列大小
         executor.setQueueCapacity(50000);
 
-        // 配置线程池中的线程的名称前缀
         executor.setThreadNamePrefix("my-open-platform-executor-");
 
         executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
 
-        // 执行初始化
         executor.initialize();
-
         return executor;
     }
 }

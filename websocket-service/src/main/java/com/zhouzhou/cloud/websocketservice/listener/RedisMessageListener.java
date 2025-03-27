@@ -10,7 +10,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.listener.PatternTopic;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.util.ObjectUtils;
@@ -34,9 +33,6 @@ public class RedisMessageListener {
     @Resource
     private ChannelGroup webSocketChannels;
 
-    @Resource
-    private StringRedisTemplate stringRedisTemplate;
-
     @Bean
     public RedisMessageListenerContainer container() {
         RedisMessageListenerContainer container = new RedisMessageListenerContainer();
@@ -55,10 +51,6 @@ public class RedisMessageListener {
             String targetChannelId = extractTargetChannelId(payload);
 
             if (ObjectUtils.isEmpty(targetChannelId)) {
-                return;
-            }
-
-            if (ObjectUtils.isEmpty(targetChannelId)){
                 return;
             }
 

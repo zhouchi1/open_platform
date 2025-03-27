@@ -44,7 +44,7 @@ public class TestConnectController {
                 .withSubject(userId) // 用户唯一标识
                 .withExpiresAt(new Date(System.currentTimeMillis() + 3600_000)) // 过期时间
                 .sign(Algorithm.HMAC256("your-secret-key"));
-        // 存储Token到Redis（可选）
+        // 存储Token到Redis
         stringRedisTemplate.opsForValue().set(token, "valid", 1, TimeUnit.HOURS);
 
         log.info("登录成功 Token:" + token);
