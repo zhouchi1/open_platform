@@ -48,6 +48,7 @@
         <feign-httpclient.version>11.2</feign-httpclient.version>
         <xxl.job.version>2.2.0</xxl.job.version>
         <knfe4j.version>3.0.3</knfe4j.version>
+        <curator-framework.version>5.4.0</curator-framework.version>
         <deepseek.version>0.1.152</deepseek.version>
         <spring-cloud.version>2021.0.5</spring-cloud.version>
         <spring-cloud-alibaba.version>2021.0.5.0</spring-cloud-alibaba.version>
@@ -174,6 +175,18 @@
                 <groupId>io.seata</groupId>
                 <artifactId>seata-spring-boot-starter</artifactId>
                 <version>${seata.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.curator</groupId>
+                <artifactId>curator-framework</artifactId>
+                <version>${curator-framework.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.curator</groupId>
+                <artifactId>curator-recipes</artifactId>
+                <version>${curator-framework.version}</version>
             </dependency>
 
             <dependency>

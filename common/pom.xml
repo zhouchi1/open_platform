@@ -153,6 +153,20 @@
             <artifactId>sentinel-datasource-nacos</artifactId>
         </dependency>
 
+        <!-- Curator-Zookeeper 分布式锁 -->
+        <dependency>
+            <groupId>org.apache.curator</groupId>
+            <artifactId>curator-framework</artifactId>
+            <version>${curator-framework.version}</version>
+        </dependency>
+
+        <!-- Curator-Zookeeper 分布式锁高级用法 -->
+        <dependency>
+            <groupId>org.apache.curator</groupId>
+            <artifactId>curator-recipes</artifactId>
+            <version>${curator-framework.version}</version>
+        </dependency>
+
         <!-- ShardingSphere jdbc 分库分表-->
 <!--        <dependency>-->
 <!--            <groupId>org.apache.shardingsphere</groupId>-->

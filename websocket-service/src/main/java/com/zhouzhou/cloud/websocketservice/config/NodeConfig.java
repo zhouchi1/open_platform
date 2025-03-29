@@ -1,20 +1,17 @@
 package com.zhouzhou.cloud.websocketservice.config;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.context.annotation.Configuration;
 
-import java.util.List;
+import java.util.Map;
 
+@Data
 @Configuration
-@ConfigurationProperties(prefix = "websocket.node")
 @RefreshScope
-@Getter
-@Setter
+@ConfigurationProperties(prefix = "websocket")
 public class NodeConfig {
 
-
-    private List<Integer> numbers;
+    private Map<String,Integer> node;
 }

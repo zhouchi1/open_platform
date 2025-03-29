@@ -2,18 +2,18 @@ package com.zhouzhou.cloud.websocketservice.job;
 
 import com.zhouzhou.cloud.websocketservice.config.NodeConfig;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
+import org.apache.curator.framework.CuratorFramework;
+import org.apache.curator.framework.recipes.locks.InterProcessMutex;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
-import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
-import static com.zhouzhou.cloud.websocketservice.constant.ConnectConstants.CHANNEL_ID;
-import static com.zhouzhou.cloud.websocketservice.constant.ConnectConstants.NODE_ID;
+import static com.zhouzhou.cloud.websocketservice.constant.ConnectConstants.*;
 
 @Slf4j
 @Component
@@ -26,14 +26,37 @@ public class CleanConnectJob {
     @Resource
     private StringRedisTemplate stringRedisTemplate;
 
-    @Scheduled(cron = "0 0 0/1 * * ?")
+    @Resource
+    private CuratorFramework curatorFramework;
+
+    private static final String LOCK_PATH = "/lock/cleanConnect";
+
+    @Scheduled(cron = "0 * * * * ?")
     public void cleanConnect() {
-        for (Integer nodeNum : nodeConfig.getNumbers()){
-            String nodeKey = "ws:node:status:" + nodeNum;
-            Boolean exists = stringRedisTemplate.hasKey(nodeKey);
-            if (Boolean.FALSE.equals(exists)) {
-                stringRedisTemplate.delete(Objects.requireNonNull(stringRedisTemplate.keys(NODE_ID + nodeNum + CHANNEL_ID + "*")));
+        InterProcessMutex lock = new InterProcessMutex(curatorFramework, LOCK_PATH);
+        try {
+            if (lock.acquire(300, TimeUnit.SECONDS)) {
+                try {
+                    log.info("Zookeeper分布式锁获取成功 开始执行清理连接任务。");
+                    nodeConfig.getNode().forEach((key, value) -> {
+                        String nodeKey = WS_NODE_STATUS + value;
+                        Boolean exists = stringRedisTemplate.hasKey(nodeKey);
+                        if (Boolean.FALSE.equals(exists)) {
+                            stringRedisTemplate.delete(
+                                    Objects.requireNonNull(
+                                            stringRedisTemplate.keys(NODE_ID + value + CHANNEL_ID + "*")
+                                    )
+                            );
+                        }
+                    });
+                } finally {
+                    lock.release();
+                }
+            } else {
+                log.warn("未能获取到Zookeeper分布式锁，跳过本次清理连接任务。");
             }
+        } catch (Exception e) {
+            log.error("获取或释放Zookeeper分布式锁异常：", e);
         }
     }
 
