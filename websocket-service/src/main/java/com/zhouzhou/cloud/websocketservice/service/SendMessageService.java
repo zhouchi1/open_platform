@@ -24,7 +24,7 @@ public class SendMessageService {
     private StringRedisTemplate stringRedisTemplate;
 
     public void sendBroadcastMessage(MessageTransportDTO message) {
-        stringRedisTemplate.convertAndSend(WEBSOCKET_BROADCAST, message.toString());
+        stringRedisTemplate.convertAndSend(WEBSOCKET_BROADCAST, JSON.toJSONString(message));
     }
 
     public void sendPrivateMessage(MessageTransportDTO message) {

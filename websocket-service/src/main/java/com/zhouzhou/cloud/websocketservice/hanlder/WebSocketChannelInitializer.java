@@ -1,6 +1,6 @@
 package com.zhouzhou.cloud.websocketservice.hanlder;
 
-import com.zhouzhou.cloud.websocketservice.service.TokenService;
+import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
@@ -8,7 +8,6 @@ import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.stream.ChunkedWriteHandler;
 import io.netty.handler.timeout.IdleStateHandler;
-import org.springframework.data.redis.core.StringRedisTemplate;
 
 import java.util.concurrent.TimeUnit;
 
@@ -19,16 +18,18 @@ import static com.zhouzhou.cloud.websocketservice.constant.ConnectConstants.*;
  * @CreateTime: 2025-03-26
  * @Description: 处理器链
  */
+@ChannelHandler.Sharable
 public class WebSocketChannelInitializer extends ChannelInitializer<SocketChannel> {
 
-    private final TokenService tokenService;
+    private final AuthHandler authHandler;
 
-    private final StringRedisTemplate stringRedisTemplate;
+    private final WebSocketHandler webSocketHandler;
 
-    public WebSocketChannelInitializer(TokenService tokenService, StringRedisTemplate stringRedisTemplate) {
-        this.tokenService = tokenService;
-        this.stringRedisTemplate = stringRedisTemplate;
+    public WebSocketChannelInitializer(AuthHandler authHandler, WebSocketHandler webSocketHandler) {
+        this.authHandler = authHandler;
+        this.webSocketHandler = webSocketHandler;
     }
+
 
     @Override
     protected void initChannel(SocketChannel ch) {
@@ -37,8 +38,8 @@ public class WebSocketChannelInitializer extends ChannelInitializer<SocketChanne
         pipeline.addLast(new IdleStateHandler(READER_IDLE_TIME, WRITER_IDLE_TIME, ALL_IDLE_TIME, TimeUnit.SECONDS));
         pipeline.addLast(new HttpObjectAggregator(MAX_CONTENT_LENGTH));
         pipeline.addLast(new ChunkedWriteHandler());
-        pipeline.addLast(new AuthHandler(tokenService, stringRedisTemplate));
-        pipeline.addLast(new WebSocketHandler(stringRedisTemplate));
+        pipeline.addLast(authHandler);
+        pipeline.addLast(webSocketHandler);
         pipeline.addLast(new CustomWebSocketServerProtocolHandler(WEBSOCKET_URL, SUB_PROTOCOLS, ALLOW_EXTENSIONS, MAX_FRAME_SIZE,true));
         pipeline.addLast(new PingHeartBeatHandler());
     }

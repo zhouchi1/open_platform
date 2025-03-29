@@ -15,10 +15,16 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.Objects;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
-import static com.zhouzhou.cloud.websocketservice.constant.ConnectConstants.THREAD_WAIT_NUM;
+import static com.zhouzhou.cloud.websocketservice.constant.ConnectConstants.*;
 
 /**
  * @Author: Sr.Zhou
@@ -30,8 +36,11 @@ import static com.zhouzhou.cloud.websocketservice.constant.ConnectConstants.THRE
 @RefreshScope
 public class NettyServer {
 
-    @Value("${websocket.port}")
+    @Value("${websocket.port.nodeAPort}")
     private Integer port;
+
+    @Value("${websocket.node.nodeANum}")
+    private Integer nodeNum;
 
     private static EventLoopGroup bossGroup;
 
@@ -44,7 +53,10 @@ public class NettyServer {
     private ThreadPoolTaskExecutor myExecutor;
 
     @Resource
-    private TokenService tokenService;
+    private ScheduledThreadPoolExecutor scheduledThreadPoolExecutor;
+
+    @Resource
+    private WebSocketChannelInitializer webSocketChannelInitializer;
 
     public NettyServer() {
         bossGroup = new NioEventLoopGroup();
@@ -57,20 +69,26 @@ public class NettyServer {
         executorService.submit(() -> {
             try {
                 start(port);
-            } catch (InterruptedException e) {
+            } catch (InterruptedException | UnknownHostException e) {
                 e.printStackTrace();
             }
         });
     }
 
-    public void start(int port) throws InterruptedException {
+    /**
+     * 优雅启动
+     * @param port 运行端口
+     * @throws InterruptedException 系统中断异常
+     * @throws UnknownHostException 系统未知异常
+     */
+    public void start(int port) throws InterruptedException, UnknownHostException {
         try {
             ServerBootstrap bootstrap = new ServerBootstrap();
             bootstrap.group(bossGroup, workerGroup)
                     .channel(NioServerSocketChannel.class)
                     .option(ChannelOption.SO_BACKLOG, THREAD_WAIT_NUM)
                     .childOption(ChannelOption.SO_KEEPALIVE, true)
-                    .childHandler(new WebSocketChannelInitializer(tokenService, stringRedisTemplate));
+                    .childHandler(webSocketChannelInitializer);
             ChannelFuture future = bootstrap.bind(port).sync();
 
             log.info("\n" +
@@ -84,11 +102,36 @@ public class NettyServer {
                     "|                                                                 |\n" +
                     "|  Netty - Websocket - Redis - Cluster Port: " + port + " Author：Sr.Zhou |\n" +
                     "+-----------------------------------------------------------------+\n");
+
+            registerNodeHeartbeat();
+
             future.channel().closeFuture().sync();
         } finally {
-            log.error("警告！！！ Netty-Websocket服务发生异常 通讯服务失效！");
+            log.error("警告！！！Netty-Websocket服务Cluster节点【主机/IP：" + InetAddress.getLocalHost() + "】已下线 通讯服务失效！");
             bossGroup.shutdownGracefully();
             workerGroup.shutdownGracefully();
         }
     }
+
+
+    /**
+     * 优雅下线该分布式节点
+     */
+    @PreDestroy
+    public void onShutdown() {
+        stringRedisTemplate.delete(Objects.requireNonNull(stringRedisTemplate.keys(NODE_ID + nodeNum + CHANNEL_ID + "*")));
+    }
+
+    public void registerNodeHeartbeat() throws UnknownHostException {
+
+        String nodeKey = WS_NODE_STATUS + NODE_ID + nodeNum;
+        stringRedisTemplate.opsForValue().set(nodeKey, "alive", 30, TimeUnit.SECONDS);
+
+        scheduledThreadPoolExecutor.scheduleAtFixedRate(() -> {
+            stringRedisTemplate.expire(nodeKey, 30, TimeUnit.SECONDS);
+        }, 0, 5, TimeUnit.SECONDS);
+
+        log.info("分布式节点【主机/IP：" + InetAddress.getLocalHost() + "】已注册到Redis中，节点编号：" + nodeNum);
+    }
+
 }

@@ -6,7 +6,10 @@ import io.netty.handler.codec.http.*;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshaker;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshakerFactory;
 import io.netty.handler.ssl.SslHandler;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.stereotype.Component;
 
 import static com.zhouzhou.cloud.websocketservice.constant.ConnectConstants.*;
 
@@ -15,7 +18,14 @@ import static com.zhouzhou.cloud.websocketservice.constant.ConnectConstants.*;
  * @CreateTime: 2025-03-26
  * @Description: 身份验证处理器
  */
+
+@RefreshScope
+@Component
+@ChannelHandler.Sharable
 public class AuthHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
+
+    @Value("${websocket.node.nodeANum}")
+    private Integer nodeNum;
 
     private final TokenService tokenService;
 
@@ -31,7 +41,7 @@ public class AuthHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
         String token = getTokenFromRequest(request);
         if (tokenService.validateToken(token)) {
             String userId = tokenService.getUserIdFromToken(token);
-            stringRedisTemplate.opsForValue().set(CHANNEL_ID + ctx.channel().id().asLongText(), USER + userId);
+            stringRedisTemplate.opsForValue().set(NODE_ID + nodeNum + CHANNEL_ID + ctx.channel().id().asLongText(), USER + userId);
             ctx.fireChannelRead(request.retain());
 
             // 创建WebSocket握手工厂
@@ -79,7 +89,6 @@ public class AuthHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
     private static String getWebSocketLocation(ChannelPipeline cp, HttpRequest req, String path) {
         String protocol = "ws";
         if (cp.get(SslHandler.class) != null) {
-            // SSL in use so use Secure WebSockets
             protocol = "wss";
         }
         String host = req.headers().get(HttpHeaderNames.HOST);

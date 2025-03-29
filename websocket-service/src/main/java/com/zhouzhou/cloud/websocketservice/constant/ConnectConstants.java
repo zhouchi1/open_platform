@@ -42,4 +42,8 @@ public class ConnectConstants {
     public static final String USER = "user:";
 
     public static final String CHANNEL_ID = "channelId:";
+
+    public static final String WS_NODE_STATUS = "ws-node-status:";
+
+    public static final String NODE_ID = "nodeId:";
 }

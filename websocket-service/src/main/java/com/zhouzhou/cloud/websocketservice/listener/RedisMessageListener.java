@@ -60,7 +60,7 @@ public class RedisMessageListener {
                 return;
             }
             channel.writeAndFlush(new TextWebSocketFrame(payload));
-        }, new PatternTopic(WEBSOCKET_PRIVATE));
+        }, new PatternTopic(WEBSOCKET_PRIVATE + "*"));
         return container;
     }
 

@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 
 /**
@@ -19,15 +20,19 @@ public class MessageTransportDTO implements Serializable {
 
     private static final Long serialVersionUID = 6475839755638363489L;
 
-    @ApiModelProperty("消息内容")
+    @NotNull(message = "消息内容不能为空")
+    @ApiModelProperty(value = "消息内容",required = true)
     private String message;
 
-    @ApiModelProperty("发送消息方通道Id")
+    @NotNull(message = "发送消息方用户Id不能为空")
+    @ApiModelProperty(value = "发送消息方通道Id",required = true)
     private String sendMessageChannelId;
 
-    @ApiModelProperty("接收消息方通道Id")
+    @NotNull(message = "接收消息方用户Id不能为空")
+    @ApiModelProperty(value = "接收消息方通道Id",required = true)
     private String acceptMessageChannelId;
 
-    @ApiModelProperty("消息是否广播发送到所有人")
+    @NotNull(message = "消息是否广播发送到所有人不能为空")
+    @ApiModelProperty(value = "消息是否广播发送到所有人",required = true)
     private boolean broadcast;
 }

@@ -32,7 +32,7 @@ public class UserService {
     public BaseListResp<AllUserInfoResp> getAllCurrentUser() {
 
         // 获取分布式模式下所有节点
-        Set<String> allUser = stringRedisTemplate.keys(CHANNEL_ID + "*");
+        Set<String> allUser = stringRedisTemplate.keys("*" + CHANNEL_ID + "*");
 
         if (allUser == null) {
             return BaseListResp.build(new ArrayList<>());
