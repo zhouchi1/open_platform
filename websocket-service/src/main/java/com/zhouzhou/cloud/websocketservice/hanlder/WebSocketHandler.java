@@ -59,7 +59,7 @@ public class WebSocketHandler extends SimpleChannelInboundHandler<TextWebSocketF
         } else {
             String targetChannelId = extractTargetChannelId(message);
             if (targetChannelId != null) {
-                stringRedisTemplate.convertAndSend(WEBSOCKET_PRIVATE + targetChannelId, message);
+                stringRedisTemplate.convertAndSend(WEBSOCKET_PRIVATE, message);
             }
         }
     }

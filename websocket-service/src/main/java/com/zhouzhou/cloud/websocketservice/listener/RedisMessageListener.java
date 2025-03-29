@@ -4,7 +4,6 @@ import com.alibaba.fastjson2.JSON;
 import com.zhouzhou.cloud.websocketservice.config.ChannelConfig;
 import com.zhouzhou.cloud.websocketservice.dto.MessageTransportDTO;
 import io.netty.channel.Channel;
-import io.netty.channel.group.ChannelGroup;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
@@ -30,9 +29,6 @@ public class RedisMessageListener {
     @Resource
     private RedisConnectionFactory factory;
 
-    @Resource
-    private ChannelGroup webSocketChannels;
-
     @Bean
     public RedisMessageListenerContainer container() {
         RedisMessageListenerContainer container = new RedisMessageListenerContainer();
@@ -41,7 +37,15 @@ public class RedisMessageListener {
         // 广播
         container.addMessageListener((message, pattern) -> {
             String payload = new String(message.getBody());
-            webSocketChannels.writeAndFlush(new TextWebSocketFrame(payload));
+            // 排除掉自身的通道
+            String sendMessageChannelId = extractSendMessageChannelId(payload);
+
+            ChannelConfig.getChannelMap().forEach((channelId, channel) -> {
+                if (channel.id().asLongText().equals(sendMessageChannelId)) {
+                    return;
+                }
+                channel.writeAndFlush(new TextWebSocketFrame(payload));
+            });
         }, new PatternTopic(WEBSOCKET_BROADCAST));
 
         // 私聊
@@ -67,5 +71,10 @@ public class RedisMessageListener {
     private String extractTargetChannelId(String message) {
         MessageTransportDTO messageTransportDTO = JSON.parseObject(message, MessageTransportDTO.class);
         return ObjectUtils.isEmpty(messageTransportDTO.getAcceptMessageChannelId()) ? null : messageTransportDTO.getAcceptMessageChannelId();
+    }
+
+    private String extractSendMessageChannelId(String message) {
+        MessageTransportDTO messageTransportDTO = JSON.parseObject(message, MessageTransportDTO.class);
+        return ObjectUtils.isEmpty(messageTransportDTO.getSendMessageChannelId()) ? null : messageTransportDTO.getSendMessageChannelId();
     }
 }

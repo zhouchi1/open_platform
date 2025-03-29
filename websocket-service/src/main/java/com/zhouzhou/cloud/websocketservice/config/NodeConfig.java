@@ -15,5 +15,6 @@ import java.util.List;
 @Setter
 public class NodeConfig {
 
+
     private List<Integer> numbers;
 }
