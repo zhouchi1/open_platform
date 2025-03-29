@@ -46,4 +46,8 @@ public class ConnectConstants {
     public static final String WS_NODE_STATUS = "ws-node-status:";
 
     public static final String NODE_ID = "nodeId:";
+
+    public static final String WS = "ws";
+
+    public static final String WSS = "wss";
 }

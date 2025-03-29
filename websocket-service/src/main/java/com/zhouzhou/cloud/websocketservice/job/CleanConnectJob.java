@@ -33,13 +33,13 @@ public class CleanConnectJob {
     /**
      * 每隔一小时清理僵尸节点中的所有连接
      */
-    @Scheduled(cron = "0 0 * * * ?")
+    @Scheduled(fixedRate = 60 * 60 * 1000) // 间隔1小时
     public void cleanConnect() {
         InterProcessMutex lock = new InterProcessMutex(curatorFramework, DEATH_NODE_CLEAN_LOCK_PATH);
         try {
             if (lock.acquire(300, TimeUnit.SECONDS)) {
                 try {
-                    log.info("Zookeeper分布式锁获取成功 开始执行清理连接任务。");
+                    log.info("Zookeeper分布式锁获取成功 开始执行【清理连接】任务。");
                     nodeConfig.getNode().forEach((key, value) -> {
                         String nodeKey = WS_NODE_STATUS + value;
                         Boolean exists = stringRedisTemplate.hasKey(nodeKey);
@@ -71,7 +71,7 @@ public class CleanConnectJob {
         try {
             if (lock.acquire(300, TimeUnit.SECONDS)) {
                 try {
-                    log.info("Zookeeper分布式锁获取成功 开始执行清理所有节点连接任务。");
+                    log.warn("Zookeeper分布式锁获取成功 开始执行【清理所有节点】连接任务。");
                     stringRedisTemplate.delete(Objects.requireNonNull(stringRedisTemplate.keys(NODE_ID + "*" + CHANNEL_ID + "*")));
                 } finally {
                     lock.release();

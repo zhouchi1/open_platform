@@ -78,7 +78,7 @@ public class AuthHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
     }
 
     private String getTokenFromRequest(FullHttpRequest request) {
-        return request.headers().get("Sec-WebSocket-Protocol");
+        return request.headers().get(SEC_WEBSOCKET_PROTOCOLS);
     }
 
     private void sendUnauthorizedResponse(ChannelHandlerContext ctx) {
@@ -87,9 +87,9 @@ public class AuthHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
     }
 
     private static String getWebSocketLocation(ChannelPipeline cp, HttpRequest req, String path) {
-        String protocol = "ws";
+        String protocol = WS;
         if (cp.get(SslHandler.class) != null) {
-            protocol = "wss";
+            protocol = WSS;
         }
         String host = req.headers().get(HttpHeaderNames.HOST);
         return protocol + "://" + host + path;
