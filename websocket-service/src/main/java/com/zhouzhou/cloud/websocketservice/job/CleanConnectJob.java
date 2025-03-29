@@ -14,6 +14,7 @@ import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 import static com.zhouzhou.cloud.websocketservice.constant.ConnectConstants.*;
+import static com.zhouzhou.cloud.websocketservice.constant.ZookeeperLockConstants.*;
 
 @Slf4j
 @Component
@@ -29,11 +30,12 @@ public class CleanConnectJob {
     @Resource
     private CuratorFramework curatorFramework;
 
-    private static final String LOCK_PATH = "/lock/cleanConnect";
-
-    @Scheduled(cron = "0 * * * * ?")
+    /**
+     * 每隔一小时清理僵尸节点中的所有连接
+     */
+    @Scheduled(cron = "0 0 * * * ?")
     public void cleanConnect() {
-        InterProcessMutex lock = new InterProcessMutex(curatorFramework, LOCK_PATH);
+        InterProcessMutex lock = new InterProcessMutex(curatorFramework, DEATH_NODE_CLEAN_LOCK_PATH);
         try {
             if (lock.acquire(300, TimeUnit.SECONDS)) {
                 try {
@@ -64,7 +66,21 @@ public class CleanConnectJob {
      * 每晚一点定时清理所有节点的连接
      */
     @Scheduled(cron = "0 0 1 * * ?")
-    public void cleanAllConnect() {
-        stringRedisTemplate.delete(Objects.requireNonNull(stringRedisTemplate.keys(NODE_ID + "*" + CHANNEL_ID + "*")));
+    public void cleanAllConnect(){
+        InterProcessMutex lock = new InterProcessMutex(curatorFramework, ALL_CHANNEL_CLEAN_LOCK_PATH);
+        try {
+            if (lock.acquire(300, TimeUnit.SECONDS)) {
+                try {
+                    log.info("Zookeeper分布式锁获取成功 开始执行清理所有节点连接任务。");
+                    stringRedisTemplate.delete(Objects.requireNonNull(stringRedisTemplate.keys(NODE_ID + "*" + CHANNEL_ID + "*")));
+                } finally {
+                    lock.release();
+                }
+            } else {
+                log.warn("未能获取到Zookeeper分布式锁，跳过本次清理所有节点连接任务。");
+            }
+        } catch (Exception e) {
+            log.error("获取或释放Zookeeper【" + ALL_CHANNEL_CLEAN_LOCK_PATH + "】分布式锁异常：", e);
+        }
     }
 }
