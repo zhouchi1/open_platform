@@ -6,7 +6,6 @@ import com.zhouzhou.cloud.websocketservice.dto.MessageTransportDTO;
 import io.netty.channel.Channel;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,8 +17,6 @@ import org.springframework.util.ObjectUtils;
 
 import javax.annotation.Resource;
 
-import java.net.UnknownHostException;
-import java.util.Arrays;
 import java.util.UUID;
 
 import static com.zhouzhou.cloud.websocketservice.constant.ConnectConstants.*;
@@ -40,11 +37,8 @@ public class RedisMessageListener {
     @Resource
     private StringRedisTemplate stringRedisTemplate;
 
-    @Value("${websocket.port.nodeAPort}")
-    private Integer port;
-
     @Bean
-    public RedisMessageListenerContainer container() throws UnknownHostException {
+    public RedisMessageListenerContainer container() {
         RedisMessageListenerContainer container = new RedisMessageListenerContainer();
         container.setConnectionFactory(factory);
 
@@ -84,7 +78,6 @@ public class RedisMessageListener {
             }
             channel.writeAndFlush(new TextWebSocketFrame(JSON.toJSONString(messageTransportDTO)));
 
-            // 将消息发送至Redis中
             stringRedisTemplate.opsForHash().put(OFFLINE_MESSAGE_BY_USER + messageTransportDTO.getMessageAcceptUserInfoDTO().getUserId(), messageTransportDTO.getMessageId(), JSON.toJSONString(messageTransportDTO));
 
         }, new PatternTopic(WEBSOCKET_PRIVATE));

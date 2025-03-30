@@ -25,9 +25,6 @@ public class CleanConnectJob {
     @Resource
     private CuratorFramework curatorFramework;
 
-    /**
-     * 每晚一点定时清理所有节点的连接
-     */
     @Scheduled(cron = "0 0 1 * * ?")
     public void cleanAllConnect(){
         InterProcessMutex lock = new InterProcessMutex(curatorFramework, ALL_CHANNEL_CLEAN_LOCK_PATH);

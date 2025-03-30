@@ -16,7 +16,6 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -34,7 +33,7 @@ import static com.zhouzhou.cloud.websocketservice.constant.ConnectConstants.*;
 @Slf4j
 @Component
 @RefreshScope
-@DependsOn("stringRedisTemplate") // 关键注解
+@DependsOn("stringRedisTemplate")
 public class NettyServer {
 
     @Value("${websocket.port.nodeAPort}")
@@ -73,12 +72,6 @@ public class NettyServer {
         });
     }
 
-    /**
-     * 优雅启动
-     *
-     * @throws InterruptedException 系统中断异常
-     * @throws UnknownHostException 系统未知异常
-     */
     public void start() throws InterruptedException, UnknownHostException {
         try {
             ServerBootstrap bootstrap = new ServerBootstrap();
@@ -109,32 +102,6 @@ public class NettyServer {
             bossGroup.shutdownGracefully();
             workerGroup.shutdownGracefully();
         }
-    }
-
-
-    /**
-     * 优雅下线该分布式节点
-     */
-    @PreDestroy
-    public void onShutdown() {
-
-//        try {
-//            String hostAddress = InetAddress.getLocalHost().getHostAddress();
-//            log.info("分布式节点已下线，节点信息：【{}:{}】", hostAddress, port);
-//            String nodeKey = hostAddress + ":" + port;
-//
-//            if (stringRedisTemplate != null) {
-//                stringRedisTemplate.delete(NODE_CHANNEL_USER_INFO + nodeKey);
-//                stringRedisTemplate.opsForSet().remove(WS_NODE_STATUS, nodeKey);
-//                log.info("缓存清理完成");
-//            } else {
-//                log.error("stringRedisTemplate 未注入");
-//            }
-//        } catch (UnknownHostException e) {
-//            log.error("获取主机地址失败", e);
-//        } catch (Exception e) {
-//            log.error("关闭时发生异常", e);
-//        }
     }
 
     public void registerNodeHeartbeat() throws UnknownHostException {

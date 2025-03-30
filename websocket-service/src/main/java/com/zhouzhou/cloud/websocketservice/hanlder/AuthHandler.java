@@ -2,7 +2,6 @@ package com.zhouzhou.cloud.websocketservice.hanlder;
 
 import com.zhouzhou.cloud.websocketservice.dto.SecurityCheckCompleteDTO;
 import com.zhouzhou.cloud.websocketservice.service.TokenService;
-import com.zhouzhou.cloud.websocketservice.utils.AttributeKeyUtils;
 import io.netty.channel.*;
 import io.netty.handler.codec.http.*;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;

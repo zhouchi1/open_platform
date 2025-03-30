@@ -28,14 +28,8 @@ public class UserService {
     private StringRedisTemplate stringRedisTemplate;
 
 
-    /**
-     * 获取所有当前在线用户信息
-     *
-     * @return 所有当前在线用户信息
-     */
     public BaseListResp<AllUserNodeResp> getAllCurrentUser() {
 
-        // 获取分布式模式下所有节点
         Set<String> allNode = stringRedisTemplate.opsForSet().members(WS_NODE_STATUS);
 
         if (CollectionUtil.isEmpty(allNode)) {
