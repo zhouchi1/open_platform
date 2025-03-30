@@ -1,11 +1,11 @@
 package com.zhouzhou.cloud.websocketservice.dto;
 
+import com.zhouzhou.cloud.websocketservice.enums.MessageTypeEnum;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 
 /**
@@ -20,19 +20,21 @@ public class MessageTransportDTO implements Serializable {
 
     private static final Long serialVersionUID = 6475839755638363489L;
 
-    @NotNull(message = "消息内容不能为空")
-    @ApiModelProperty(value = "消息内容",required = true)
+    @ApiModelProperty("消息内容")
     private String message;
 
-    @NotNull(message = "发送消息方用户Id不能为空")
-    @ApiModelProperty(value = "发送消息方通道Id",required = true)
-    private String sendMessageChannelId;
+    @ApiModelProperty("发送消息方用户信息")
+    private MessageSendUserInfoDTO messageSendUserInfoDTO;
 
-    @NotNull(message = "接收消息方用户Id不能为空")
-    @ApiModelProperty(value = "接收消息方通道Id",required = true)
-    private String acceptMessageChannelId;
+    @ApiModelProperty("接收消息方用户信息")
+    private MessageAcceptUserInfoDTO messageAcceptUserInfoDTO;
 
-    @NotNull(message = "消息是否广播发送到所有人不能为空")
-    @ApiModelProperty(value = "消息是否广播发送到所有人",required = true)
+    @ApiModelProperty("消息是否广播发送到所有人")
     private boolean broadcast;
+
+    @ApiModelProperty("消息Id")
+    private String messageId;
+
+    @ApiModelProperty("消息类型")
+    private MessageTypeEnum messageType;
 }

@@ -18,11 +18,6 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 public class NettyConfig {
 
     @Bean
-    public ChannelGroup webSocketChannels() {
-        return WebSocketHandler.channels;
-    }
-
-    @Bean
     public AuthHandler authHandler(TokenService tokenService, StringRedisTemplate stringRedisTemplate) {
         return new AuthHandler(tokenService, stringRedisTemplate);
     }
@@ -36,5 +31,4 @@ public class NettyConfig {
     public WebSocketChannelInitializer webSocketChannelInitializer(AuthHandler authHandler, WebSocketHandler webSocketHandler) {
         return new WebSocketChannelInitializer(authHandler, webSocketHandler);
     }
-
 }

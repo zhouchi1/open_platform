@@ -10,6 +10,7 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
@@ -19,7 +20,6 @@ import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -34,13 +34,11 @@ import static com.zhouzhou.cloud.websocketservice.constant.ConnectConstants.*;
 @Slf4j
 @Component
 @RefreshScope
+@DependsOn("stringRedisTemplate") // 关键注解
 public class NettyServer {
 
     @Value("${websocket.port.nodeAPort}")
     private Integer port;
-
-    @Value("${websocket.node.nodeANum}")
-    private Integer nodeNum;
 
     private static EventLoopGroup bossGroup;
 
@@ -68,7 +66,7 @@ public class NettyServer {
         ExecutorService executorService = myExecutor.getThreadPoolExecutor();
         executorService.submit(() -> {
             try {
-                start(port);
+                start();
             } catch (InterruptedException | UnknownHostException e) {
                 e.printStackTrace();
             }
@@ -77,11 +75,11 @@ public class NettyServer {
 
     /**
      * 优雅启动
-     * @param port 运行端口
+     *
      * @throws InterruptedException 系统中断异常
      * @throws UnknownHostException 系统未知异常
      */
-    public void start(int port) throws InterruptedException, UnknownHostException {
+    public void start() throws InterruptedException, UnknownHostException {
         try {
             ServerBootstrap bootstrap = new ServerBootstrap();
             bootstrap.group(bossGroup, workerGroup)
@@ -107,7 +105,7 @@ public class NettyServer {
 
             future.channel().closeFuture().sync();
         } finally {
-            log.error("警告！！！Netty-Websocket服务Cluster节点【主机/IP：" + InetAddress.getLocalHost() + "】已下线 通讯服务失效！");
+            log.error("警告！！！Netty-Websocket服务Cluster节点【主机/IP + 端口：" + InetAddress.getLocalHost() + ":" + port + "】已下线 通讯服务失效！");
             bossGroup.shutdownGracefully();
             workerGroup.shutdownGracefully();
         }
@@ -119,19 +117,35 @@ public class NettyServer {
      */
     @PreDestroy
     public void onShutdown() {
-        stringRedisTemplate.delete(Objects.requireNonNull(stringRedisTemplate.keys(NODE_ID + nodeNum + CHANNEL_ID + "*")));
+
+//        try {
+//            String hostAddress = InetAddress.getLocalHost().getHostAddress();
+//            log.info("分布式节点已下线，节点信息：【{}:{}】", hostAddress, port);
+//            String nodeKey = hostAddress + ":" + port;
+//
+//            if (stringRedisTemplate != null) {
+//                stringRedisTemplate.delete(NODE_CHANNEL_USER_INFO + nodeKey);
+//                stringRedisTemplate.opsForSet().remove(WS_NODE_STATUS, nodeKey);
+//                log.info("缓存清理完成");
+//            } else {
+//                log.error("stringRedisTemplate 未注入");
+//            }
+//        } catch (UnknownHostException e) {
+//            log.error("获取主机地址失败", e);
+//        } catch (Exception e) {
+//            log.error("关闭时发生异常", e);
+//        }
     }
 
     public void registerNodeHeartbeat() throws UnknownHostException {
 
-        String nodeKey = WS_NODE_STATUS + NODE_ID + nodeNum;
-        stringRedisTemplate.opsForValue().set(nodeKey, "alive", 30, TimeUnit.SECONDS);
+        String nodeKey = InetAddress.getLocalHost().getHostAddress() + ":" + port;
 
-        scheduledThreadPoolExecutor.scheduleAtFixedRate(() -> {
-            stringRedisTemplate.expire(nodeKey, 30, TimeUnit.SECONDS);
-        }, 0, 5, TimeUnit.SECONDS);
+        stringRedisTemplate.opsForSet().add(WS_NODE_STATUS, nodeKey);
 
-        log.info("分布式节点【主机/IP：" + InetAddress.getLocalHost() + "】已注册到Redis中，节点编号：" + nodeNum);
+        scheduledThreadPoolExecutor.scheduleAtFixedRate(() -> stringRedisTemplate.expire(WS_NODE_STATUS, 30, TimeUnit.SECONDS), 0, 5, TimeUnit.SECONDS);
+
+        log.info("分布式节点已注册到Redis中，节点信息：【" + InetAddress.getLocalHost().getHostAddress() + ":" + port + "】");
     }
 
 }

@@ -6,12 +6,8 @@ package com.zhouzhou.cloud.websocketservice.constant;
  * @Description: WebSocket常量类
  */
 public class ConnectConstants {
-    /**
-     * WebSocket相关参数配置
-     */
-    public static final String WEBSOCKET_URL = "/open-platform/websocket";
 
-    public static final Integer WEBSOCKET_PORT = 5112;
+    public static final String WEBSOCKET_URL = "/open-platform/websocket";
 
     public static final String SUB_PROTOCOLS = "WebSocket";
 
@@ -37,15 +33,13 @@ public class ConnectConstants {
 
     public static final String WEBSOCKET_BROADCAST = "websocket-broadcast";
 
+    public static final String OFFLINE_MESSAGE_BY_USER = "OFFLINE_MESSAGE_BY_USER:";
+
     public static final String WEBSOCKET_PRIVATE = "websocket-private";
-
-    public static final String USER = "user:";
-
-    public static final String CHANNEL_ID = "channelId:";
 
     public static final String WS_NODE_STATUS = "ws-node-status:";
 
-    public static final String NODE_ID = "nodeId:";
+    public static final String NODE_CHANNEL_USER_INFO = "node_channel_user_info:";
 
     public static final String WS = "ws";
 

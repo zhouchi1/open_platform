@@ -7,6 +7,7 @@ import com.zhouzhou.cloud.common.service.base.ResponseData;
 import com.zhouzhou.cloud.common.utils.ResponseDataUtil;
 import com.zhouzhou.cloud.websocketservice.dto.MessageTransportDTO;
 import com.zhouzhou.cloud.websocketservice.resp.AllUserInfoResp;
+import com.zhouzhou.cloud.websocketservice.resp.AllUserNodeResp;
 import com.zhouzhou.cloud.websocketservice.service.SendMessageService;
 import com.zhouzhou.cloud.websocketservice.service.UserService;
 import lombok.extern.slf4j.Slf4j;
@@ -73,7 +74,7 @@ public class TestConnectController {
      * 获取登陆人信息
      */
     @PostMapping("/getAllCurrentUser")
-    public ResponseData<BaseListResp<AllUserInfoResp>> getAllCurrentUser() {
+    public ResponseData<BaseListResp<AllUserNodeResp>> getAllCurrentUser() {
         return ResponseDataUtil.success(userService.getAllCurrentUser());
     }
 }

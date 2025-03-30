@@ -1,5 +1,6 @@
 server:
   port: 9500 # 原8094
+  shutdown: graceful # 启用优雅停机
 
 management:
   endpoints:
@@ -17,3 +18,7 @@ dubbo:
   protocol:
     name: dubbo
     port: 20894
+
+spring:
+  lifecycle:
+    timeout-per-shutdown-phase: 30s # 延长停机超时时间
