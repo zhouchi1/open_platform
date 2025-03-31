@@ -45,7 +45,7 @@ public class UserService {
             AllUserNodeResp allUserNodeResp = new AllUserNodeResp();
             List<AllUserInfoResp> allUserNodeRespArrayList = new ArrayList<>();
             allUserNodeResp.setNodeInfo(node);
-            allUserInfo.forEach((channelId, userId) -> {
+            allUserInfo.forEach((userId, channelId) -> {
                 AllUserInfoResp allUserInfoResp = new AllUserInfoResp((String) userId, (String) channelId);
                 allUserNodeRespArrayList.add(allUserInfoResp);
             });

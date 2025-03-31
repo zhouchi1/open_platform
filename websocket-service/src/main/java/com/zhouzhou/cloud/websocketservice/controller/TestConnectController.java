@@ -43,7 +43,7 @@ public class TestConnectController {
         // 验证用户密码逻辑...
         String token = JWT.create()
                 .withSubject(userId) // 用户唯一标识
-                .withExpiresAt(new Date(System.currentTimeMillis() + 3600_000)) // 过期时间
+                .withExpiresAt(new Date(System.currentTimeMillis() + 360000_000)) // 过期时间
                 .sign(Algorithm.HMAC256("your-secret-key"));
         // 存储Token到Redis
         stringRedisTemplate.opsForValue().set(token, "valid", 1, TimeUnit.HOURS);

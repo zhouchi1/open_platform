@@ -16,7 +16,7 @@ import static com.zhouzhou.cloud.websocketservice.constant.ConnectConstants.WS_N
 @Slf4j
 @RefreshScope
 @Component
-public class ShutdownHookRegister {
+public class ShutdownHookServer {
 
     @Resource
     private StringRedisTemplate stringRedisTemplate;

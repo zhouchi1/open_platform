@@ -51,7 +51,7 @@ public class AuthHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
         String token = getTokenFromRequest(request);
         if (tokenService.validateToken(token)) {
             String userId = tokenService.getUserIdFromToken(token);
-            stringRedisTemplate.opsForHash().put(NODE_CHANNEL_USER_INFO + InetAddress.getLocalHost().getHostAddress() + ":" + port, ctx.channel().id().asLongText(), userId);
+            stringRedisTemplate.opsForHash().put(NODE_CHANNEL_USER_INFO + InetAddress.getLocalHost().getHostAddress() + ":" + port, userId, ctx.channel().id().asLongText());
             ctx.fireChannelRead(request.retain());
 
             // 创建WebSocket握手工厂

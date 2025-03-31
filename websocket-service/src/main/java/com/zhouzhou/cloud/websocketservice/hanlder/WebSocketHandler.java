@@ -4,6 +4,7 @@ import com.alibaba.fastjson2.JSON;
 import com.zhouzhou.cloud.websocketservice.config.ChannelConfig;
 import com.zhouzhou.cloud.websocketservice.dto.MessageTransportDTO;
 import com.zhouzhou.cloud.websocketservice.enums.MessageTypeEnum;
+import com.zhouzhou.cloud.websocketservice.utils.AttributeKeyUtils;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -45,25 +46,37 @@ public class WebSocketHandler extends SimpleChannelInboundHandler<TextWebSocketF
         MessageTransportDTO messageTransportDTO = JSON.parseObject(msg.text(), MessageTransportDTO.class);
 
         if (MessageTypeEnum.MESSAGE_CONFIRM.getCode().equals(messageTransportDTO.getMessageType().getCode())) {
-            stringRedisTemplate.opsForHash().delete(OFFLINE_MESSAGE_BY_USER + messageTransportDTO.getMessageAcceptUserInfoDTO().getUserId(), messageTransportDTO.getMessageId());
+
+            if (ObjectUtils.isEmpty(messageTransportDTO.getMessageId())) {
+                ctx.channel().writeAndFlush(new TextWebSocketFrame("请输入消息Id！"));
+                return;
+            }
+
+            if (ObjectUtils.isEmpty(messageTransportDTO.getMessageSendUserInfoDTO().getUserId())) {
+                ctx.channel().writeAndFlush(new TextWebSocketFrame("请输入消息所属用户Id！"));
+                return;
+            }
+
+            stringRedisTemplate.opsForHash().delete(OFFLINE_MESSAGE_BY_USER + messageTransportDTO.getMessageSendUserInfoDTO().getUserId(), messageTransportDTO.getMessageId());
             return;
         }
 
-        if (MessageTypeEnum.SEND_MESSAGE.getCode().equals(messageTransportDTO.getMessageType().getCode())){
+        if (MessageTypeEnum.SEND_MESSAGE.getCode().equals(messageTransportDTO.getMessageType().getCode())) {
             Boolean tag = isBroadcast(msg.text());
 
             if (ObjectUtils.isEmpty(tag)) {
                 ctx.channel().writeAndFlush(new TextWebSocketFrame("请输入消息内容或要选择发送的消息的传播类型！"));
                 return;
             }
-
             if (tag) {
                 stringRedisTemplate.convertAndSend(WEBSOCKET_BROADCAST, msg.text());
             } else {
-                String targetChannelId = extractTargetChannelId(msg.text());
-                if (targetChannelId != null) {
-                    stringRedisTemplate.convertAndSend(WEBSOCKET_PRIVATE, msg.text());
+                if (ObjectUtils.isEmpty(messageTransportDTO.getMessageAcceptUserInfoDTO().getUserId())){
+                    ctx.writeAndFlush(new TextWebSocketFrame("请输入要发送消息的用户Id！"));
+                    return;
                 }
+
+                stringRedisTemplate.convertAndSend(WEBSOCKET_PRIVATE, msg.text());
             }
         }
     }
@@ -88,8 +101,10 @@ public class WebSocketHandler extends SimpleChannelInboundHandler<TextWebSocketF
 
         ChannelConfig.removeChannel(ctx.channel().id().asLongText());
 
+        String userId = AttributeKeyUtils.getUserIdFromChannel(ctx);
+
         // 删除Redis中当前通道的登录信息
-        stringRedisTemplate.opsForHash().delete(NODE_CHANNEL_USER_INFO + InetAddress.getLocalHost().getHostAddress() + ":" + port, ctx.channel().id().asLongText());
+        stringRedisTemplate.opsForHash().delete(NODE_CHANNEL_USER_INFO + InetAddress.getLocalHost().getHostAddress() + ":" + port, userId);
     }
 
     private Boolean isBroadcast(String message) {
@@ -100,10 +115,5 @@ public class WebSocketHandler extends SimpleChannelInboundHandler<TextWebSocketF
         }
 
         return ObjectUtils.isEmpty(messageTransportDTO.isBroadcast()) ? null : messageTransportDTO.isBroadcast();
-    }
-
-    private String extractTargetChannelId(String message) {
-        MessageTransportDTO messageTransportDTO = JSON.parseObject(message, MessageTransportDTO.class);
-        return ObjectUtils.isEmpty(messageTransportDTO.getMessageAcceptUserInfoDTO().getChannelId()) ? null : messageTransportDTO.getMessageAcceptUserInfoDTO().getChannelId();
     }
 }

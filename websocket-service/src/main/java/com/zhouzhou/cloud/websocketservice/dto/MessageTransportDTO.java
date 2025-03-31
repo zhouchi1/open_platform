@@ -23,12 +23,6 @@ public class MessageTransportDTO implements Serializable {
     @ApiModelProperty("消息内容")
     private String message;
 
-    @ApiModelProperty("发送消息方用户信息")
-    private MessageSendUserInfoDTO messageSendUserInfoDTO;
-
-    @ApiModelProperty("接收消息方用户信息")
-    private MessageAcceptUserInfoDTO messageAcceptUserInfoDTO;
-
     @ApiModelProperty("消息是否广播发送到所有人")
     private boolean broadcast;
 
@@ -37,4 +31,10 @@ public class MessageTransportDTO implements Serializable {
 
     @ApiModelProperty("消息类型")
     private MessageTypeEnum messageType;
+
+    @ApiModelProperty("发送消息方用户信息")
+    private MessageSendUserInfoDTO messageSendUserInfoDTO;
+
+    @ApiModelProperty("接收消息方用户信息")
+    private MessageAcceptUserInfoDTO messageAcceptUserInfoDTO;
 }
