@@ -79,9 +79,6 @@ public class RedisMessageListener {
             String payload = new String(message.getBody());
 
             MessageTransportDTO messageTransportDTO = JSON.parseObject(payload, MessageTransportDTO.class);
-            messageTransportDTO.setMessageId(UUID.randomUUID().toString());
-
-            stringRedisTemplate.opsForHash().put(OFFLINE_MESSAGE_BY_USER + messageTransportDTO.getMessageAcceptUserInfoDTO().getUserId(), messageTransportDTO.getMessageId(), JSON.toJSONString(messageTransportDTO));
 
             String targetUserId = messageTransportDTO.getMessageAcceptUserInfoDTO().getUserId();
 
@@ -92,6 +89,10 @@ public class RedisMessageListener {
             String targetChannelId;
             try {
                 targetChannelId = (String) stringRedisTemplate.opsForHash().get(NODE_CHANNEL_USER_INFO + InetAddress.getLocalHost().getHostAddress() + ":" + port, targetUserId);
+
+                if (ObjectUtils.isEmpty(targetChannelId)){
+                    return;
+                }
 
                 Channel channel = ChannelConfig.getChannel(targetChannelId);
 

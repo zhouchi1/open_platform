@@ -14,7 +14,7 @@ public class PingHeartBeatHandler extends SimpleChannelInboundHandler<PingWebSoc
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
         if (evt instanceof IdleStateEvent) {
             IdleStateEvent event = (IdleStateEvent) evt;
-            if (event.state() == IdleState.ALL_IDLE) {
+            if (event.state() == IdleState.WRITER_IDLE) {
 //                log.info("发送Ping帧检测连接 TO -> " + ctx.channel().id().asLongText());
                 ctx.writeAndFlush(new PingWebSocketFrame());
             }
