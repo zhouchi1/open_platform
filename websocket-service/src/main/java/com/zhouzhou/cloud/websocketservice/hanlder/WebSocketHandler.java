@@ -90,8 +90,6 @@ public class WebSocketHandler extends SimpleChannelInboundHandler<TextWebSocketF
 
                 int nodeSize = 0;
 
-                int currentNode = 0;
-
                 for (String node : nodeSet) {
                     String channelId = (String) stringRedisTemplate.opsForHash()
                             .get(NODE_CHANNEL_USER_INFO + node, messageTransportDTO.getMessageAcceptUserInfoDTO().getUserId());
@@ -107,7 +105,6 @@ public class WebSocketHandler extends SimpleChannelInboundHandler<TextWebSocketF
                                 }
                                 channel.writeAndFlush(new TextWebSocketFrame(JSON.toJSONString(messageTransportDTO)));
                             } else {
-                                currentNode = 1;
                                 stringRedisTemplate.convertAndSend(WEBSOCKET_PRIVATE, msg.text());
                             }
 
@@ -119,7 +116,7 @@ public class WebSocketHandler extends SimpleChannelInboundHandler<TextWebSocketF
                     }
                 }
 
-                if (nodeSize == nodeSet.size() || currentNode == 1){
+                if (nodeSize == nodeSet.size()){
                     messageTransportDTO.setMessageId(UUID.randomUUID().toString());
                     stringRedisTemplate.opsForHash().put(OFFLINE_MESSAGE_BY_USER + messageTransportDTO.getMessageAcceptUserInfoDTO().getUserId(), messageTransportDTO.getMessageId(), JSON.toJSONString(messageTransportDTO));
                 }
