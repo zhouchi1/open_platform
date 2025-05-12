@@ -1,11 +1,11 @@
 package com.zhouzhou.cloud.payservice.req.wxlogin;
 
 import io.swagger.annotations.ApiModelProperty;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.validation.constraints.NotNull;
 
 /**
  * @Author: Sr.Zhou

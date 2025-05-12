@@ -1,7 +1,6 @@
 server:
   port: 8083
 
-# 微服务可以自动刷新配置而无需重启
 management:
   endpoints:
     web:

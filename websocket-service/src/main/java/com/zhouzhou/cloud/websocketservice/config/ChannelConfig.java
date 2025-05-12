@@ -20,15 +20,15 @@ public class ChannelConfig {
         return channelMap;
     }
 
-    public static void addChannel(String channelId, Channel channel) {
-        channelMap.put(channelId, channel);
+    public static void addChannel(String userId, Channel channel) {
+        channelMap.put(userId, channel);
     }
 
-    public static void removeChannel(String channelId) {
-        channelMap.remove(channelId);
+    public static void removeChannel(String userId) {
+        channelMap.remove(userId);
     }
 
-    public static Channel getChannel(String channelId) {
-        return ObjectUtils.isEmpty(channelMap.get(channelId)) ? null : channelMap.get(channelId);
+    public static Channel getChannel(String userId) {
+        return ObjectUtils.isEmpty(channelMap.get(userId)) ? null : channelMap.get(userId);
     }
 }

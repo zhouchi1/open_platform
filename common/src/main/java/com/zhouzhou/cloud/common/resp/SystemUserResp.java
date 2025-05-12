@@ -24,19 +24,6 @@ public class SystemUserResp extends BaseAMO {
     @ApiModelProperty("用户编码")
     private String userCode;
 
-    @ApiModelProperty("手机号")
-    private String mobile;
-
-    @ApiModelProperty("是否是管理员")
-    private Boolean admin;
-
-    @ApiModelProperty("系统图片分组编码")
-    private String pictureGroupCode;
-
-    @ApiModelProperty("微信唯一区分ID")
-    private String openId;
-
     @ApiModelProperty("用户所在租户唯一Code")
     private String tenantCode;
-
 }

@@ -11,11 +11,11 @@ import com.zhouzhou.cloud.payservice.dto.wxpay.WxPayConfigDTO;
 import com.zhouzhou.cloud.payservice.utils.WxUtil;
 import feign.Client;
 import feign.httpclient.ApacheHttpClient;
+import jakarta.annotation.Resource;
 import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.springframework.context.annotation.Bean;
 
-import javax.annotation.Resource;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;

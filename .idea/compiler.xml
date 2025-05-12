@@ -7,41 +7,51 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="login-service" />
         <module name="cart-service" />
         <module name="address-service" />
         <module name="pay-service" />
         <module name="warehouse-service" />
         <module name="product-service" />
+        <module name="user-service" />
         <module name="message-service" />
         <module name="register-service" />
+        <module name="auth-service" />
         <module name="common" />
+        <module name="gateway-service" />
         <module name="email-service" />
         <module name="task-service" />
         <module name="order-service" />
         <module name="sentinel-dashboard-service" />
-        <module name="xxl-job-admin" />
         <module name="websocket-service" />
+        <module name="xxl-job-admin" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
+      <module name="ai-chat-service" target="17" />
+      <module name="ai-service" target="17" />
+      <module name="pgvectordemo-service" target="17" />
       <module name="server_config" target="8" />
     </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="address-service" options="-parameters" />
+      <module name="ai-chat-service" options="-parameters" />
+      <module name="ai-service" options="-parameters" />
+      <module name="auth-service" options="-parameters" />
       <module name="cart-service" options="-parameters" />
       <module name="common" options="-parameters" />
       <module name="email-service" options="-parameters" />
-      <module name="login-service" options="-parameters" />
+      <module name="gateway-service" options="-parameters" />
       <module name="message-service" options="-parameters" />
       <module name="order-service" options="-parameters" />
       <module name="pay-service" options="-parameters" />
+      <module name="pgvectordemo-service" options="-parameters" />
       <module name="product-service" options="-parameters" />
       <module name="register-service" options="-parameters" />
       <module name="server_config" options="-parameters" />
       <module name="task-service" options="-parameters" />
+      <module name="user-service" options="-parameters" />
       <module name="warehouse-service" options="-parameters" />
       <module name="websocket-service" options="-parameters" />
     </option>

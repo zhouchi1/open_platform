@@ -3,10 +3,8 @@ package com.zhouzhou.cloud.websocketservice.config;
 import com.zhouzhou.cloud.websocketservice.hanlder.AuthHandler;
 import com.zhouzhou.cloud.websocketservice.hanlder.WebSocketChannelInitializer;
 import com.zhouzhou.cloud.websocketservice.hanlder.WebSocketHandler;
-import com.zhouzhou.cloud.websocketservice.service.TokenService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.redis.core.StringRedisTemplate;
 
 /**
  * @Author: Sr.Zhou
@@ -17,13 +15,13 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 public class NettyConfig {
 
     @Bean
-    public AuthHandler authHandler(TokenService tokenService, StringRedisTemplate stringRedisTemplate) {
-        return new AuthHandler(tokenService, stringRedisTemplate);
+    public AuthHandler authHandler( ) {
+        return new AuthHandler();
     }
 
     @Bean
-    public WebSocketHandler webSocketHandler(StringRedisTemplate stringRedisTemplate) {
-        return new WebSocketHandler(stringRedisTemplate);
+    public WebSocketHandler webSocketHandler() {
+        return new WebSocketHandler();
     }
 
     @Bean

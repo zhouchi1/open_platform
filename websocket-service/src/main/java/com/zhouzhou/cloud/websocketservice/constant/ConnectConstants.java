@@ -2,7 +2,7 @@ package com.zhouzhou.cloud.websocketservice.constant;
 
 /**
  * @Author: Sr.Zhou
- * @CreateTime: 2024-09-02
+ * @CreateTime: 2025-05-10
  * @Description: WebSocket常量类
  */
 public class ConnectConstants {
@@ -36,10 +36,6 @@ public class ConnectConstants {
     public static final String OFFLINE_MESSAGE_BY_USER = "OFFLINE_MESSAGE_BY_USER:";
 
     public static final String WEBSOCKET_PRIVATE = "websocket-private";
-
-    public static final String WS_NODE_STATUS = "ws-node-status:";
-
-    public static final String NODE_CHANNEL_USER_INFO = "node_channel_user_info:";
 
     public static final String WS = "ws";
 

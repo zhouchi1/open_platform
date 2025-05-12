@@ -21,9 +21,6 @@ public class SystemUserResp extends BaseAMO {
     @ApiModelProperty("用户账号")
     private String userName;
 
-    @ApiModelProperty("用户编码")
-    private String userCode;
-
     @ApiModelProperty("手机号")
     private String mobile;
 

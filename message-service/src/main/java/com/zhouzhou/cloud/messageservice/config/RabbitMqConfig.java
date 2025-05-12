@@ -1,6 +1,7 @@
 package com.zhouzhou.cloud.messageservice.config;
 
 import org.springframework.amqp.core.AcknowledgeMode;
+import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.config.SimpleRabbitListenerContainerFactory;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -50,11 +51,22 @@ public class RabbitMqConfig {
         });
 
         // 设置 ReturnCallback，用于监控消息是否路由失败
-        rabbitTemplate.setReturnCallback((message, replyCode, replyText, exchange, routingKey) -> {
+        rabbitTemplate.setReturnsCallback(returned -> {
+            Message message = returned.getMessage();
+            int replyCode = returned.getReplyCode();
+            String replyText = returned.getReplyText();
+            String exchange = returned.getExchange();
+            String routingKey = returned.getRoutingKey();
 
-            // 发送给死信队列
-            System.err.println("Message returned: " + replyText);
+            System.err.println("消息路由失败！");
+            System.err.println("replyCode: " + replyCode);
+            System.err.println("replyText: " + replyText);
+            System.err.println("exchange: " + exchange);
+            System.err.println("routingKey: " + routingKey);
+
+            // 可以把消息重发到失败队列或记录日志等操作
         });
+
 
         return rabbitTemplate;
     }

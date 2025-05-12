@@ -1,12 +1,12 @@
 package com.zhouzhou.cloud.messageservice.config;
 
+import jakarta.annotation.Resource;
 import org.springframework.amqp.core.*;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
 

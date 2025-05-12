@@ -8,7 +8,11 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
+    <groupId>com.zhouzhou.cloud</groupId>
     <artifactId>common</artifactId>
+    <packaging>jar</packaging>
+    <version>1.0.0-SNAPSHOT</version>
+    <name>common</name>
 
     <properties>
         <maven.compiler.source>8</maven.compiler.source>
@@ -46,18 +50,6 @@
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
 
-        <!-- 分布式RPC通讯-Dubbo 与Springboot集成-->
-        <dependency>
-            <groupId>org.apache.dubbo</groupId>
-            <artifactId>dubbo-spring-boot-starter</artifactId>
-        </dependency>
-
-        <!-- 分布式RPC通讯-Dubbo 使用Nacos作为注册中心和配置中心-->
-        <dependency>
-            <groupId>org.apache.dubbo</groupId>
-            <artifactId>dubbo-nacos-spring-boot-starter</artifactId>
-        </dependency>
-
         <!-- Commons 通用工具类-->
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -91,7 +83,7 @@
         <!-- Mybatis-Plus ORM框架-->
         <dependency>
             <groupId>com.baomidou</groupId>
-            <artifactId>mybatis-plus-boot-starter</artifactId>
+            <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
         </dependency>
 
         <dependency>
@@ -111,12 +103,6 @@
             <artifactId>jprotobuf</artifactId>
         </dependency>
 
-        <!-- Netty通讯-->
-        <dependency>
-            <groupId>io.netty</groupId>
-            <artifactId>netty-all</artifactId>
-        </dependency>
-
         <!-- JPA数据库访问-->
         <dependency>
             <groupId>javax.persistence</groupId>
@@ -127,12 +113,6 @@
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
-        </dependency>
-
-        <!-- JWT 鉴权 -->
-        <dependency>
-            <groupId>com.auth0</groupId>
-            <artifactId>java-jwt</artifactId>
         </dependency>
 
         <!-- 分布式缓存 Redis -->
@@ -166,6 +146,12 @@
             <artifactId>curator-recipes</artifactId>
             <version>${curator-framework.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>io.lettuce</groupId>
+            <artifactId>lettuce-core</artifactId>
+        </dependency>
+
 
         <!-- ShardingSphere jdbc 分库分表-->
 <!--        <dependency>-->

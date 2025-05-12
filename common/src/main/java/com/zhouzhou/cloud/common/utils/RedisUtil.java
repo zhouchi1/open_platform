@@ -1,9 +1,9 @@
 package com.zhouzhou.cloud.common.utils;
 
+import jakarta.annotation.Resource;
 import org.springframework.data.redis.core.*;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Resource;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;

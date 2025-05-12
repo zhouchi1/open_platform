@@ -1,23 +1,20 @@
 package com.zhouzhou.cloud.websocketservice.hanlder;
 
+import com.zhouzhou.cloud.common.service.interfaces.AuthServiceApi;
+import com.zhouzhou.cloud.websocketservice.config.ChannelConfig;
 import com.zhouzhou.cloud.websocketservice.dto.SecurityCheckCompleteDTO;
-import com.zhouzhou.cloud.websocketservice.service.TokenService;
+import com.zhouzhou.cloud.websocketservice.utils.AttributeKeyUtils;
 import io.netty.channel.*;
 import io.netty.handler.codec.http.*;
-import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshaker;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshakerFactory;
 import io.netty.handler.ssl.SslHandler;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
+import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.time.LocalDateTime;
-import java.util.Map;
 
 import static com.zhouzhou.cloud.websocketservice.constant.ConnectConstants.*;
 import static com.zhouzhou.cloud.websocketservice.utils.AttributeKeyUtils.*;
@@ -27,33 +24,22 @@ import static com.zhouzhou.cloud.websocketservice.utils.AttributeKeyUtils.*;
  * @CreateTime: 2025-03-26
  * @Description: 身份验证处理器
  */
-
 @Slf4j
 @RefreshScope
 @Component
 @ChannelHandler.Sharable
 public class AuthHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
 
-    @Value("${websocket.port.nodeAPort}")
-    private Integer port;
-
-    private final TokenService tokenService;
-
-    private final StringRedisTemplate stringRedisTemplate;
-
-    public AuthHandler(TokenService tokenService, StringRedisTemplate stringRedisTemplate) {
-        this.tokenService = tokenService;
-        this.stringRedisTemplate = stringRedisTemplate;
-    }
+    @DubboReference(version = "1.0.0", loadbalance = "roundrobin")
+    private AuthServiceApi authServiceApi;
 
     @Override
-    protected void channelRead0(ChannelHandlerContext ctx, FullHttpRequest request) throws UnknownHostException {
+    protected void channelRead0(ChannelHandlerContext ctx, FullHttpRequest request) {
         String token = getTokenFromRequest(request);
-        if (tokenService.validateToken(token)) {
-            String userId = tokenService.getUserIdFromToken(token);
-            stringRedisTemplate.opsForHash().put(NODE_CHANNEL_USER_INFO + InetAddress.getLocalHost().getHostAddress() + ":" + port, userId, ctx.channel().id().asLongText());
+        if (authServiceApi.checkTokenValidity(token)) {
+            String userId = authServiceApi.queryUserIdByToken(token);
             ctx.fireChannelRead(request.retain());
-
+            
             // 创建WebSocket握手工厂
             final WebSocketServerHandshakerFactory wsFactory = new WebSocketServerHandshakerFactory(
                     getWebSocketLocation(ctx.pipeline(), request, WEBSOCKET_URL), SUB_PROTOCOLS,
@@ -87,6 +73,8 @@ public class AuthHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
                 securityCheckCompleteDTO.setUserId(userId);
                 securityCheckCompleteDTO.setConnectTime(LocalDateTime.now());
                 ctx.channel().attr(SECURITY_CHECK_COMPLETE_ATTRIBUTE_KEY).set(securityCheckCompleteDTO);
+
+                ChannelConfig.addChannel(userId, ctx.channel());
             }
 
             try {
@@ -121,20 +109,18 @@ public class AuthHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
     }
 
     private void pushOfflineMessages(String userId, Channel channel) {
-        Long messageSize = stringRedisTemplate.opsForHash().size(OFFLINE_MESSAGE_BY_USER + userId);
+//        Long messageSize = stringRedisTemplate.opsForHash().size(OFFLINE_MESSAGE_BY_USER + userId);
 
-        if (messageSize == 0) {
-            log.info("用户 {} 没有离线消息", userId);
-            return;
-        }
+//        if (messageSize == 0) {
+//            log.info("用户 {} 没有离线消息", userId);
+//            return;
+//        }
 
-        Map<Object, Object> message = stringRedisTemplate.opsForHash().entries(OFFLINE_MESSAGE_BY_USER + userId);
+//        Map<Object, Object> message = stringRedisTemplate.opsForHash().entries(OFFLINE_MESSAGE_BY_USER + userId);
 
-        message.forEach((key, value) -> {
-            channel.writeAndFlush(new TextWebSocketFrame((String) value));
-        });
+//        message.forEach((key, value) -> channel.writeAndFlush(new TextWebSocketFrame((String) value)));
 
-        log.info("用户 {} 的 {} 条离线消息已推送", userId, messageSize);
+//        log.info("用户 {} 的 {} 条离线消息已推送", userId, messageSize);
     }
 
 }

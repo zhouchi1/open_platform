@@ -11,12 +11,13 @@
     <file type="web" url="file://$PROJECT_DIR$/address-service" />
     <file type="web" url="file://$PROJECT_DIR$/cart-service" />
     <file type="web" url="file://$PROJECT_DIR$/email-service" />
-    <file type="web" url="file://$PROJECT_DIR$/login-service" />
+    <file type="web" url="file://$PROJECT_DIR$/gateway-service" />
     <file type="web" url="file://$PROJECT_DIR$/order-service" />
     <file type="web" url="file://$PROJECT_DIR$/pay-service" />
     <file type="web" url="file://$PROJECT_DIR$/register-service" />
     <file type="web" url="file://$PROJECT_DIR$/sentinel-dashboard-service" />
     <file type="web" url="file://$PROJECT_DIR$/warehouse-service" />
+    <file type="web" url="file://$PROJECT_DIR$/websocket-service" />
   </component>
   <component name="MavenProjectsManager">
     <option name="originalFiles">
@@ -29,7 +30,6 @@
         <option value="$PROJECT_DIR$/pay_service/pom.xml" />
         <option value="$PROJECT_DIR$/sentinel-dashboard-service/pom.xml" />
         <option value="$PROJECT_DIR$/sentinel_dashboard_service/pom.xml" />
-        <option value="$PROJECT_DIR$/xxl-job-admin/pom.xml" />
         <option value="$PROJECT_DIR$/address-service/pom.xml" />
         <option value="$PROJECT_DIR$/cart-service/pom.xml" />
         <option value="$PROJECT_DIR$/email-service/pom.xml" />
@@ -38,10 +38,21 @@
         <option value="$PROJECT_DIR$/pay-service/pom.xml" />
         <option value="$PROJECT_DIR$/register-service/pom.xml" />
         <option value="$PROJECT_DIR$/warehouse-service/pom.xml" />
+        <option value="$PROJECT_DIR$/gateway-service/pom.xml" />
       </list>
     </option>
+    <option name="ignoredFiles">
+      <set>
+        <option value="$PROJECT_DIR$/ai-chat-service/pom.xml" />
+        <option value="$PROJECT_DIR$/ai-service/pom.xml" />
+        <option value="$PROJECT_DIR$/pgvectordemo-service/pom.xml" />
+      </set>
+    </option>
   </component>
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_8" default="true" project-jdk-name="1.8 (3)" project-jdk-type="JavaSDK">
+  <component name="ProjectPlainTextFileTypeManager">
+    <file url="file://$PROJECT_DIR$/websocket-service/README.md" />
+  </component>
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_X" default="true" project-jdk-name="17" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/out" />
   </component>
 </project>

@@ -15,8 +15,8 @@ import java.time.LocalDateTime;
  * @Description: 订单主表
  */
 @Data
-//@AllArgsConstructor
-//@NoArgsConstructor
+@AllArgsConstructor
+@NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 public class ShopOrder extends BaseEntity {
 

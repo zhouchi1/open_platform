@@ -15,7 +15,7 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 public class AllUserNodeResp extends BaseAMO {
 
-    private static final long serialVersionUID = 6375326536284658326L;
+    private static final Long serialVersionUID = 6375326536284658326L;
 
     @ApiModelProperty("节点信息")
     private String nodeInfo;

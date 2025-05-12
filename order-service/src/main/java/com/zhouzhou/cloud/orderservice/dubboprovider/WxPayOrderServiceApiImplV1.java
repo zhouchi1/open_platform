@@ -9,10 +9,12 @@ import com.zhouzhou.cloud.common.entity.ShopOrderDetails;
 import com.zhouzhou.cloud.common.service.interfaces.WxPayOrderServiceApi;
 import com.zhouzhou.cloud.orderservice.mapper.ShopOrderDetailsMapper;
 import com.zhouzhou.cloud.orderservice.mapper.ShopOrderMapper;
+
+import jakarta.annotation.Resource;
+
 import org.apache.dubbo.config.annotation.DubboService;
 import org.springframework.util.CollectionUtils;
 
-import javax.annotation.Resource;
 import java.util.List;
 
 

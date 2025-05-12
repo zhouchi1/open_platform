@@ -1,0 +1,27 @@
+server:
+  port: 9700
+
+# 微服务可以自动刷新配置而无需重启
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+    gateway:
+      enabled: true
+
+dubbo:
+  application:
+    name: gateway-service
+    qos-enable: false
+  registry:
+    address: nacos://127.0.0.1:8848,127.0.0.1:8850,127.0.0.1:8852
+    register-mode: instance
+  protocol:
+    name: dubbo
+    port: 29700
+
+logging:
+  level:
+    org.springframework.cloud.gateway: DEBUG
+    reactor.netty: DEBUG

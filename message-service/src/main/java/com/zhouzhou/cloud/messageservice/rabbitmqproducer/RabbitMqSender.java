@@ -1,11 +1,13 @@
 package com.zhouzhou.cloud.messageservice.rabbitmqproducer;
 
 import com.zhouzhou.cloud.common.service.interfaces.RabbitMqSenderApi;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboService;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 
 import java.util.UUID;
 
+@Slf4j
 @DubboService(version = "1.0.0")
 public class RabbitMqSender implements RabbitMqSenderApi {
 
@@ -29,9 +31,9 @@ public class RabbitMqSender implements RabbitMqSenderApi {
                 return msg;
             });
 
-            System.out.println("Simple message sent to queue: " + queueName);
+            log.info("Simple message sent to queue: " + queueName);
         } catch (Exception e) {
-            System.err.println("Failed to send simple message: " + e.getMessage());
+            log.error("Failed to send simple message: " + e.getMessage());
         }
     }
 
@@ -42,15 +44,16 @@ public class RabbitMqSender implements RabbitMqSenderApi {
      * @param routingKey   路由键
      * @param message      消息内容
      */
+    @Override
     public void sendRoutingMessage(String exchangeName, String routingKey, Object message) {
         try {
             rabbitTemplate.convertAndSend(exchangeName, routingKey, message, msg -> {
                 msg.getMessageProperties().setHeader("traceId", UUID.randomUUID().toString());
                 return msg;
             });
-            System.out.println("Routing message sent to exchange: " + exchangeName + " with routing key: " + routingKey);
+           log.info("Routing message sent to exchange: " + exchangeName + " with routing key: " + routingKey);
         } catch (Exception e) {
-            System.err.println("Failed to send routing message: " + e.getMessage());
+            log.error("Failed to send routing message: " + e.getMessage());
         }
     }
 

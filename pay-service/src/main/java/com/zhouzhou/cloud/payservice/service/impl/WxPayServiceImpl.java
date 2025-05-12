@@ -20,6 +20,7 @@ import com.zhouzhou.cloud.payservice.utils.WxUtil;
 import com.zhouzhou.cloud.common.service.interfaces.WxPayOrderServiceApi;
 import com.zhouzhou.cloud.common.utils.BizExUtil;
 import com.zhouzhou.cloud.common.utils.LoginUserContextHolder;
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.dubbo.config.annotation.DubboReference;
@@ -27,7 +28,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-import javax.annotation.Resource;
 
 import java.math.BigDecimal;
 

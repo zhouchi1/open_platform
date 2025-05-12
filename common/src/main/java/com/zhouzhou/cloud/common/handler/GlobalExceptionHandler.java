@@ -6,6 +6,7 @@ import com.zhouzhou.cloud.common.service.excepetions.BizExCode;
 import com.zhouzhou.cloud.common.service.excepetions.BizException;
 import com.zhouzhou.cloud.common.service.excepetions.IErrorCode;
 import com.zhouzhou.cloud.common.utils.RequestUtils;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -17,7 +18,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.Optional;
 
 /**

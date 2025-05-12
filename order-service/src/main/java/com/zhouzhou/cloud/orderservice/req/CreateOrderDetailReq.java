@@ -1,12 +1,12 @@
 package com.zhouzhou.cloud.orderservice.req;
 
 import io.swagger.annotations.ApiModelProperty;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
 
 /**
  * @Author: Sr.Zhou
