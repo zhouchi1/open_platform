@@ -5,12 +5,14 @@
 ## 第一部分：项目中使用的技术栈：
 
 - **选用Netty作为核心消息推送服务抗高并发。**
-- **分布式服务注册与发现组件使用Alibaba Nacos。**
-- **分布式服务配置组件使用Alibaba Nacos。**
-- **分布式流量负载均衡使用Spring Cloud Gateway。**
+- **分布式服务注册与发现组件采用Alibaba Nacos。**
+- **分布式服务配置组件采用Alibaba Nacos。**
+- **分布式流量负载均衡采用Spring Cloud Gateway + Spring Cloud LoadBalancer。**
 - **分布式消息削峰处理采用中间件Rabbit MQ。**
-- **用户与分布式集群连接关系 与 消息暂存 使用中间件Redis 用于高速读取与写入。**
+- **用户与分布式集群连接关系 与 消息暂存 使用中间件Redis 用于高速缓存。**
 - **消息持久化存储使用Mysql。**
+- **分布式服务通讯组件采用Alibaba Dubbo。**
+- **分布式流量控制组件采用Alibaba Sentinel。**
 
 
 
@@ -32,7 +34,7 @@
 
 （4）将授权的Token返回给客户端保存，用于连接Netty服务器身份授权。
 
-（5）客户端利用Token与Netty服务器建立连接后，需要将channel信息在本机内存中存储。
+（5）客户端利用Token与Netty服务器建立连接后，Netty服务端需要将channel信息在本机内存中存储。
 
 至此，客户端与服务端顺利的建立了Websocket通讯连接。
 
@@ -65,6 +67,14 @@
 （4）离线微服务接收到MQ消息，将离线消息从Redis集群中移除。
 
 至此，客户端与服务端间正确的进行了消息的接收认证处理。
+
+
+
+## 第四部分：在开发过程中遇到的问题：
+
+1、因为Netty消息推送微服务是在Spring Boot的环境中运行，但是Nacos注册中心注册的服务地址是SpringBoot的启动端口，所以在Gateway + LoadBalancer负载websocket连接请求时，会出现404连接不上的问题，所以在Netty消息推送微服务中，需要额外定义Netty启动端口暴漏给Nacos注册中心作为元数据。同时在Gateway网关微服务中重写LoadBalancer负载，选用自定义元数据netty-port作为负载核心。
+
+2、
 
 
 
