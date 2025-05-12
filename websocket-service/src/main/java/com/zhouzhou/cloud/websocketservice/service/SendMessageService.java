@@ -1,33 +1,24 @@
 package com.zhouzhou.cloud.websocketservice.service;
 
-import com.alibaba.fastjson2.JSON;
-import com.zhouzhou.cloud.websocketservice.dto.MessageTransportDTO;
+import com.zhouzhou.cloud.common.dto.MessageDTO;
+import com.zhouzhou.cloud.websocketservice.config.ChannelConfig;
+import io.netty.channel.Channel;
+import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
-
-import static com.zhouzhou.cloud.websocketservice.constant.ConnectConstants.WEBSOCKET_BROADCAST;
-import static com.zhouzhou.cloud.websocketservice.constant.ConnectConstants.WEBSOCKET_PRIVATE;
-
-/**
- * @Author: Sr.Zhou
- * @CreateTime: 2025-03-26
- * @Description: 消息发送服务
- */
 @Slf4j
 @Service
 public class SendMessageService {
 
-    @Resource
-    private StringRedisTemplate stringRedisTemplate;
 
-    public void sendBroadcastMessage(MessageTransportDTO message) {
-        stringRedisTemplate.convertAndSend(WEBSOCKET_BROADCAST, JSON.toJSONString(message));
-    }
-
-    public void sendPrivateMessage(MessageTransportDTO message) {
-        stringRedisTemplate.convertAndSend(WEBSOCKET_PRIVATE, JSON.toJSONString(message));
+    /**
+     * 发送消息给指定用户
+     * @param messageDTO 消息传输体
+     */
+    public void sendMessage(MessageDTO messageDTO) {
+        // 查找当前用户对应的通道 找到后直接进行消息的发送
+        Channel channel = ChannelConfig.getChannel(messageDTO.getTargetUserId());
+        channel.writeAndFlush(new TextWebSocketFrame(messageDTO.getMessage()));
     }
 }
