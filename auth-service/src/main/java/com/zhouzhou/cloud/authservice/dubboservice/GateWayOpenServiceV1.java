@@ -9,6 +9,7 @@ import com.zhouzhou.cloud.common.service.dto.UserLoginDTO;
 import com.zhouzhou.cloud.common.service.interfaces.AuthServiceApi;
 import com.zhouzhou.cloud.common.service.resp.SystemUserResp;
 import com.zhouzhou.cloud.common.utils.RedisUtil;
+import com.zhouzhou.cloud.common.dto.UserIdentityInfoDTO;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.time.DateUtils;
 import org.apache.dubbo.config.annotation.DubboService;
@@ -49,7 +50,7 @@ public class GateWayOpenServiceV1 implements AuthServiceApi {
     @Override
     public String getTokenFromAuthServer(UserNameAndPasswordDTO userNameAndPasswordDTO) {
 
-        // 验证用户名以及密码
+        // 验证saas平台与用户名对应关系是否成立
         Boolean isAuth = authConfirmService.authConfirm(userNameAndPasswordDTO);
 
         // 如果身份验证不通过则直接返回未授权字符串代表未授权
@@ -91,8 +92,12 @@ public class GateWayOpenServiceV1 implements AuthServiceApi {
      * @return 用户信息
      */
     @Override
-    public String queryUserIdByToken(String token) {
+    public UserIdentityInfoDTO queryUserIdentityByToken(String token) {
         UserLoginDTO userLoginDTO = JSONObject.parseObject((String) redisUtil.get(token), UserLoginDTO.class);
-        return userLoginDTO.getUserResp().getUserId().toString();
+
+        UserIdentityInfoDTO userIdentityInfoDTO = new UserIdentityInfoDTO();
+        userIdentityInfoDTO.setUserId(userLoginDTO.getUserResp().getUserId());
+        userIdentityInfoDTO.setUserSaasPlatformType(userLoginDTO.getUserResp().getSaasPlatformType());
+        return userIdentityInfoDTO;
     }
 }

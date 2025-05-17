@@ -18,8 +18,8 @@ public class SecurityCheckCompleteDTO implements Serializable {
     @ApiModelProperty("通道Id")
     private String channelId;
 
-    @ApiModelProperty("用户Id")
-    private String userId;
+    @ApiModelProperty("平台用户唯一识别信息")
+    private String userPlatformUniqueInfo;
 
     @ApiModelProperty("连接token")
     private String connectToken;

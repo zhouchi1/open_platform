@@ -1,9 +1,9 @@
 package com.zhouzhou.cloud.websocketservice.hanlder;
 
+import com.zhouzhou.cloud.common.dto.UserIdentityInfoDTO;
 import com.zhouzhou.cloud.common.service.interfaces.AuthServiceApi;
 import com.zhouzhou.cloud.websocketservice.config.ChannelConfig;
 import com.zhouzhou.cloud.websocketservice.dto.SecurityCheckCompleteDTO;
-import com.zhouzhou.cloud.websocketservice.utils.AttributeKeyUtils;
 import io.netty.channel.*;
 import io.netty.handler.codec.http.*;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshaker;
@@ -37,9 +37,10 @@ public class AuthHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
     protected void channelRead0(ChannelHandlerContext ctx, FullHttpRequest request) {
         String token = getTokenFromRequest(request);
         if (authServiceApi.checkTokenValidity(token)) {
-            String userId = authServiceApi.queryUserIdByToken(token);
+
+            UserIdentityInfoDTO userPlatformUniqueInfo = authServiceApi.queryUserIdentityByToken(token);
             ctx.fireChannelRead(request.retain());
-            
+
             // 创建WebSocket握手工厂
             final WebSocketServerHandshakerFactory wsFactory = new WebSocketServerHandshakerFactory(
                     getWebSocketLocation(ctx.pipeline(), request, WEBSOCKET_URL), SUB_PROTOCOLS,
@@ -70,16 +71,17 @@ public class AuthHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
                 // 将登录信息存储在本机内存中
                 SecurityCheckCompleteDTO securityCheckCompleteDTO = new SecurityCheckCompleteDTO();
                 securityCheckCompleteDTO.setChannelId(ctx.channel().id().asLongText());
-                securityCheckCompleteDTO.setUserId(userId);
+                securityCheckCompleteDTO.setUserPlatformUniqueInfo(userPlatformUniqueInfo.getUserSaasPlatformType() + ":" + userPlatformUniqueInfo.getUserId());
                 securityCheckCompleteDTO.setConnectTime(LocalDateTime.now());
                 ctx.channel().attr(SECURITY_CHECK_COMPLETE_ATTRIBUTE_KEY).set(securityCheckCompleteDTO);
 
-                ChannelConfig.addChannel(userId, ctx.channel());
+                ChannelConfig.addChannel(userPlatformUniqueInfo.getUserSaasPlatformType() + ":" + userPlatformUniqueInfo.getUserId(), ctx.channel());
+                ChannelConfig.bindChannelUser(ctx.channel(), userPlatformUniqueInfo.getUserSaasPlatformType() + ":" + userPlatformUniqueInfo.getUserId());
             }
 
             try {
-                pushOfflineMessages(userId, ctx.channel());
-                log.info("用户 {} 已上线", userId);
+                pushOfflineMessages(userPlatformUniqueInfo.getUserSaasPlatformType() + ":" + userPlatformUniqueInfo.getUserId(), ctx.channel());
+                log.info("平台用户 {} 已上线", userPlatformUniqueInfo.getUserSaasPlatformType() + ":" + userPlatformUniqueInfo.getUserId());
             } catch (Exception e) {
                 log.error("用户信息获取失败，关闭连接", e);
                 ctx.close();

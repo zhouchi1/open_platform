@@ -36,10 +36,7 @@ import reactor.core.scheduler.Schedulers;
 
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 
 import static org.springframework.cloud.gateway.support.ServerWebExchangeUtils.GATEWAY_REQUEST_URL_ATTR;
 
@@ -104,8 +101,9 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
                                         // 根据token查询用户信息
                                         UserLoginDTO userLoginDTO = JSONObject.parseObject((String) redisUtil.get(token), UserLoginDTO.class);
 
-                                        // 将映射信息保存到Redis中
-                                        redisUtil.set(userLoginDTO.getUserResp().getUserId().toString(), address, 3600);
+                                        // 将终端用户识别信息与服务器的映射信息保存到Redis中
+                                        redisUtil.set(userLoginDTO.getUserResp().getSaasPlatformType() + ":" +
+                                                userLoginDTO.getUserResp().getUserId().toString(), address, 3600);
 
                                     } catch (NacosException e) {
                                         e.printStackTrace();
@@ -145,11 +143,11 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
             URI uri = URI.create(targetUri);
 
             // 1. 获取原始请求
-            List<String> token = request.getHeaders().get("Sec-WebSocket-Protocol");
+            Optional<String> token = request.getHeaders().get("Sec-WebSocket-Protocol").stream().findFirst();
 
             // 2. 构造一个新的请求，并添加 header
             ServerHttpRequest newRequest = request.mutate()
-                    .header("Sec-WebSocket-Protocol", token.get(0))
+                    .header("Sec-WebSocket-Protocol", token.get())
                     .header("Upgrade", "websocket")
                     .header("Connection", "Upgrade")
                     .build();
@@ -157,7 +155,7 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
             // 3. 替换请求对象
             ServerWebExchange mutatedExchange = exchange.mutate().request(newRequest).build();
 
-            // 4. 设置新的目标地址
+            // 4. 设置新的目标请求地址
             mutatedExchange.getAttributes().put(GATEWAY_REQUEST_URL_ATTR, uri);
 
             log.info(mutatedExchange.getAttribute(GATEWAY_REQUEST_URL_ATTR).toString());
@@ -167,36 +165,39 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
         }
 
         // 消息发送
-        if ("/chat/sendMessage".equals(path)){
+        if ("/chat/sendMessage".equals(path)) {
 
             // 校验Token是否有效 如果无效则直接返回未授权
-            List<String> token = request.getHeaders().get("Token");
+            Optional<String> token = request.getHeaders().get("Token").stream().findFirst();
 
-            if (!authServiceApi.checkTokenValidity(token.get(0))){
+            if (!authServiceApi.checkTokenValidity(token.get())) {
                 exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
                 return exchange.getResponse().setComplete();
             }
 
-            // 将消息加入到MQ中 削峰
-            rabbitMqSenderApi.sendTopicMessage("chat.topic", "chat.sendMessage", JSON.toJSONString(exchange.getRequest().getBody()));
-
-            // 从请求中获取 消息的终点 查看用户当前是否存在有效的服务路由信息 如果有的话 将消息转发至指定的Netty消息推送微服务
+            // 从请求中获取 消息的终点 查看用户当前是否存在有效的服务路由信息 如果有的话 将消息转发至指定的Netty消息推送微服务节点
             // 如果当前用户没有有效的服务器路由信息 则不进行推送
-            String getMessageUserId = request.getQueryParams().getFirst("getMessageUserId");
+            // 根据token查询用户信息
+            UserLoginDTO userLoginDTO = JSONObject.parseObject((String) redisUtil.get(token.get()), UserLoginDTO.class);
+            String getMessageUserIndentityInfo = userLoginDTO.getUserResp().getSaasPlatformType() + ":" + userLoginDTO.getUserResp().getUserId();
 
             String message = request.getQueryParams().getFirst("message");
 
             MessageDTO messageDTO = new MessageDTO();
-            messageDTO.setTargetUserId(getMessageUserId);
+            messageDTO.setTargetUserId(userLoginDTO.getUserResp().getUserId());
+            messageDTO.setTargetUserSaasPlatformType(userLoginDTO.getUserResp().getSaasPlatformType());
             messageDTO.setMessage(message);
 
-            if (ObjectUtils.isEmpty(getMessageUserId)){
+            if (ObjectUtils.isEmpty(userLoginDTO.getUserResp().getUserId())) {
                 throw new BizException("The userId cannot be empty.");
             }
 
-            if (!ObjectUtils.isEmpty(redisUtil.get(getMessageUserId))){
-                String targetHost = (String) redisUtil.get(getMessageUserId);
-                if (!ObjectUtils.isEmpty(targetHost)){
+            // 确认信息无误后 直接将消息发送给MQ消息微服务消费者 进行异步消息持久化操作 异步削峰
+            rabbitMqSenderApi.sendTopicMessage("chat.topic", "chat.persistence.sendMessage", JSON.toJSONString(exchange.getRequest().getBody()));
+
+            if (!ObjectUtils.isEmpty(redisUtil.get(getMessageUserIndentityInfo))) {
+                String targetHost = (String) redisUtil.get(getMessageUserIndentityInfo);
+                if (!ObjectUtils.isEmpty(targetHost)) {
                     // 组装参数请求目标服务器
                     URI uri = UriComponentsBuilder.fromHttpUrl("http://" + targetHost)
                             .path("/chat/sendMessage")
@@ -213,6 +214,9 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
                             .bodyToMono(String.class)
                             .then();
                 }
+            } else {
+                // 将消息加入到MQ中 指定离线类型发送 削峰
+                rabbitMqSenderApi.sendTopicMessage("chat.topic", "chat.offline.sendMessage", JSON.toJSONString(exchange.getRequest().getBody()));
             }
         }
 

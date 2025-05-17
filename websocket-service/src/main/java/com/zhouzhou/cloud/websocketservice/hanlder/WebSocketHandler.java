@@ -1,13 +1,13 @@
 package com.zhouzhou.cloud.websocketservice.hanlder;
 
+import com.zhouzhou.cloud.common.utils.RedisUtil;
 import com.zhouzhou.cloud.websocketservice.config.ChannelConfig;
-import com.zhouzhou.cloud.websocketservice.utils.AttributeKeyUtils;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 
@@ -21,8 +21,8 @@ import org.springframework.stereotype.Component;
 @ChannelHandler.Sharable
 public class WebSocketHandler extends SimpleChannelInboundHandler<TextWebSocketFrame> {
 
-    @Value("${websocket.port.nodeAPort}")
-    private Integer port;
+    @Resource
+    private RedisUtil redisUtil;
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, TextWebSocketFrame msg) {
@@ -39,10 +39,16 @@ public class WebSocketHandler extends SimpleChannelInboundHandler<TextWebSocketF
 
         super.channelInactive(ctx);
 
-        ChannelConfig.removeChannel(ctx.channel().id().asLongText());
+        // 清除本机Channel - PlatformUser映射关系
+        String userPlatformUniqueInfo = ChannelConfig.getPlatformUserIdByChannel(ctx.channel());
 
-        String userId = AttributeKeyUtils.getUserIdFromChannel(ctx);
+        // 如果存在PlatformUser映射关系与netty服务器的映射关系 说明当前是在线状态 需要移除来表示用户已经下线
+        redisUtil.delete("user:route:" + userPlatformUniqueInfo);
+        ChannelConfig.removeChannelUser(ctx.channel());
 
-        // 从Redis中删除用户与Netty服务器的路由关系
+        // 清除本机PlatformUser映射关系 -Channel映射关系
+        ChannelConfig.removeChannel(userPlatformUniqueInfo);
+
+        ctx.close();
     }
 }

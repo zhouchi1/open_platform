@@ -1,15 +1,14 @@
-package com.zhouzhou.cloud.messageservice.rabbitmqproducer;
+package com.zhouzhou.cloud.websocketservice.rabbitmqproducer;
 
-import com.zhouzhou.cloud.common.service.interfaces.RabbitMqSenderApi;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.dubbo.config.annotation.DubboService;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.stereotype.Service;
 
 import java.util.UUID;
 
 @Slf4j
-@DubboService(version = "1.0.0")
-public class RabbitMqSender implements RabbitMqSenderApi {
+@Service
+public class RabbitMqSender implements RabbitMqSenderApi{
 
     private final RabbitTemplate rabbitTemplate;
 
@@ -51,7 +50,7 @@ public class RabbitMqSender implements RabbitMqSenderApi {
                 msg.getMessageProperties().setHeader("traceId", UUID.randomUUID().toString());
                 return msg;
             });
-           log.info("Routing message sent to exchange: " + exchangeName + " with routing key: " + routingKey);
+            log.info("Routing message sent to exchange: " + exchangeName + " with routing key: " + routingKey);
         } catch (Exception e) {
             log.error("Failed to send routing message: " + e.getMessage());
         }
@@ -69,9 +68,9 @@ public class RabbitMqSender implements RabbitMqSenderApi {
                 msg.getMessageProperties().setHeader("traceId", UUID.randomUUID().toString());
                 return msg;
             });
-            System.out.println("Broadcast message sent to exchange: " + exchangeName);
+            log.info("Broadcast message sent to exchange: " + exchangeName);
         } catch (Exception e) {
-            System.err.println("Failed to send broadcast message: " + e.getMessage());
+            log.error("Failed to send broadcast message: " + e.getMessage());
         }
     }
 
@@ -90,9 +89,9 @@ public class RabbitMqSender implements RabbitMqSenderApi {
                 msg.getMessageProperties().setDelay(delay);
                 return msg;
             });
-            System.out.println("Delayed message sent to exchange: " + exchangeName + " with delay: " + delay + "ms");
+            log.info("Delayed message sent to exchange: " + exchangeName + " with delay: " + delay + "ms");
         } catch (Exception e) {
-            System.err.println("Failed to send delayed message: " + e.getMessage());
+            log.error("Failed to send delayed message: " + e.getMessage());
         }
     }
 
@@ -109,9 +108,9 @@ public class RabbitMqSender implements RabbitMqSenderApi {
                 msg.getMessageProperties().setHeader("traceId", UUID.randomUUID().toString());
                 return msg;
             });
-            System.out.println("Topic message sent to exchange: " + exchangeName + " with routing key: " + routingKey);
+            log.info("Topic message sent to exchange: " + exchangeName + " with routing key: " + routingKey);
         } catch (Exception e) {
-            System.err.println("Failed to send topic message: " + e.getMessage());
+            log.error("Failed to send topic message: " + e.getMessage());
         }
     }
 }

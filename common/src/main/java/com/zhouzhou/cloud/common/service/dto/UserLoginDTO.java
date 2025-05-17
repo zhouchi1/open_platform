@@ -27,10 +27,4 @@ public class UserLoginDTO extends BaseAMO {
 
     @ApiModelProperty("用户信息")
     private SystemUserResp userResp;
-
-    @ApiModelProperty("角色信息")
-    private UserRoleSimpleDTO role;
-
-    @ApiModelProperty("菜单权限列表")
-    private List<RolePermissionsSimpleDTO> permissions;
 }

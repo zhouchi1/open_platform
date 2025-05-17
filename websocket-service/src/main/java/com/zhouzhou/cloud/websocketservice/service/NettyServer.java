@@ -81,7 +81,7 @@ public class NettyServer {
 
             future.channel().closeFuture().sync();
         } finally {
-            log.error("警告！！！Netty-Websocket服务Cluster节点【主机/IP + 端口：" + InetAddress.getLocalHost() + ":" + port + "】已下线 通讯服务失效！");
+            log.error("警告！！！Netty-Websocket服务Cluster节点【主机/IP + 端口：" + InetAddress.getLocalHost() + ":" + port + "】已下线或启动失败 通讯服务失效！");
             bossGroup.shutdownGracefully();
             workerGroup.shutdownGracefully();
         }

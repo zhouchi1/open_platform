@@ -61,6 +61,12 @@
             <artifactId>commons-pool2</artifactId>
         </dependency>
 
+        <!-- 分布式消息传输 RabbitMQ -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-amqp</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>com.alibaba.fastjson2</groupId>
             <artifactId>fastjson2</artifactId>

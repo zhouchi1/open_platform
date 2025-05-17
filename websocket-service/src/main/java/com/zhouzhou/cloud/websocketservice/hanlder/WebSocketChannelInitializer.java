@@ -30,17 +30,16 @@ public class WebSocketChannelInitializer extends ChannelInitializer<SocketChanne
         this.webSocketHandler = webSocketHandler;
     }
 
-
     @Override
     protected void initChannel(SocketChannel ch) {
         ChannelPipeline pipeline = ch.pipeline();
         pipeline.addLast(new HttpServerCodec());
         pipeline.addLast(new IdleStateHandler(READER_IDLE_TIME, WRITER_IDLE_TIME, ALL_IDLE_TIME, TimeUnit.SECONDS));
+        pipeline.addLast(new HeartbeatHandler());
         pipeline.addLast(new HttpObjectAggregator(MAX_CONTENT_LENGTH));
         pipeline.addLast(new ChunkedWriteHandler());
         pipeline.addLast(webSocketHandler);
         pipeline.addLast(authHandler);
         pipeline.addLast(new CustomWebSocketServerProtocolHandler(WEBSOCKET_URL, SUB_PROTOCOLS, ALLOW_EXTENSIONS, MAX_FRAME_SIZE,true));
-        pipeline.addLast(new PingHeartBeatHandler());
     }
 }

@@ -8,8 +8,8 @@ import lombok.NoArgsConstructor;
 
 /**
  * @Author: Sr.Zhou
- * @CreateTime: 2025-01-05
- * @Description: 订单主表
+ * @CreateTime: 2025-05-16
+ * @Description: 用户表
  */
 @Data
 @AllArgsConstructor
@@ -29,4 +29,9 @@ public class UserInfo extends BaseEntity {
      * 密码
      */
     private String password;
+
+    /**
+     * saas平台内部唯一标识
+     */
+    private String saasPlatformType;
 }
