@@ -4,6 +4,7 @@ import com.zhouzhou.cloud.common.dto.MessageDTO;
 import com.zhouzhou.cloud.common.resp.BaseListResp;
 import com.zhouzhou.cloud.common.service.base.ResponseData;
 import com.zhouzhou.cloud.common.utils.ResponseDataUtil;
+import com.zhouzhou.cloud.websocketservice.config.ChannelConfig;
 import com.zhouzhou.cloud.websocketservice.resp.AllUserNodeResp;
 import com.zhouzhou.cloud.websocketservice.service.SendMessageService;
 import com.zhouzhou.cloud.websocketservice.service.UserService;
@@ -41,5 +42,11 @@ public class TestConnectController {
     @PostMapping("/getAllCurrentUser")
     public ResponseData<BaseListResp<AllUserNodeResp>> getAllCurrentUser() {
         return ResponseDataUtil.success(userService.getAllCurrentUser());
+    }
+
+    @PostMapping("/getMachineMemoryInfo")
+    public void getMachineMemoryInfo(){
+        log.info(ChannelConfig.getChannelMap().toString());
+        log.info(ChannelConfig.getChannelUserMap().toString());
     }
 }

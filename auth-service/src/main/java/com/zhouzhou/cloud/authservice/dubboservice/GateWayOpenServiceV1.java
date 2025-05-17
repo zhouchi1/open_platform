@@ -4,7 +4,7 @@ import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
 import com.zhouzhou.cloud.authservice.service.AuthConfirmService;
 import com.zhouzhou.cloud.authservice.util.JwtUtils;
-import com.zhouzhou.cloud.common.dto.UserNameAndPasswordDTO;
+import com.zhouzhou.cloud.common.dto.UserIdentityConfirmDTO;
 import com.zhouzhou.cloud.common.service.dto.UserLoginDTO;
 import com.zhouzhou.cloud.common.service.interfaces.AuthServiceApi;
 import com.zhouzhou.cloud.common.service.resp.SystemUserResp;
@@ -44,14 +44,14 @@ public class GateWayOpenServiceV1 implements AuthServiceApi {
 
     /**
      * 获取授权Token
-     * @param userNameAndPasswordDTO 用户名以及密码
+     * @param userIdentityConfirmDTO 用户名以及密码
      * @return valid token or UN_AUTH
      */
     @Override
-    public String getTokenFromAuthServer(UserNameAndPasswordDTO userNameAndPasswordDTO) {
+    public String getTokenFromAuthServer(UserIdentityConfirmDTO userIdentityConfirmDTO) {
 
         // 验证saas平台与用户名对应关系是否成立
-        Boolean isAuth = authConfirmService.authConfirm(userNameAndPasswordDTO);
+        Boolean isAuth = authConfirmService.authConfirm(userIdentityConfirmDTO);
 
         // 如果身份验证不通过则直接返回未授权字符串代表未授权
         if (!isAuth){
@@ -62,7 +62,7 @@ public class GateWayOpenServiceV1 implements AuthServiceApi {
         UserLoginDTO userLoginDTO = new UserLoginDTO();
 
         // 查询用户基础信息
-        SystemUserResp systemUserResp = authConfirmService.queryUserInfo(userNameAndPasswordDTO);
+        SystemUserResp systemUserResp = authConfirmService.queryUserInfo(userIdentityConfirmDTO);
         userLoginDTO.setUserResp(systemUserResp);
 
         // 获取JWT Token 失效时间为1小时

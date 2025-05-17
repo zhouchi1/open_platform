@@ -1,12 +1,11 @@
 package com.zhouzhou.cloud.common.service.interfaces;
 
 import com.zhouzhou.cloud.common.dto.UserIdentityInfoDTO;
-import com.zhouzhou.cloud.common.dto.UserNameAndPasswordDTO;
-import com.zhouzhou.cloud.common.service.dto.UserLoginDTO;
+import com.zhouzhou.cloud.common.dto.UserIdentityConfirmDTO;
 
 public interface AuthServiceApi {
 
-    String getTokenFromAuthServer(UserNameAndPasswordDTO userNameAndPasswordDTO);
+    String getTokenFromAuthServer(UserIdentityConfirmDTO userIdentityConfirmDTO);
 
     Boolean checkTokenValidity(String token);
 

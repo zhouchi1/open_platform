@@ -2,6 +2,7 @@ package com.zhouzhou.cloud.websocketservice.hanlder;
 
 import com.zhouzhou.cloud.common.dto.UserIdentityInfoDTO;
 import com.zhouzhou.cloud.common.service.interfaces.AuthServiceApi;
+import com.zhouzhou.cloud.common.utils.RedisUtil;
 import com.zhouzhou.cloud.websocketservice.config.ChannelConfig;
 import com.zhouzhou.cloud.websocketservice.dto.SecurityCheckCompleteDTO;
 import io.netty.channel.*;
@@ -9,11 +10,16 @@ import io.netty.handler.codec.http.*;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshaker;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshakerFactory;
 import io.netty.handler.ssl.SslHandler;
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.dubbo.config.annotation.DubboReference;
+import org.springframework.boot.web.context.WebServerInitializedEvent;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
+import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 
+import java.net.InetAddress;
 import java.time.LocalDateTime;
 
 import static com.zhouzhou.cloud.websocketservice.constant.ConnectConstants.*;
@@ -28,10 +34,15 @@ import static com.zhouzhou.cloud.websocketservice.utils.AttributeKeyUtils.*;
 @RefreshScope
 @Component
 @ChannelHandler.Sharable
-public class AuthHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
+public class AuthHandler extends SimpleChannelInboundHandler<FullHttpRequest> implements ApplicationListener<WebServerInitializedEvent> {
 
     @DubboReference(version = "1.0.0", loadbalance = "roundrobin")
     private AuthServiceApi authServiceApi;
+
+    @Resource
+    private RedisUtil redisUtil;
+
+    private int port;
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, FullHttpRequest request) {
@@ -81,7 +92,12 @@ public class AuthHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
 
             try {
                 pushOfflineMessages(userPlatformUniqueInfo.getUserSaasPlatformType() + ":" + userPlatformUniqueInfo.getUserId(), ctx.channel());
-                log.info("平台用户 {} 已上线", userPlatformUniqueInfo.getUserSaasPlatformType() + ":" + userPlatformUniqueInfo.getUserId());
+
+                // 注意 当用户主动断开websocket连接后（缓存中删除用户在线状态） 再次使用未过期的token进行登录 需要在缓存中再次添加在线状态
+                if (ObjectUtils.isEmpty(redisUtil.get(userPlatformUniqueInfo.getUserSaasPlatformType() + ":" + userPlatformUniqueInfo.getUserId()))) {
+                    redisUtil.set(userPlatformUniqueInfo.getUserSaasPlatformType() + ":" + userPlatformUniqueInfo.getUserId(), InetAddress.getLocalHost().getHostAddress() + ":" + getPort(), 3600);
+                }
+                log.info("【Saas Platform->{}】,【User->{}】 Status Up！", userPlatformUniqueInfo.getUserSaasPlatformType(), userPlatformUniqueInfo.getUserId());
             } catch (Exception e) {
                 log.error("用户信息获取失败，关闭连接", e);
                 ctx.close();
@@ -125,4 +141,12 @@ public class AuthHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
 //        log.info("用户 {} 的 {} 条离线消息已推送", userId, messageSize);
     }
 
+    @Override
+    public void onApplicationEvent(WebServerInitializedEvent event) {
+        this.port = event.getWebServer().getPort();
+    }
+
+    public int getPort() {
+        return this.port;
+    }
 }

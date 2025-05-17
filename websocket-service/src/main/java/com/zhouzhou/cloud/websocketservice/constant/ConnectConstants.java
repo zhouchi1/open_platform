@@ -19,11 +19,11 @@ public class ConnectConstants {
 
     public static final Integer THREAD_WAIT_NUM = 128;
 
-    public static final Integer READER_IDLE_TIME = 2;
+    public static final Integer READER_IDLE_TIME = 500;
 
-    public static final Integer WRITER_IDLE_TIME = 2;
+    public static final Integer WRITER_IDLE_TIME = 500;
 
-    public static final Integer ALL_IDLE_TIME = 2;
+    public static final Integer ALL_IDLE_TIME = 500;
 
     public static final String SEC_WEBSOCKET_PROTOCOLS = "Sec-WebSocket-Protocol";
 

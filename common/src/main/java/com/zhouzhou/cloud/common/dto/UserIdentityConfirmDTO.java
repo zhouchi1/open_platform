@@ -10,7 +10,7 @@ import java.io.Serializable;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserNameAndPasswordDTO implements Serializable {
+public class UserIdentityConfirmDTO implements Serializable {
 
     private static final Long serialVersionUID = 6237846238764872361L;
 

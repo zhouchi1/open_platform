@@ -6,7 +6,7 @@ import com.alibaba.nacos.api.exception.NacosException;
 import com.alibaba.nacos.api.naming.NamingService;
 import com.alibaba.nacos.api.naming.pojo.Instance;
 import com.zhouzhou.cloud.common.dto.MessageDTO;
-import com.zhouzhou.cloud.common.dto.UserNameAndPasswordDTO;
+import com.zhouzhou.cloud.common.dto.UserIdentityConfirmDTO;
 import com.zhouzhou.cloud.common.service.dto.UserLoginDTO;
 import com.zhouzhou.cloud.common.service.excepetions.BizException;
 import com.zhouzhou.cloud.common.service.interfaces.AuthServiceApi;
@@ -39,6 +39,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 import static org.springframework.cloud.gateway.support.ServerWebExchangeUtils.GATEWAY_REQUEST_URL_ATTR;
+
+import static com.zhouzhou.cloud.common.constant.AuthConstant.UN_AUTH;
 
 
 /**
@@ -80,12 +82,26 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
                         String body = buffer.toString(StandardCharsets.UTF_8);
                         log.debug("Login request body: {}", body);
 
-                        UserNameAndPasswordDTO userNameAndPasswordDTO = JSONObject.parseObject(body, UserNameAndPasswordDTO.class);
+                        UserIdentityConfirmDTO userIdentityConfirmDTO = JSONObject.parseObject(body, UserIdentityConfirmDTO.class);
 
                         // 使用 Dubbo 同步调用放到弹性调度器
-                        return Mono.fromCallable(() -> authServiceApi.getTokenFromAuthServer(userNameAndPasswordDTO))
+                        return Mono.fromCallable(() -> authServiceApi.getTokenFromAuthServer(userIdentityConfirmDTO))
                                 .subscribeOn(Schedulers.boundedElastic())
                                 .flatMap(token -> {
+
+                                    // 拒绝授权访问
+                                    if (UN_AUTH.equals(token)){
+                                        exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
+                                        exchange.getResponse().getHeaders().setContentType(MediaType.APPLICATION_JSON);
+
+                                        Map<String, Object> result = new HashMap<>();
+                                        result.put("code", 401);
+                                        result.put("message", "消息中台拒绝授权访问");
+
+                                        byte[] respBytes = JsonUtils.toJson(result).getBytes(StandardCharsets.UTF_8);
+                                        return exchange.getResponse().writeWith(Mono.just(exchange.getResponse()
+                                                .bufferFactory().wrap(respBytes)));
+                                    }
 
                                     String finalAddress;
 
@@ -95,15 +111,14 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
 
                                         // 随机挑选一台netty服务器 用于连接
                                         Instance selected = instances.get(new Random().nextInt(instances.size()));
-                                        String address = selected.getIp() + ":" + selected.getPort();
-                                        finalAddress = address;
+                                        finalAddress = selected.getIp() + ":" + selected.getPort();
 
                                         // 根据token查询用户信息
                                         UserLoginDTO userLoginDTO = JSONObject.parseObject((String) redisUtil.get(token), UserLoginDTO.class);
 
                                         // 将终端用户识别信息与服务器的映射信息保存到Redis中
                                         redisUtil.set(userLoginDTO.getUserResp().getSaasPlatformType() + ":" +
-                                                userLoginDTO.getUserResp().getUserId().toString(), address, 3600);
+                                                userLoginDTO.getUserResp().getUserId(), finalAddress, 3600);
 
                                     } catch (NacosException e) {
                                         e.printStackTrace();

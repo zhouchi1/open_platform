@@ -25,9 +25,12 @@ public class WebSocketChannelInitializer extends ChannelInitializer<SocketChanne
 
     private final WebSocketHandler webSocketHandler;
 
-    public WebSocketChannelInitializer(AuthHandler authHandler, WebSocketHandler webSocketHandler) {
+    private final HeartbeatIdleHandler heartbeatIdleHandler;
+
+    public WebSocketChannelInitializer(AuthHandler authHandler, WebSocketHandler webSocketHandler, HeartbeatIdleHandler heartbeatIdleHandler) {
         this.authHandler = authHandler;
         this.webSocketHandler = webSocketHandler;
+        this.heartbeatIdleHandler = heartbeatIdleHandler;
     }
 
     @Override
@@ -36,6 +39,7 @@ public class WebSocketChannelInitializer extends ChannelInitializer<SocketChanne
         pipeline.addLast(new HttpServerCodec());
         pipeline.addLast(new IdleStateHandler(READER_IDLE_TIME, WRITER_IDLE_TIME, ALL_IDLE_TIME, TimeUnit.SECONDS));
         pipeline.addLast(new HeartbeatHandler());
+        pipeline.addLast(heartbeatIdleHandler);
         pipeline.addLast(new HttpObjectAggregator(MAX_CONTENT_LENGTH));
         pipeline.addLast(new ChunkedWriteHandler());
         pipeline.addLast(webSocketHandler);

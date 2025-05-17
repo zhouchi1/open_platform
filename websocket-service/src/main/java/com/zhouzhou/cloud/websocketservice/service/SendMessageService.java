@@ -36,7 +36,7 @@ public class SendMessageService {
             rabbitMqSenderApi.sendTopicMessage("topicExchange", "topic.routing.key1", JSON.toJSONString(messageDTO.getMessage()));
 
             // 再次删除Redis中终端用户与服务器的映射关系
-            redisUtil.delete("user:route:" + messageDTO.getTargetUserSaasPlatformType() + ":" + messageDTO.getTargetUserId());
+            redisUtil.delete(messageDTO.getTargetUserSaasPlatformType() + ":" + messageDTO.getTargetUserId());
             return;
         }
 

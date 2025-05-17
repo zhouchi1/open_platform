@@ -1,6 +1,6 @@
 package com.zhouzhou.cloud.authservice.service;
 
-import com.zhouzhou.cloud.common.dto.UserNameAndPasswordDTO;
+import com.zhouzhou.cloud.common.dto.UserIdentityConfirmDTO;
 import com.zhouzhou.cloud.common.service.resp.SystemUserResp;
 
 /**
@@ -10,7 +10,7 @@ import com.zhouzhou.cloud.common.service.resp.SystemUserResp;
  */
 public interface AuthConfirmService {
 
-    Boolean authConfirm(UserNameAndPasswordDTO userNameAndPasswordDTO);
+    Boolean authConfirm(UserIdentityConfirmDTO userIdentityConfirmDTO);
 
-    SystemUserResp queryUserInfo(UserNameAndPasswordDTO userNameAndPasswordDTO);
+    SystemUserResp queryUserInfo(UserIdentityConfirmDTO userIdentityConfirmDTO);
 }

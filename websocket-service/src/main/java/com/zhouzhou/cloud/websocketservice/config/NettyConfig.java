@@ -1,6 +1,7 @@
 package com.zhouzhou.cloud.websocketservice.config;
 
 import com.zhouzhou.cloud.websocketservice.hanlder.AuthHandler;
+import com.zhouzhou.cloud.websocketservice.hanlder.HeartbeatIdleHandler;
 import com.zhouzhou.cloud.websocketservice.hanlder.WebSocketChannelInitializer;
 import com.zhouzhou.cloud.websocketservice.hanlder.WebSocketHandler;
 import org.springframework.context.annotation.Bean;
@@ -15,7 +16,7 @@ import org.springframework.context.annotation.Configuration;
 public class NettyConfig {
 
     @Bean
-    public AuthHandler authHandler( ) {
+    public AuthHandler authHandler() {
         return new AuthHandler();
     }
 
@@ -25,7 +26,12 @@ public class NettyConfig {
     }
 
     @Bean
-    public WebSocketChannelInitializer webSocketChannelInitializer(AuthHandler authHandler, WebSocketHandler webSocketHandler) {
-        return new WebSocketChannelInitializer(authHandler, webSocketHandler);
+    public HeartbeatIdleHandler heartbeatIdleHandler() {
+        return new HeartbeatIdleHandler();
+    }
+
+    @Bean
+    public WebSocketChannelInitializer webSocketChannelInitializer(AuthHandler authHandler, WebSocketHandler webSocketHandler, HeartbeatIdleHandler heartbeatIdleHandler) {
+        return new WebSocketChannelInitializer(authHandler, webSocketHandler, heartbeatIdleHandler);
     }
 }

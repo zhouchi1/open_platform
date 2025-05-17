@@ -29,7 +29,6 @@ import static com.zhouzhou.cloud.websocketservice.constant.ConnectConstants.*;
 @Slf4j
 @Component
 @RefreshScope
-@DependsOn("stringRedisTemplate")
 public class NettyServer {
 
     @Value("${websocket.port.nodeAPort}")

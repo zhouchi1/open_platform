@@ -29,7 +29,10 @@ public class ChannelConfig {
     }
 
     public static void removeChannel(String userPlatformUniqueInfo) {
-        channelMap.remove(userPlatformUniqueInfo);
+        if (channelMap.containsKey(userPlatformUniqueInfo)) {
+            channelMap.remove(userPlatformUniqueInfo);
+        }
+
     }
 
     public static Channel getChannel(String userPlatformUniqueInfo) {
@@ -39,21 +42,23 @@ public class ChannelConfig {
     /**
      * 绑定平台userId与通道
      */
-    private static final ConcurrentHashMap<Channel,String> channelUserMap = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<Channel, String> channelUserMap = new ConcurrentHashMap<>();
 
-    public static Map<Channel,String> getChannelUserMap(){
+    public static Map<Channel, String> getChannelUserMap() {
         return channelUserMap;
     }
 
-    public static void bindChannelUser(Channel channel, String userPlatformUniqueInfo){
-        channelUserMap.put(channel,userPlatformUniqueInfo);
+    public static void bindChannelUser(Channel channel, String userPlatformUniqueInfo) {
+        channelUserMap.put(channel, userPlatformUniqueInfo);
     }
 
-    public static void removeChannelUser(Channel channel){
-        channelUserMap.remove(channel);
+    public static void removeChannelUser(Channel channel) {
+        if (channelUserMap.containsKey(channel)) {
+            channelUserMap.remove(channel);
+        }
     }
 
-    public static String getPlatformUserIdByChannel(Channel channel){
+    public static String getPlatformUserIdByChannel(Channel channel) {
         return channelUserMap.get(channel);
     }
 
