@@ -1,4 +1,4 @@
-# open_platform 开源微服务商城系统
+# open_platform 分布式消息中台
 
 ## 项目结构：
 
