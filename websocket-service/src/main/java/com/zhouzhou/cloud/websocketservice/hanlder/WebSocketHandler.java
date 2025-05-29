@@ -2,6 +2,7 @@ package com.zhouzhou.cloud.websocketservice.hanlder;
 
 import com.zhouzhou.cloud.common.utils.RedisUtil;
 import com.zhouzhou.cloud.websocketservice.config.ChannelConfig;
+import com.zhouzhou.cloud.websocketservice.utils.AttributeKeyUtils;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -55,12 +56,15 @@ public class WebSocketHandler extends SimpleChannelInboundHandler<TextWebSocketF
 
         log.info("【Saas Platform->{}】,【User->{}】 Status Down！", platform, user);
 
-        // 如果存在PlatformUser映射关系与netty服务器的映射关系 说明当前是在线状态 需要移除来表示用户已经下线
-        redisUtil.delete(userPlatformUniqueInfo);
+        // 删除用户在线状态
+        redisUtil.delete(userPlatformUniqueInfo + "status");
         ChannelConfig.removeChannelUser(ctx.channel());
 
         // 清除本机PlatformUser映射关系 -Channel映射关系
         ChannelConfig.removeChannel(userPlatformUniqueInfo);
+
+        // 删除用户连接信息
+        AttributeKeyUtils.removeSecurityCheckCompleteAttributeKey(ctx);
 
         ctx.close();
     }

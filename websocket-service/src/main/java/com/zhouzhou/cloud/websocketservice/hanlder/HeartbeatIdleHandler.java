@@ -10,6 +10,11 @@ import io.netty.handler.timeout.IdleStateEvent;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Component;
 
+/**
+ * @Author: Sr.Zhou
+ * @CreateTime: 2025-05-29
+ * @Description: 心跳检测处理
+ */
 @Component
 @ChannelHandler.Sharable
 public class HeartbeatIdleHandler extends ChannelInboundHandlerAdapter {
@@ -26,7 +31,10 @@ public class HeartbeatIdleHandler extends ChannelInboundHandlerAdapter {
                 try {
                     // 删除所有证明用户在线的遗留信息
                     if (userPlatformUniqueInfo != null) {
-                        redisUtil.delete(userPlatformUniqueInfo);
+
+                        // 删除在线状态
+                        redisUtil.delete(userPlatformUniqueInfo + "status");
+
                         ChannelConfig.removeChannelUser(ctx.channel());
                         ChannelConfig.removeChannel(userPlatformUniqueInfo);
                     }

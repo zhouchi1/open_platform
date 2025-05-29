@@ -19,7 +19,6 @@ import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 
-import java.net.InetAddress;
 import java.time.LocalDateTime;
 
 import static com.zhouzhou.cloud.websocketservice.constant.ConnectConstants.*;
@@ -93,13 +92,13 @@ public class AuthHandler extends SimpleChannelInboundHandler<FullHttpRequest> im
             try {
                 pushOfflineMessages(userPlatformUniqueInfo.getUserSaasPlatformType() + ":" + userPlatformUniqueInfo.getUserId(), ctx.channel());
 
-                // 注意 当用户主动断开websocket连接后（缓存中删除用户在线状态） 再次使用未过期的token进行登录 需要在缓存中再次添加在线状态
-                if (ObjectUtils.isEmpty(redisUtil.get(userPlatformUniqueInfo.getUserSaasPlatformType() + ":" + userPlatformUniqueInfo.getUserId()))) {
-                    redisUtil.set(userPlatformUniqueInfo.getUserSaasPlatformType() + ":" + userPlatformUniqueInfo.getUserId(), InetAddress.getLocalHost().getHostAddress() + ":" + getPort(), 3600);
+                // 设置用户在线状态
+                if (ObjectUtils.isEmpty(redisUtil.get(userPlatformUniqueInfo.getUserSaasPlatformType() + ":" + userPlatformUniqueInfo.getUserId() + "status"))) {
+                    redisUtil.set(userPlatformUniqueInfo.getUserSaasPlatformType() + ":" + userPlatformUniqueInfo.getUserId() + "status", "UP", -1);
                 }
                 log.info("【Saas Platform->{}】,【User->{}】 Status Up！", userPlatformUniqueInfo.getUserSaasPlatformType(), userPlatformUniqueInfo.getUserId());
             } catch (Exception e) {
-                log.error("用户信息获取失败，关闭连接", e);
+                log.error("Offline message push exception or user online status setting failure！", e);
                 ctx.close();
             }
 

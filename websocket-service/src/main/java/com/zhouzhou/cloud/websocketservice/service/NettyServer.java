@@ -12,7 +12,6 @@ import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
-import org.springframework.context.annotation.DependsOn;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
 import java.net.InetAddress;
@@ -80,7 +79,7 @@ public class NettyServer {
 
             future.channel().closeFuture().sync();
         } finally {
-            log.error("警告！！！Netty-Websocket服务Cluster节点【主机/IP + 端口：" + InetAddress.getLocalHost() + ":" + port + "】已下线或启动失败 通讯服务失效！");
+            log.error("Warning！！！Netty-Websocket-Cluster【IP + Port：" + InetAddress.getLocalHost() + ":" + port + "】Offline or failed to start，Communication service failure！");
             bossGroup.shutdownGracefully();
             workerGroup.shutdownGracefully();
         }

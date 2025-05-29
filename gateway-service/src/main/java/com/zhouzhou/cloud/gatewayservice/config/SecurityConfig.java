@@ -27,7 +27,7 @@ public class SecurityConfig {
                 .csrf().disable()
                 // 登录端点允许所有，其他端点按需鉴权
                 .authorizeExchange(exchanges -> exchanges
-                        .pathMatchers("/login","/open-platform/websocket","/chat/sendMessage").permitAll()
+                        .pathMatchers("/login","/open-platform/websocket","/chat/sendMessage","/someBusyThing/doSomeBusyWork").permitAll()
                         .anyExchange().authenticated()
                 );
         return http.build();

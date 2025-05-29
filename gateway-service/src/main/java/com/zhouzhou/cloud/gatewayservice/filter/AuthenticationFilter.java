@@ -13,6 +13,7 @@ import com.zhouzhou.cloud.common.service.interfaces.AuthServiceApi;
 import com.zhouzhou.cloud.common.utils.RedisUtil;
 import com.zhouzhou.cloud.gatewayservice.rabbitmqproducer.RabbitMqSenderApi;
 import jakarta.annotation.Resource;
+import lombok.SneakyThrows;
 import org.apache.dubbo.common.utils.JsonUtils;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.slf4j.Logger;
@@ -26,7 +27,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ObjectUtils;
-import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.server.ServerWebExchange;
@@ -38,15 +38,13 @@ import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
-import static org.springframework.cloud.gateway.support.ServerWebExchangeUtils.GATEWAY_REQUEST_URL_ATTR;
-
 import static com.zhouzhou.cloud.common.constant.AuthConstant.UN_AUTH;
 
 
 /**
  * @Author: Sr.Zhou
  * @CreateTime: 2025-05-10
- * @Description: 授权过滤器 + websocket连接代理
+ * @Description: 授权过滤器 + websocket对话
  */
 @Component
 public class AuthenticationFilter implements GlobalFilter, Ordered {
@@ -68,12 +66,12 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
     @Resource
     private WebClient.Builder webClientBuilder;
 
+    @SneakyThrows
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
 
         String path = exchange.getRequest().getPath().value();
         ServerHttpRequest request = exchange.getRequest();
-        URI originalUri = request.getURI();
 
         // 登录授权
         if ("/login".equals(path) && "POST".equalsIgnoreCase(exchange.getRequest().getMethod().toString())) {
@@ -90,13 +88,13 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
                                 .flatMap(token -> {
 
                                     // 拒绝授权访问
-                                    if (UN_AUTH.equals(token)){
+                                    if (UN_AUTH.equals(token)) {
                                         exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
                                         exchange.getResponse().getHeaders().setContentType(MediaType.APPLICATION_JSON);
 
                                         Map<String, Object> result = new HashMap<>();
                                         result.put("code", 401);
-                                        result.put("message", "消息中台拒绝授权访问");
+                                        result.put("message", "Message center denies authorized access");
 
                                         byte[] respBytes = JsonUtils.toJson(result).getBytes(StandardCharsets.UTF_8);
                                         return exchange.getResponse().writeWith(Mono.just(exchange.getResponse()
@@ -127,13 +125,11 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
 
                                     // 写入响应
                                     exchange.getResponse().getHeaders().add(HttpHeaders.AUTHORIZATION, "Bearer " + token);
-                                    exchange.getResponse().getHeaders().add("X-Netty-Server", finalAddress);
                                     exchange.getResponse().getHeaders().setContentType(MediaType.APPLICATION_JSON);
 
                                     // 编码返回给客户端
                                     Map<String, String> result = new HashMap<>();
                                     result.put("accessToken", token);
-                                    result.put("nettyServerAddress", finalAddress);
                                     byte[] respBytes = JsonUtils.toJson(result).getBytes(StandardCharsets.UTF_8);
                                     return exchange.getResponse().writeWith(Mono.just(exchange.getResponse()
                                             .bufferFactory().wrap(respBytes)));
@@ -141,49 +137,11 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
                     });
         }
 
-        // websocket连接
-        if (originalUri.getPath().startsWith("/open-platform/websocket")) {
-
-            // 解析参数 ip 和 port
-            String ip = request.getQueryParams().getFirst("ip");
-            String port = request.getQueryParams().getFirst("port");
-
-            if (StringUtils.isEmpty(ip) || StringUtils.isEmpty(port)) {
-                exchange.getResponse().setStatusCode(HttpStatus.BAD_REQUEST);
-                return exchange.getResponse().setComplete();
-            }
-
-            // 动态构造目标 URI
-            String targetUri = String.format("ws://%s:%s" + "/open-platform/websocket", ip, port);
-            URI uri = URI.create(targetUri);
-
-            // 1. 获取原始请求
-            Optional<String> token = request.getHeaders().get("Sec-WebSocket-Protocol").stream().findFirst();
-
-            // 2. 构造一个新的请求，并添加 header
-            ServerHttpRequest newRequest = request.mutate()
-                    .header("Sec-WebSocket-Protocol", token.get())
-                    .header("Upgrade", "websocket")
-                    .header("Connection", "Upgrade")
-                    .build();
-
-            // 3. 替换请求对象
-            ServerWebExchange mutatedExchange = exchange.mutate().request(newRequest).build();
-
-            // 4. 设置新的目标请求地址
-            mutatedExchange.getAttributes().put(GATEWAY_REQUEST_URL_ATTR, uri);
-
-            log.info(mutatedExchange.getAttribute(GATEWAY_REQUEST_URL_ATTR).toString());
-
-            // 5. 放行
-            return chain.filter(mutatedExchange);
-        }
-
         // 消息发送
         if ("/chat/sendMessage".equals(path)) {
 
             // 校验Token是否有效 如果无效则直接返回未授权
-            Optional<String> token = request.getHeaders().get("Token").stream().findFirst();
+            Optional<String> token = Objects.requireNonNull(request.getHeaders().get("Token")).stream().findFirst();
 
             if (!authServiceApi.checkTokenValidity(token.get())) {
                 exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
@@ -192,46 +150,61 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
 
             // 从请求中获取 消息的终点 查看用户当前是否存在有效的服务路由信息 如果有的话 将消息转发至指定的Netty消息推送微服务节点
             // 如果当前用户没有有效的服务器路由信息 则不进行推送
-            // 根据token查询用户信息
+            // 根据token查询发送消息者用户信息
             UserLoginDTO userLoginDTO = JSONObject.parseObject((String) redisUtil.get(token.get()), UserLoginDTO.class);
-            String getMessageUserIndentityInfo = userLoginDTO.getUserResp().getSaasPlatformType() + ":" + userLoginDTO.getUserResp().getUserId();
-
-            String message = request.getQueryParams().getFirst("message");
-
-            MessageDTO messageDTO = new MessageDTO();
-            messageDTO.setTargetUserId(userLoginDTO.getUserResp().getUserId());
-            messageDTO.setTargetUserSaasPlatformType(userLoginDTO.getUserResp().getSaasPlatformType());
-            messageDTO.setMessage(message);
 
             if (ObjectUtils.isEmpty(userLoginDTO.getUserResp().getUserId())) {
-                throw new BizException("The userId cannot be empty.");
+                throw new BizException("The message Sender userId cannot be empty.");
             }
 
+            // 获取请求参数
+            String message = request.getQueryParams().getFirst("message");
+            String targetUserId = request.getQueryParams().getFirst("targetUserId");
+            String targetUserSaasPlatformType = request.getQueryParams().getFirst("targetUserSaasPlatformType");
+
+            // 组装消息传输对象
+            MessageDTO messageDTO = new MessageDTO();
+            messageDTO.setTargetUserId(targetUserId);
+            messageDTO.setTargetUserSaasPlatformType(targetUserSaasPlatformType);
+            messageDTO.setMessage(message);
+
             // 确认信息无误后 直接将消息发送给MQ消息微服务消费者 进行异步消息持久化操作 异步削峰
-            rabbitMqSenderApi.sendTopicMessage("chat.topic", "chat.persistence.sendMessage", JSON.toJSONString(exchange.getRequest().getBody()));
+            rabbitMqSenderApi.sendTopicMessage("topicExchange", "topic.routing.key1", JSON.toJSONString(exchange.getRequest().getBody()));
 
-            if (!ObjectUtils.isEmpty(redisUtil.get(getMessageUserIndentityInfo))) {
-                String targetHost = (String) redisUtil.get(getMessageUserIndentityInfo);
-                if (!ObjectUtils.isEmpty(targetHost)) {
-                    // 组装参数请求目标服务器
-                    URI uri = UriComponentsBuilder.fromHttpUrl("http://" + targetHost)
-                            .path("/chat/sendMessage")
-                            .build(true)
-                            .toUri();
+            String targetHost = (String) redisUtil.get(targetUserSaasPlatformType + ":" + targetUserId);
 
-                    // 使用 WebClient 转发
-                    return webClientBuilder.build()
-                            .post()
-                            .uri(uri)
-                            .headers(headers -> headers.addAll(request.getHeaders()))
-                            .body(BodyInserters.fromValue(messageDTO))
-                            .retrieve()
-                            .bodyToMono(String.class)
-                            .then();
+            if (!ObjectUtils.isEmpty(targetHost)) {
+
+                // 判断targetHost是否在Nacos注册中心中能找到（因为Redis中存储的与netty服务器可能发生了宕机）
+                List<Instance> websocketInstances = namingService.getAllInstances("websocket-service");
+                String finalTargetHost = targetHost;
+                if (websocketInstances.stream().noneMatch(instance -> instance.getIp().equals(finalTargetHost.split(":")[0]) && instance.getPort() == Integer.parseInt(finalTargetHost.split(":")[1]))) {
+                    // 如果找不到 则从Nacos中重新获取
+                    targetHost = (String) redisUtil.get(targetUserSaasPlatformType + ":" + targetUserId);
+
+                    // 将映射关系赋值给当前用户的redis存储
+                    redisUtil.set(userLoginDTO.getUserResp().getSaasPlatformType() + ":" + userLoginDTO.getUserResp().getUserId(), targetHost, -1);
                 }
+
+                // 组装参数请求目标服务器
+                URI uri = UriComponentsBuilder.fromHttpUrl("http://" + targetHost)
+                        .path("/chat/sendMessage")
+                        .build(true)
+                        .toUri();
+
+                // 使用 WebClient 转发
+                return webClientBuilder.build()
+                        .post()
+                        .uri(uri)
+                        .headers(headers -> headers.addAll(request.getHeaders()))
+                        .body(BodyInserters.fromValue(messageDTO))
+                        .retrieve()
+                        .bodyToMono(String.class)
+                        .then();
             } else {
                 // 将消息加入到MQ中 指定离线类型发送 削峰
-                rabbitMqSenderApi.sendTopicMessage("chat.topic", "chat.offline.sendMessage", JSON.toJSONString(exchange.getRequest().getBody()));
+                rabbitMqSenderApi.sendTopicMessage("topicExchange", "topic.routing.key2", JSON.toJSONString(exchange.getRequest().getBody()));
+                return exchange.getResponse().setComplete();
             }
         }
 

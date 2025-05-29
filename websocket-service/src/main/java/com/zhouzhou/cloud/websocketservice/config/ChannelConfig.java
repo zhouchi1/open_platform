@@ -29,10 +29,7 @@ public class ChannelConfig {
     }
 
     public static void removeChannel(String userPlatformUniqueInfo) {
-        if (channelMap.containsKey(userPlatformUniqueInfo)) {
-            channelMap.remove(userPlatformUniqueInfo);
-        }
-
+        channelMap.remove(userPlatformUniqueInfo);
     }
 
     public static Channel getChannel(String userPlatformUniqueInfo) {
@@ -53,9 +50,7 @@ public class ChannelConfig {
     }
 
     public static void removeChannelUser(Channel channel) {
-        if (channelUserMap.containsKey(channel)) {
-            channelUserMap.remove(channel);
-        }
+        channelUserMap.remove(channel);
     }
 
     public static String getPlatformUserIdByChannel(Channel channel) {

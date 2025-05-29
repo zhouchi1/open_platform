@@ -14,11 +14,6 @@ import org.springframework.stereotype.Service;
 @Service
 public class UserService {
 
-
-    @Resource
-    private StringRedisTemplate stringRedisTemplate;
-
-
     public BaseListResp<AllUserNodeResp> getAllCurrentUser() {
 
         // 查询Nacos注册中心中 注册的websocket-service服务的所有节点
