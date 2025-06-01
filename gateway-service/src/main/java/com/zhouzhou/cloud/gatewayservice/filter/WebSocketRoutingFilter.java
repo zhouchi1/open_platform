@@ -144,7 +144,8 @@ public class WebSocketRoutingFilter implements GlobalFilter, Ordered {
 
             log.info("Rebind user {} to new Netty instance: {}", bindingKey, newBinding);
 
-            return instance; // 把实例返回出去
+            // 把实例返回出去
+            return instance;
         });
     }
 

@@ -27,4 +27,5 @@ public class UserLoginDTO extends BaseAMO {
 
     @ApiModelProperty("用户信息")
     private SystemUserResp userResp;
+
 }

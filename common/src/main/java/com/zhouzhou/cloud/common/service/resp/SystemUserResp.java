@@ -19,4 +19,7 @@ public class SystemUserResp extends BaseAMO {
 
     @ApiModelProperty("saas平台内部类型标识")
     private String saasPlatformType;
+
+    @ApiModelProperty("微信用户openId")
+    private String openId;
 }

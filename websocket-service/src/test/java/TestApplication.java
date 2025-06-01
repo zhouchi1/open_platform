@@ -17,7 +17,7 @@ public class TestApplication {
         Map<String, String> params = new HashMap<>();
         params.put("appId", "1");
         params.put("nonce", "12345");
-        params.put("timestamp", "1748488818882");
+        params.put("timestamp", "1748596311451");
         params.put("userName", "3");
 
         String secret = "123";

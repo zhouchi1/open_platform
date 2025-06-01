@@ -7,30 +7,30 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="cart-service" />
-        <module name="address-service" />
-        <module name="pay-service" />
-        <module name="warehouse-service" />
-        <module name="product-service" />
-        <module name="user-service" />
-        <module name="message-service" />
-        <module name="register-service" />
         <module name="auth-service" />
+        <module name="pay-service" />
         <module name="common" />
         <module name="gateway-service" />
         <module name="email-service" />
         <module name="task-service" />
+        <module name="user-service" />
         <module name="order-service" />
         <module name="sentinel-dashboard-service" />
+        <module name="message-service" />
         <module name="websocket-service" />
         <module name="xxl-job-admin" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
+      <module name="address-service" target="8" />
       <module name="ai-chat-service" target="17" />
       <module name="ai-service" target="17" />
+      <module name="cart-service" target="8" />
       <module name="pgvectordemo-service" target="17" />
+      <module name="product-service" target="8" />
+      <module name="register-service" target="8" />
       <module name="server_config" target="8" />
+      <module name="warehouse-service" target="8" />
     </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">

@@ -7,6 +7,7 @@ import com.zhouzhou.cloud.websocketservice.config.ChannelConfig;
 import com.zhouzhou.cloud.websocketservice.dto.SecurityCheckCompleteDTO;
 import io.netty.channel.*;
 import io.netty.handler.codec.http.*;
+import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshaker;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshakerFactory;
 import io.netty.handler.ssl.SslHandler;
@@ -20,6 +21,7 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import static com.zhouzhou.cloud.websocketservice.constant.ConnectConstants.*;
 import static com.zhouzhou.cloud.websocketservice.utils.AttributeKeyUtils.*;
@@ -126,18 +128,16 @@ public class AuthHandler extends SimpleChannelInboundHandler<FullHttpRequest> im
     }
 
     private void pushOfflineMessages(String userId, Channel channel) {
-//        Long messageSize = stringRedisTemplate.opsForHash().size(OFFLINE_MESSAGE_BY_USER + userId);
+        List<Object> message = redisUtil.lRange(userId, 0L, -1L);
 
-//        if (messageSize == 0) {
-//            log.info("用户 {} 没有离线消息", userId);
-//            return;
-//        }
+        if (message.size() == 0) {
+            log.info("用户 {} 没有离线消息", userId);
+            return;
+        }
 
-//        Map<Object, Object> message = stringRedisTemplate.opsForHash().entries(OFFLINE_MESSAGE_BY_USER + userId);
+        message.forEach(data -> channel.writeAndFlush(new TextWebSocketFrame((String) data)));
 
-//        message.forEach((key, value) -> channel.writeAndFlush(new TextWebSocketFrame((String) value)));
-
-//        log.info("用户 {} 的 {} 条离线消息已推送", userId, messageSize);
+        log.info("用户 {} 的 {} 条离线消息已推送", userId, message.size());
     }
 
     @Override

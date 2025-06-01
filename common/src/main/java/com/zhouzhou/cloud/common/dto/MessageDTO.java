@@ -17,8 +17,8 @@ public class MessageDTO implements Serializable {
     @ApiModelProperty("终端消息接收用户Id")
     private String targetUserId;
 
-    @ApiModelProperty("终端用户saas平台类型")
-    private String targetUserSaasPlatformType;
+    @ApiModelProperty("终端用户saas平台唯一识别标识")
+    private String appId;
 
     @ApiModelProperty("终端用户接收的消息")
     private String message;

@@ -17,4 +17,4 @@ dubbo:
     register-mode: instance
   protocol:
     name: dubbo
-    port: 29000
+    port: 29884

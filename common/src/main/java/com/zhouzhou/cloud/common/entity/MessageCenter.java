@@ -25,7 +25,7 @@ public class MessageCenter extends BaseEntity {
     @ApiModelProperty("saas平台内部唯一识别类型")
     private String saasPlatformType;
 
-    @ApiModelProperty("saas平台外部唯一识别类型")
+    @ApiModelProperty("saas平台外部唯一识别Id")
     private String appId;
 
     @ApiModelProperty("聊天类型")

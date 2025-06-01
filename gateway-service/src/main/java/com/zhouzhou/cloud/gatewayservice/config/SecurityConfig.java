@@ -23,9 +23,9 @@ public class SecurityConfig {
     @Bean
     public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
         http
-                // 直接禁用 CSRF
+                // 禁用 CSRF
                 .csrf().disable()
-                // 登录端点允许所有，其他端点按需鉴权
+                // 按需进行访问鉴权
                 .authorizeExchange(exchanges -> exchanges
                         .pathMatchers("/login","/open-platform/websocket","/chat/sendMessage","/someBusyThing/doSomeBusyWork").permitAll()
                         .anyExchange().authenticated()

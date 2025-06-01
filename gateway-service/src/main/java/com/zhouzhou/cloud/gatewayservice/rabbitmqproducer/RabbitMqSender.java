@@ -1,6 +1,7 @@
 package com.zhouzhou.cloud.gatewayservice.rabbitmqproducer;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.core.MessageProperties;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 
@@ -26,7 +27,7 @@ public class RabbitMqSender implements RabbitMqSenderApi{
         try {
             rabbitTemplate.convertAndSend(queueName, message, msg -> {
                 // 生成每条消息的 traceId 用于消息追踪
-                msg.getMessageProperties().setHeader("traceId", UUID.randomUUID().toString());
+                msg.getMessageProperties().setMessageId(UUID.randomUUID().toString());
                 return msg;
             });
 
@@ -47,7 +48,7 @@ public class RabbitMqSender implements RabbitMqSenderApi{
     public void sendRoutingMessage(String exchangeName, String routingKey, Object message) {
         try {
             rabbitTemplate.convertAndSend(exchangeName, routingKey, message, msg -> {
-                msg.getMessageProperties().setHeader("traceId", UUID.randomUUID().toString());
+                msg.getMessageProperties().setMessageId(UUID.randomUUID().toString());
                 return msg;
             });
             log.info("Routing message sent to exchange: " + exchangeName + " with routing key: " + routingKey);
@@ -65,7 +66,7 @@ public class RabbitMqSender implements RabbitMqSenderApi{
     public void sendBroadcastMessage(String exchangeName, Object message) {
         try {
             rabbitTemplate.convertAndSend(exchangeName, "", message, msg -> {
-                msg.getMessageProperties().setHeader("traceId", UUID.randomUUID().toString());
+                msg.getMessageProperties().setMessageId(UUID.randomUUID().toString());
                 return msg;
             });
             log.info("Broadcast message sent to exchange: " + exchangeName);
@@ -85,7 +86,7 @@ public class RabbitMqSender implements RabbitMqSenderApi{
     public void sendDelayedMessage(String exchangeName, String routingKey, Object message, int delay) {
         try {
             rabbitTemplate.convertAndSend(exchangeName, routingKey, message, msg -> {
-                msg.getMessageProperties().setHeader("traceId", UUID.randomUUID().toString());
+                msg.getMessageProperties().setMessageId(UUID.randomUUID().toString());
                 msg.getMessageProperties().setDelay(delay);
                 return msg;
             });
@@ -105,7 +106,8 @@ public class RabbitMqSender implements RabbitMqSenderApi{
     public void sendTopicMessage(String exchangeName, String routingKey, Object message) {
         try {
             rabbitTemplate.convertAndSend(exchangeName, routingKey, message, msg -> {
-                msg.getMessageProperties().setHeader("traceId", UUID.randomUUID().toString());
+                msg.getMessageProperties().setMessageId(UUID.randomUUID().toString());
+                msg.getMessageProperties().setContentType(MessageProperties.CONTENT_TYPE_JSON);
                 return msg;
             });
             log.info("Topic message sent to exchange: " + exchangeName + " with routing key: " + routingKey);

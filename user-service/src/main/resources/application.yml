@@ -1,6 +1,6 @@
 server:
   port: 8555
-  shutdown: graceful # 启用优雅停机
+  shutdown: graceful
 
 management:
   endpoints:

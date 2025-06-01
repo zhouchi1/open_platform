@@ -21,17 +21,17 @@ public class UserInfo extends BaseEntity {
     private static final long serialVersionUID = 2345782365776235764L;
 
     /**
+     * saas平台内部唯一标识
+     */
+    private String appId;
+
+    /**
      * 用户名
      */
     private String userName;
 
     /**
-     * 密码
+     * 是否启用状态
      */
-    private String password;
-
-    /**
-     * saas平台内部唯一标识
-     */
-    private String saasPlatformType;
+    private Boolean status;
 }

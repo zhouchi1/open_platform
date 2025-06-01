@@ -39,6 +39,7 @@ public class ShutdownHookServer {
                         channel.close();
                     }
                 }
+                log.info("ShutdownHook completed successfully");
             } catch (Exception e) {
                 log.error("ShutdownHook failed to clear the mapping relationship between users and servers", e);
             }

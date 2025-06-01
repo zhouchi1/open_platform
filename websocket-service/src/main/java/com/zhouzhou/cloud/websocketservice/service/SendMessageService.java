@@ -28,13 +28,13 @@ public class SendMessageService {
      */
     public void sendMessage(MessageDTO messageDTO) {
         // 查找当前用户对应的通道 找到后直接进行消息的发送
-        Channel channel = ChannelConfig.getChannel(messageDTO.getTargetUserSaasPlatformType() + ":" + messageDTO.getTargetUserId());
+        Channel channel = ChannelConfig.getChannel(messageDTO.getAppId() + ":" + messageDTO.getTargetUserId());
 
         // netty服务端意外失去与终端用户的连接
         if (channel == null) {
 
             // 再次删除Redis中终端用户与服务器的映射关系
-            redisUtil.delete(messageDTO.getTargetUserSaasPlatformType() + ":" + messageDTO.getTargetUserId());
+            redisUtil.delete(messageDTO.getAppId() + ":" + messageDTO.getTargetUserId());
 
             // 加入离线微服务中 MQ异步消费
             rabbitMqSenderApi.sendTopicMessage("topicExchange", "topic.routing.key2", JSON.toJSONString(messageDTO));

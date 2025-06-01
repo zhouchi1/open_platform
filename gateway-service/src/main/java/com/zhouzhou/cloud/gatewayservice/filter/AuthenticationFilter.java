@@ -82,7 +82,7 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
 
                         UserIdentityConfirmDTO userIdentityConfirmDTO = JSONObject.parseObject(body, UserIdentityConfirmDTO.class);
 
-                        // 使用 Dubbo 同步调用放到弹性调度器
+                        // 使用 Dubbo 同步调用放到弹性调度器（弹性线程池） 防止阻塞主线程
                         return Mono.fromCallable(() -> authServiceApi.getTokenFromAuthServer(userIdentityConfirmDTO))
                                 .subscribeOn(Schedulers.boundedElastic())
                                 .flatMap(token -> {
@@ -148,7 +148,7 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
                 return exchange.getResponse().setComplete();
             }
 
-            // 从请求中获取 消息的终点 查看用户当前是否存在有效的服务路由信息 如果有的话 将消息转发至指定的Netty消息推送微服务节点
+            // 从请求中获取 消息的终点 查看用户当前是否存在有效的服务路由信息 如果有的话 将消息转发至指定的Netty消息推送分布式节点
             // 如果当前用户没有有效的服务器路由信息 则不进行推送
             // 根据token查询发送消息者用户信息
             UserLoginDTO userLoginDTO = JSONObject.parseObject((String) redisUtil.get(token.get()), UserLoginDTO.class);
@@ -160,18 +160,18 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
             // 获取请求参数
             String message = request.getQueryParams().getFirst("message");
             String targetUserId = request.getQueryParams().getFirst("targetUserId");
-            String targetUserSaasPlatformType = request.getQueryParams().getFirst("targetUserSaasPlatformType");
+            String appId = request.getQueryParams().getFirst("appId");
 
             // 组装消息传输对象
             MessageDTO messageDTO = new MessageDTO();
             messageDTO.setTargetUserId(targetUserId);
-            messageDTO.setTargetUserSaasPlatformType(targetUserSaasPlatformType);
+            messageDTO.setAppId(appId);
             messageDTO.setMessage(message);
 
             // 确认信息无误后 直接将消息发送给MQ消息微服务消费者 进行异步消息持久化操作 异步削峰
-            rabbitMqSenderApi.sendTopicMessage("topicExchange", "topic.routing.key1", JSON.toJSONString(exchange.getRequest().getBody()));
+            rabbitMqSenderApi.sendTopicMessage("topicExchange", "topic.routing.key1", JSON.toJSONString(messageDTO));
 
-            String targetHost = (String) redisUtil.get(targetUserSaasPlatformType + ":" + targetUserId);
+            String targetHost = (String) redisUtil.get(appId + ":" + targetUserId);
 
             if (!ObjectUtils.isEmpty(targetHost)) {
 
@@ -180,7 +180,9 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
                 String finalTargetHost = targetHost;
                 if (websocketInstances.stream().noneMatch(instance -> instance.getIp().equals(finalTargetHost.split(":")[0]) && instance.getPort() == Integer.parseInt(finalTargetHost.split(":")[1]))) {
                     // 如果找不到 则从Nacos中重新获取
-                    targetHost = (String) redisUtil.get(targetUserSaasPlatformType + ":" + targetUserId);
+                    Instance instance = websocketInstances.get(0);
+
+                    targetHost = instance.getIp() + ":" + instance.getPort();
 
                     // 将映射关系赋值给当前用户的redis存储
                     redisUtil.set(userLoginDTO.getUserResp().getSaasPlatformType() + ":" + userLoginDTO.getUserResp().getUserId(), targetHost, -1);
@@ -203,7 +205,7 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
                         .then();
             } else {
                 // 将消息加入到MQ中 指定离线类型发送 削峰
-                rabbitMqSenderApi.sendTopicMessage("topicExchange", "topic.routing.key2", JSON.toJSONString(exchange.getRequest().getBody()));
+                rabbitMqSenderApi.sendTopicMessage("topicExchange", "topic.routing.key2", JSON.toJSONString(messageDTO));
                 return exchange.getResponse().setComplete();
             }
         }

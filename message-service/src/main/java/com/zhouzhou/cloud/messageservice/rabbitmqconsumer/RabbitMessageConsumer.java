@@ -1,6 +1,8 @@
 package com.zhouzhou.cloud.messageservice.rabbitmqconsumer;
 
 import cn.hutool.bloomfilter.BitMapBloomFilter;
+import com.zhouzhou.cloud.messageservice.rabbitmqconsumer.process.ChatMessageCacheProcess;
+import com.zhouzhou.cloud.messageservice.rabbitmqconsumer.process.ChatMessagePersistenceProcess;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.Message;
@@ -12,29 +14,65 @@ import org.springframework.stereotype.Component;
 public class RabbitMessageConsumer {
 
     @Resource
-    private MessageStrategyContext strategyContext;
+    private ChatMessageCacheProcess chatMessageCacheProcess;
+
+    @Resource
+    private ChatMessagePersistenceProcess chatMessagePersistenceProcess;
 
     /**
      * 布隆过滤器
      */
     public static BitMapBloomFilter bloomFilter = new BitMapBloomFilter(100);
 
+    @RabbitListener(queues = "topicQueue2")
+    public void receiveMessageTopicQueue2(Message message) {
 
-    @RabbitListener(queues = "topicQueue1")
-    public void receiveMessage(Message message) {
-
-        // 在RabbitMQ中，消息ID存放在messageProperties中
         String messageId = message.getMessageProperties().getMessageId();
 
-        // 布隆过滤器进行消息去重过滤
-        if (!bloomFilter.contains(messageId)) {
-            log.warn("messageId:【" + messageId + "】消息重复消费，以进行过滤!");
+        if (messageId == null) {
+            log.warn("接收到没有 messageId 的消息，跳过处理！");
+            return;
         }
 
+        // 判断是否是重复消息
+        if (bloomFilter.contains(messageId)) {
+            log.warn("messageId:【" + messageId + "】消息重复消费，进行过滤!");
+            return;
+        }
+
+        // 第一次处理该消息，加入布隆过滤器
+        bloomFilter.add(messageId);
+
         try {
-            strategyContext.execute(message);
+            chatMessagePersistenceProcess.processMessage(message);
         } catch (Exception e) {
-            System.err.println("消息处理异常: " + e.getMessage());
+            log.error("消息处理异常: " + e.getMessage());
+        }
+    }
+
+    @RabbitListener(queues = "topicQueue1")
+    public void receiveMessageTopicQueue1(Message message) {
+
+        String messageId = message.getMessageProperties().getMessageId();
+
+        if (messageId == null) {
+            log.warn("接收到没有 messageId 的消息，跳过处理！");
+            return;
+        }
+
+        // 判断是否是重复消息
+        if (bloomFilter.contains(messageId)) {
+            log.warn("messageId:【" + messageId + "】消息重复消费，进行过滤!");
+            return;
+        }
+
+        // 第一次处理该消息，加入布隆过滤器
+        bloomFilter.add(messageId);
+
+        try {
+            chatMessageCacheProcess.processMessage(message);
+        } catch (Exception e) {
+            log.error("消息处理异常: " + e.getMessage());
         }
     }
 }
