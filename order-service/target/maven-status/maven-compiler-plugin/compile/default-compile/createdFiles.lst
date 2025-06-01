@@ -1,0 +1,4 @@
+com\zhouzhou\cloud\orderservice\mapper\ShopOrderMapper.class
+com\zhouzhou\cloud\OrderServiceApplication.class
+com\zhouzhou\cloud\orderservice\mapper\ShopOrderDetailsMapper.class
+com\zhouzhou\cloud\orderservice\dubboprovider\WxPayOrderServiceImplV1.class
