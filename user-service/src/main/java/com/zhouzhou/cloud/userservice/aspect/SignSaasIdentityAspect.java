@@ -7,7 +7,7 @@ import com.zhouzhou.cloud.common.service.excepetions.BizException;
 import com.zhouzhou.cloud.common.utils.BizExUtil;
 import com.zhouzhou.cloud.userservice.annotation.SignPayloadType;
 import com.zhouzhou.cloud.userservice.annotation.SignSaasIdentity;
-import com.zhouzhou.cloud.userservice.mapper.TenantAuthMapper;
+import com.zhouzhou.cloud.common.mapper.TenantAuthMapper;
 import com.zhouzhou.cloud.userservice.req.ProcessSaasReq;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;

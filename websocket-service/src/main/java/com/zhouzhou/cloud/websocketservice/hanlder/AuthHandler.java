@@ -83,22 +83,22 @@ public class AuthHandler extends SimpleChannelInboundHandler<FullHttpRequest> im
                 // 将登录信息存储在本机内存中
                 SecurityCheckCompleteDTO securityCheckCompleteDTO = new SecurityCheckCompleteDTO();
                 securityCheckCompleteDTO.setChannelId(ctx.channel().id().asLongText());
-                securityCheckCompleteDTO.setUserPlatformUniqueInfo(userPlatformUniqueInfo.getUserSaasPlatformType() + ":" + userPlatformUniqueInfo.getUserId());
+                securityCheckCompleteDTO.setUserPlatformUniqueInfo(userPlatformUniqueInfo.getAppId() + ":" + userPlatformUniqueInfo.getUserId());
                 securityCheckCompleteDTO.setConnectTime(LocalDateTime.now());
                 ctx.channel().attr(SECURITY_CHECK_COMPLETE_ATTRIBUTE_KEY).set(securityCheckCompleteDTO);
 
-                ChannelConfig.addChannel(userPlatformUniqueInfo.getUserSaasPlatformType() + ":" + userPlatformUniqueInfo.getUserId(), ctx.channel());
-                ChannelConfig.bindChannelUser(ctx.channel(), userPlatformUniqueInfo.getUserSaasPlatformType() + ":" + userPlatformUniqueInfo.getUserId());
+                ChannelConfig.addChannel(userPlatformUniqueInfo.getAppId() + ":" + userPlatformUniqueInfo.getUserId(), ctx.channel());
+                ChannelConfig.bindChannelUser(ctx.channel(), userPlatformUniqueInfo.getAppId() + ":" + userPlatformUniqueInfo.getUserId());
             }
 
             try {
-                pushOfflineMessages(userPlatformUniqueInfo.getUserSaasPlatformType() + ":" + userPlatformUniqueInfo.getUserId(), ctx.channel());
+                pushOfflineMessages(userPlatformUniqueInfo.getAppId() + ":" + userPlatformUniqueInfo.getUserId(), ctx.channel());
 
                 // 设置用户在线状态
-                if (ObjectUtils.isEmpty(redisUtil.get(userPlatformUniqueInfo.getUserSaasPlatformType() + ":" + userPlatformUniqueInfo.getUserId() + "status"))) {
-                    redisUtil.set(userPlatformUniqueInfo.getUserSaasPlatformType() + ":" + userPlatformUniqueInfo.getUserId() + "status", "UP", -1);
+                if (ObjectUtils.isEmpty(redisUtil.get(userPlatformUniqueInfo.getAppId() + ":" + userPlatformUniqueInfo.getUserId() + "status"))) {
+                    redisUtil.set(userPlatformUniqueInfo.getAppId() + ":" + userPlatformUniqueInfo.getUserId() + "status", "UP", -1);
                 }
-                log.info("【Saas Platform->{}】,【User->{}】 Status Up！", userPlatformUniqueInfo.getUserSaasPlatformType(), userPlatformUniqueInfo.getUserId());
+                log.info("【Saas Platform->{}】,【User->{}】 Status Up！", userPlatformUniqueInfo.getAppId(), userPlatformUniqueInfo.getUserId());
             } catch (Exception e) {
                 log.error("Offline message push exception or user online status setting failure！", e);
                 ctx.close();
@@ -127,17 +127,17 @@ public class AuthHandler extends SimpleChannelInboundHandler<FullHttpRequest> im
         return protocol + "://" + host + path;
     }
 
-    private void pushOfflineMessages(String userId, Channel channel) {
-        List<Object> message = redisUtil.lRange(userId, 0L, -1L);
+    private void pushOfflineMessages(String appIdPlusUserId, Channel channel) {
+        List<Object> message = redisUtil.lRange("offline-message" + appIdPlusUserId, 0L, -1L);
 
         if (message.size() == 0) {
-            log.info("用户 {} 没有离线消息", userId);
+            log.info("用户 {} 没有离线消息", appIdPlusUserId);
             return;
         }
 
         message.forEach(data -> channel.writeAndFlush(new TextWebSocketFrame((String) data)));
 
-        log.info("用户 {} 的 {} 条离线消息已推送", userId, message.size());
+        log.info("用户 {} 的 {} 条离线消息已推送", appIdPlusUserId, message.size());
     }
 
     @Override

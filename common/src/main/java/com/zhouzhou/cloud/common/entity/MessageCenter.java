@@ -1,5 +1,6 @@
 package com.zhouzhou.cloud.common.entity;
 
+import com.zhouzhou.cloud.common.enums.message.MessageSendEnum;
 import com.zhouzhou.cloud.common.service.base.BaseEntity;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -12,7 +13,7 @@ import java.time.LocalDateTime;
 /**
  * @Author: Sr.Zhou
  * @CreateTime: 2025-05-16
- * @Description: 消息中心表
+ * @Description: 消息中心主表
  */
 @Data
 @NoArgsConstructor
@@ -22,30 +23,12 @@ public class MessageCenter extends BaseEntity {
 
     private static final Long serialVersionUID = 7234562768956361523L;
 
-    @ApiModelProperty("saas平台内部唯一识别类型")
-    private String saasPlatformType;
-
-    @ApiModelProperty("saas平台外部唯一识别Id")
-    private String appId;
-
-    @ApiModelProperty("聊天类型")
-    private Boolean chatType;
-
-    @ApiModelProperty("发送者ID")
-    private String senderId;
-
-    @ApiModelProperty("接收者ID / 群ID")
-    private String receiverId;
-
-    @ApiModelProperty("消息类型")
-    private Boolean msgType;
+    @ApiModelProperty("消息Id")
+    private String messageId;
 
     @ApiModelProperty("消息内容")
-    private String msgBody;
+    private String message;
 
-    @ApiModelProperty("消息发送时间")
-    private LocalDateTime msgTime;
-
-    @ApiModelProperty("消息状态")
-    private Integer status;
+    @ApiModelProperty("消息发送类型")
+    private MessageSendEnum messageSendEnum;
 }

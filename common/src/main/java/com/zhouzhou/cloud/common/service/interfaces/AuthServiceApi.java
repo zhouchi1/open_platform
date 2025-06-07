@@ -5,7 +5,7 @@ import com.zhouzhou.cloud.common.dto.UserIdentityConfirmDTO;
 
 public interface AuthServiceApi {
 
-    String getTokenFromAuthServer(UserIdentityConfirmDTO userIdentityConfirmDTO);
+    String getTokenFromAuthServer(UserIdentityConfirmDTO userIdentityConfirmDTO) throws Exception;
 
     Boolean checkTokenValidity(String token);
 

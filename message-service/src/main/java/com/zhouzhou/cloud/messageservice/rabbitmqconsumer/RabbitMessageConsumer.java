@@ -24,7 +24,7 @@ public class RabbitMessageConsumer {
      */
     public static BitMapBloomFilter bloomFilter = new BitMapBloomFilter(100);
 
-    @RabbitListener(queues = "topicQueue2")
+    @RabbitListener(queues = "topicQueue1")
     public void receiveMessageTopicQueue2(Message message) {
 
         String messageId = message.getMessageProperties().getMessageId();
@@ -50,7 +50,7 @@ public class RabbitMessageConsumer {
         }
     }
 
-    @RabbitListener(queues = "topicQueue1")
+    @RabbitListener(queues = "topicQueue2")
     public void receiveMessageTopicQueue1(Message message) {
 
         String messageId = message.getMessageProperties().getMessageId();

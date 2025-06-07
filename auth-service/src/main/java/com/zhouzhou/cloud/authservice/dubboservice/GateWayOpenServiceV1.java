@@ -49,7 +49,7 @@ public class GateWayOpenServiceV1 implements AuthServiceApi {
      * @return valid token or UN_AUTH
      */
     @Override
-    public String getTokenFromAuthServer(UserIdentityConfirmDTO userIdentityConfirmDTO) {
+    public String getTokenFromAuthServer(UserIdentityConfirmDTO userIdentityConfirmDTO) throws Exception {
 
         // 验证saas平台与用户名对应关系是否成立
         Boolean isAuth = userServiceApi.authConfirm(userIdentityConfirmDTO);
@@ -98,7 +98,9 @@ public class GateWayOpenServiceV1 implements AuthServiceApi {
 
         UserIdentityInfoDTO userIdentityInfoDTO = new UserIdentityInfoDTO();
         userIdentityInfoDTO.setUserId(userLoginDTO.getUserResp().getUserId());
-        userIdentityInfoDTO.setUserSaasPlatformType(userLoginDTO.getUserResp().getSaasPlatformType());
+        userIdentityInfoDTO.setAppId(userLoginDTO.getUserResp().getAppId());
         return userIdentityInfoDTO;
     }
+
+
 }

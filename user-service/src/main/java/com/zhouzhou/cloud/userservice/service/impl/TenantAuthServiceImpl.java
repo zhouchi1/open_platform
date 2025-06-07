@@ -5,11 +5,9 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 
 import com.zhouzhou.cloud.common.entity.TenantAuth;
 import com.zhouzhou.cloud.common.entity.UserInfo;
-import com.zhouzhou.cloud.common.resp.BaseListResp;
-import com.zhouzhou.cloud.common.resp.BasePageListResp;
 import com.zhouzhou.cloud.userservice.dto.ProcessSaasPlatformInfoDTO;
 import com.zhouzhou.cloud.userservice.enums.ProcessTypeEnum;
-import com.zhouzhou.cloud.userservice.mapper.TenantAuthMapper;
+import com.zhouzhou.cloud.common.mapper.TenantAuthMapper;
 import com.zhouzhou.cloud.userservice.dto.QuerySaasPlatformDTO;
 import com.zhouzhou.cloud.userservice.req.SaasPlatformCreateReq;
 import com.zhouzhou.cloud.userservice.resp.QuerySaasPlatformAuthDetailResp;

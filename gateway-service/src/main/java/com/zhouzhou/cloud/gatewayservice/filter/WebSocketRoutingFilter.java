@@ -77,7 +77,7 @@ public class WebSocketRoutingFilter implements GlobalFilter, Ordered {
                         UserLoginDTO userLoginDTO = JSONObject.parseObject(userInfo, UserLoginDTO.class);
 
                         // 3. 获取用户绑定的Netty服务器地址
-                        String bindingKey = userLoginDTO.getUserResp().getSaasPlatformType() + ":" +
+                        String bindingKey = userLoginDTO.getUserResp().getAppId() + ":" +
                                 userLoginDTO.getUserResp().getUserId();
                         String address = (String) redisUtil.get(bindingKey);
 
@@ -137,7 +137,7 @@ public class WebSocketRoutingFilter implements GlobalFilter, Ordered {
             Instance instance = instances.get(0);
 
             String newBinding = instance.getIp() + ":" + instance.getPort();
-            String bindingKey = userLoginDTO.getUserResp().getSaasPlatformType() + ":" +
+            String bindingKey = userLoginDTO.getUserResp().getAppId() + ":" +
                     userLoginDTO.getUserResp().getUserId();
 
             redisUtil.set(bindingKey, newBinding, -1);

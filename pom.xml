@@ -49,6 +49,7 @@
         <knfe4j.version>3.0.3</knfe4j.version>
         <curator-framework.version>5.4.0</curator-framework.version>
         <deepseek.version>0.1.152</deepseek.version>
+        <sentinel-dubbo.version>1.8.6</sentinel-dubbo.version>
         <spring-cloud.version>2022.0.0</spring-cloud.version>
         <spring-cloud-alibaba.version>2022.0.0.0</spring-cloud-alibaba.version>
         <wechatpay-apache-httpclient.version>0.4.9</wechatpay-apache-httpclient.version>
@@ -88,6 +89,7 @@
                 <version>${spring-ai.version}</version>
             </dependency>
 
+            <!-- Spring AI 依赖管理 -->
             <dependency>
                 <groupId>org.springframework.ai</groupId>
                 <artifactId>spring-ai-mcp-client-webflux-spring-boot-starter</artifactId>
@@ -267,6 +269,12 @@
                 <groupId>com.alibaba.fastjson2</groupId>
                 <artifactId>fastjson2</artifactId>
                 <version>${fastjson2.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.alibaba.csp</groupId>
+                <artifactId>sentinel-dubbo-adapter</artifactId>
+                <version>${sentinel-dubbo.version}</version>
             </dependency>
 
             <!--            <dependency>-->

@@ -10,8 +10,13 @@ import org.springframework.stereotype.Service;
 @Service
 public class OrderTimeoutCancelJob {
 
+    /**
+     * 处理超时订单
+     * @param param 请求参数
+     * @return 定时任务执行结果
+     */
     @XxlJob("cancelTimeOutOrder")
-    public ReturnT<?> cancelTimeOutOrder(String param) {
+    public ReturnT<String> cancelTimeOutOrder(String param) {
         try {
             // 业务逻辑处理
             log.info("执行订单超时取消任务，参数：" + param);
@@ -23,6 +28,26 @@ public class OrderTimeoutCancelJob {
         } catch (Exception e) {
             XxlJobLogger.log("订单超时取消任务执行失败：" + e.getMessage());
             return new ReturnT<>(ReturnT.FAIL_CODE, "执行失败：" + e.getMessage());
+        }
+    }
+
+    /**
+     * 处理websocket-Token过期的连接
+     * @return 定时任务执行结果
+     */
+    @XxlJob("cancelTimeOutLink")
+    public ReturnT<String> cancelTimeOutLink(String param){
+        try {
+            // 业务逻辑处理
+            log.info("websocket连接过期token处理，参数：" + param);
+            XxlJobLogger.log("websocket连接过期token处理，参数：" + param);
+
+            // 处理websocket-Token过期的连接
+
+            return new ReturnT<>(ReturnT.SUCCESS_CODE, "执行成功！");
+        } catch (Exception e) {
+            XxlJobLogger.log("websocket连接过期token处理：" + e.getMessage());
+            return new ReturnT<>(ReturnT.FAIL_CODE, "websocket连接过期token处理 执行失败：" + e.getMessage());
         }
     }
 }

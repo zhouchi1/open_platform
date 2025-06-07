@@ -5,7 +5,7 @@ import com.zhouzhou.cloud.common.service.resp.SystemUserResp;
 
 public interface UserServiceApi {
 
-    Boolean authConfirm(UserIdentityConfirmDTO userIdentityConfirmDTO);
+    Boolean authConfirm(UserIdentityConfirmDTO userIdentityConfirmDTO) throws Exception;
 
     SystemUserResp queryUserInfo(UserIdentityConfirmDTO userIdentityConfirmDTO);
 }

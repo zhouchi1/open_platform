@@ -6,17 +6,22 @@ import com.zhouzhou.cloud.common.entity.TenantAuth;
 import com.zhouzhou.cloud.common.entity.UserInfo;
 import com.zhouzhou.cloud.common.service.interfaces.UserServiceApi;
 import com.zhouzhou.cloud.common.service.resp.SystemUserResp;
-import com.zhouzhou.cloud.common.utils.SignUtil;
-import com.zhouzhou.cloud.userservice.mapper.TenantAuthMapper;
-import com.zhouzhou.cloud.userservice.mapper.UserInfoMapper;
+import com.zhouzhou.cloud.common.mapper.TenantAuthMapper;
+import com.zhouzhou.cloud.common.mapper.UserInfoMapper;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboService;
 import org.springframework.util.ObjectUtils;
 
+import java.nio.charset.StandardCharsets;
+import java.security.KeyFactory;
+import java.security.NoSuchAlgorithmException;
+import java.security.PublicKey;
+import java.security.Signature;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.X509EncodedKeySpec;
 import java.time.Instant;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 @Slf4j
 @DubboService(version = "1.0.0")
@@ -29,10 +34,10 @@ public class UserServiceImplV1 implements UserServiceApi {
     private UserInfoMapper userInfoMapper;
 
     @Override
-    public Boolean authConfirm(UserIdentityConfirmDTO userIdentityConfirmDTO) {
+    public Boolean authConfirm(UserIdentityConfirmDTO userIdentityConfirmDTO) throws Exception {
         // 时间戳过期时间判定
         long currentTime = Instant.now().toEpochMilli();
-        if (Math.abs(currentTime - userIdentityConfirmDTO.getTimestamp()) > 1000000) {
+        if (Math.abs(currentTime - userIdentityConfirmDTO.getTimestamp()) > 300_000) {
             return false;
         }
 
@@ -48,7 +53,7 @@ public class UserServiceImplV1 implements UserServiceApi {
 
         // 不存在的第三方用户 拒绝授权
         LambdaQueryWrapper<UserInfo> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(UserInfo::getUserName, userIdentityConfirmDTO.getUserName());
+        queryWrapper.eq(UserInfo::getId, userIdentityConfirmDTO.getUserId());
         queryWrapper.eq(UserInfo::getAppId, tenantAuth.getAppId());
         UserInfo userInfo = userInfoMapper.selectOne(queryWrapper);
         if (ObjectUtils.isEmpty(userInfo)) {
@@ -56,16 +61,27 @@ public class UserServiceImplV1 implements UserServiceApi {
         }
 
         // 根据加密算法匹配匹配是否为合法请求
-        Map<String, String> params = new HashMap<>();
-        params.put("appId", userIdentityConfirmDTO.getAppId());
-        params.put("nonce", userIdentityConfirmDTO.getNonce());
-        params.put("timestamp", String.valueOf(userIdentityConfirmDTO.getTimestamp()));
-        params.put("userName", userIdentityConfirmDTO.getUserName());
+        SortedMap<String, String> sortedParams = new TreeMap<>();
+        sortedParams.put("appId", userIdentityConfirmDTO.getAppId());
+        sortedParams.put("nonce", userIdentityConfirmDTO.getNonce());
+        sortedParams.put("timestamp", String.valueOf(userIdentityConfirmDTO.getTimestamp()));
+        sortedParams.put("userId", userIdentityConfirmDTO.getUserId());
 
-        String signature = SignUtil.generateSignature(params, tenantAuth.getAppPublicSecret());
+        StringBuilder sb = new StringBuilder();
+        for (Map.Entry<String, String> entry : sortedParams.entrySet()) {
+            if (entry.getValue() != null) {
+                sb.append(entry.getKey()).append("=").append(entry.getValue()).append("&");
+            }
+        }
 
-        // 签名不匹配 疑似收到签名替换攻击 拒绝授权
-        return signature.equals(userIdentityConfirmDTO.getSign());
+        // 去掉最后的 "&"
+        String dataToVerify = sb.substring(0, sb.length() - 1);
+
+        // 解析公钥
+        PublicKey publicKey = getPublicKeyFromString(tenantAuth.getAppPublicSecret());
+
+        // 验证签名
+        return verifySignature(dataToVerify, userIdentityConfirmDTO.getSign(), publicKey);
     }
 
     @Override
@@ -76,13 +92,32 @@ public class UserServiceImplV1 implements UserServiceApi {
         TenantAuth tenantAuth = tenantAuthMapper.selectOne(tenantQueryWrapper);
 
         LambdaQueryWrapper<UserInfo> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(UserInfo::getUserName, userIdentityConfirmDTO.getUserName());
+        queryWrapper.eq(UserInfo::getId, userIdentityConfirmDTO.getUserId());
         queryWrapper.eq(UserInfo::getAppId, tenantAuth.getAppId());
         UserInfo userInfo = userInfoMapper.selectOne(queryWrapper);
 
         SystemUserResp systemUserResp = new SystemUserResp();
         systemUserResp.setUserId(String.valueOf(userInfo.getId()));
-        systemUserResp.setSaasPlatformType(tenantAuth.getAppId());
+        systemUserResp.setAppId(tenantAuth.getAppId());
         return systemUserResp;
     }
+
+    private PublicKey getPublicKeyFromString(String publicKeyString) throws NoSuchAlgorithmException, InvalidKeySpecException {
+
+        String fixString = publicKeyString.replaceAll("\\s+", "");
+
+        byte[] keyBytes = Base64.getDecoder().decode(fixString);
+        X509EncodedKeySpec spec = new X509EncodedKeySpec(keyBytes);
+        KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+        return keyFactory.generatePublic(spec);
+    }
+
+    private boolean verifySignature(String data, String signBase64, PublicKey publicKey) throws Exception {
+        Signature signature = Signature.getInstance("SHA256withRSA");
+        signature.initVerify(publicKey);
+        signature.update(data.getBytes(StandardCharsets.UTF_8));
+        byte[] signBytes = Base64.getDecoder().decode(signBase64);
+        return signature.verify(signBytes);
+    }
+
 }

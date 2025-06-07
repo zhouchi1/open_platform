@@ -8,7 +8,7 @@ import com.zhouzhou.cloud.userservice.dto.CreateSaasUserInfosDTO;
 import com.zhouzhou.cloud.userservice.dto.ProcessSaasUserInfoDTO;
 import com.zhouzhou.cloud.userservice.enums.ProcessContinueEnum;
 import com.zhouzhou.cloud.userservice.enums.ProcessTypeEnum;
-import com.zhouzhou.cloud.userservice.mapper.UserInfoMapper;
+import com.zhouzhou.cloud.common.mapper.UserInfoMapper;
 import com.zhouzhou.cloud.userservice.service.UserInfoService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

@@ -26,29 +26,24 @@
             <version>1.0.0-SNAPSHOT</version>
         </dependency>
 
-        <!-- 分布式RPC通讯-Dubbo 与Springboot集成-->
         <dependency>
             <groupId>org.apache.dubbo</groupId>
             <artifactId>dubbo-spring-boot-starter</artifactId>
         </dependency>
 
-        <!-- 分布式RPC通讯-Dubbo 使用Nacos作为注册中心和配置中心-->
         <dependency>
             <groupId>org.apache.dubbo</groupId>
             <artifactId>dubbo-nacos-spring-boot-starter</artifactId>
         </dependency>
 
-        <!-- 微服务注册中心 Nacos-->
         <dependency>
             <groupId>com.alibaba.cloud</groupId>
             <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
         </dependency>
 
-        <!-- 微服务配置中心 Nacos -->
         <dependency>
             <groupId>com.alibaba.cloud</groupId>
             <artifactId>spring-cloud-starter-alibaba-nacos-config</artifactId>
         </dependency>
     </dependencies>
-
 </project>

@@ -17,6 +17,6 @@ public class UserIdentityInfoDTO implements Serializable {
     @ApiModelProperty("用户Id")
     private String userId;
 
-    @ApiModelProperty("用户saas平台类型")
-    private String userSaasPlatformType;
+    @ApiModelProperty("用户saas平台唯一识别信息")
+    private String appId;
 }

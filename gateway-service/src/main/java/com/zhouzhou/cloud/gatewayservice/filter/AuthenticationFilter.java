@@ -115,7 +115,7 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
                                         UserLoginDTO userLoginDTO = JSONObject.parseObject((String) redisUtil.get(token), UserLoginDTO.class);
 
                                         // 将终端用户识别信息与服务器的映射信息保存到Redis中
-                                        redisUtil.set(userLoginDTO.getUserResp().getSaasPlatformType() + ":" +
+                                        redisUtil.set(userLoginDTO.getUserResp().getAppId() + ":" +
                                                 userLoginDTO.getUserResp().getUserId(), finalAddress, 3600);
 
                                     } catch (NacosException e) {
@@ -185,7 +185,7 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
                     targetHost = instance.getIp() + ":" + instance.getPort();
 
                     // 将映射关系赋值给当前用户的redis存储
-                    redisUtil.set(userLoginDTO.getUserResp().getSaasPlatformType() + ":" + userLoginDTO.getUserResp().getUserId(), targetHost, -1);
+                    redisUtil.set(userLoginDTO.getUserResp().getAppId() + ":" + userLoginDTO.getUserResp().getUserId(), targetHost, -1);
                 }
 
                 // 组装参数请求目标服务器

@@ -14,7 +14,7 @@ public class UserIdentityConfirmDTO implements Serializable {
 
     private static final Long serialVersionUID = 6237846238764872361L;
 
-    @ApiModelProperty("appID")
+    @ApiModelProperty("appId")
     private String appId;
 
     @ApiModelProperty("sign签名")
@@ -26,6 +26,6 @@ public class UserIdentityConfirmDTO implements Serializable {
     @ApiModelProperty("时间戳")
     private Long timestamp;
 
-    @ApiModelProperty("用户名")
-    private String userName;
+    @ApiModelProperty("用户Id")
+    private String userId;
 }
