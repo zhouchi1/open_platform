@@ -5,14 +5,21 @@ management:
   endpoints:
     web:
       exposure:
-        include: '*'
+        include: health,info,prometheus  # 暴露 prometheus 指标
+  endpoint:
+    prometheus:
+      enabled: true  # 显式启用 prometheus endpoint
+  prometheus:
+    metrics:
+      export:
+        enabled: true
 
 dubbo:
   application:
     name: pay-service
     qos-enable: false
   registry:
-    address: nacos://127.0.0.1:8848,127.0.0.1:8850,127.0.0.1:8852
+    address: nacos-headless.default.svc.cluster.local:8848
     register-mode: instance
   protocol:
     name: dubbo
