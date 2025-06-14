@@ -12,7 +12,7 @@ dubbo:
     name: email-service
     qos-enable: false
   registry:
-    address: nacos://127.0.0.1:8848,127.0.0.1:8850,127.0.0.1:8852
+    address: nacos-headless.default.svc.cluster.local:8848
     register-mode: instance
   protocol:
     name: dubbo
