@@ -7,7 +7,7 @@ kind: Pod
 spec:
   containers:
     - name: jdk
-      image: maven:3.8.6-openjdk-17
+      image: maven:3.9.6-eclipse-temurin-17
       command:
         - cat
       tty: true
