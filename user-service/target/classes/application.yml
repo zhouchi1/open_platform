@@ -20,7 +20,7 @@ dubbo:
     name: user-service
     qos-enable: false
   registry:
-    address: nacos-headless.default.svc.cluster.local:8848
+    address: nacos://nacos-headless.default.svc.cluster.local:8848
     register-mode: instance
   protocol:
     name: dubbo
