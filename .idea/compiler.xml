@@ -21,38 +21,18 @@
         <module name="xxl-job-admin" />
       </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel>
-      <module name="address-service" target="8" />
-      <module name="ai-chat-service" target="17" />
-      <module name="ai-service" target="17" />
-      <module name="cart-service" target="8" />
-      <module name="pgvectordemo-service" target="17" />
-      <module name="product-service" target="8" />
-      <module name="register-service" target="8" />
-      <module name="server_config" target="8" />
-      <module name="warehouse-service" target="8" />
-    </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
-      <module name="address-service" options="-parameters" />
-      <module name="ai-chat-service" options="-parameters" />
-      <module name="ai-service" options="-parameters" />
       <module name="auth-service" options="-parameters" />
-      <module name="cart-service" options="-parameters" />
       <module name="common" options="-parameters" />
       <module name="email-service" options="-parameters" />
       <module name="gateway-service" options="-parameters" />
       <module name="message-service" options="-parameters" />
       <module name="order-service" options="-parameters" />
       <module name="pay-service" options="-parameters" />
-      <module name="pgvectordemo-service" options="-parameters" />
-      <module name="product-service" options="-parameters" />
-      <module name="register-service" options="-parameters" />
-      <module name="server_config" options="-parameters" />
       <module name="task-service" options="-parameters" />
       <module name="user-service" options="-parameters" />
-      <module name="warehouse-service" options="-parameters" />
       <module name="websocket-service" options="-parameters" />
     </option>
   </component>

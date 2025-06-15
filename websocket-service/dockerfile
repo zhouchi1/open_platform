@@ -1,6 +1,0 @@
-FROM openjdk:17
-ENV TZ=Asia/Shanghai
-WORKDIR /app
-COPY target/websocket-service-1.0.0-SNAPSHOT.war websocket-service-1.0.0-SNAPSHOT.war
-EXPOSE 8080
-ENTRYPOINT ["java", "-jar", "websocket-service-1.0.0-SNAPSHOT.war"]

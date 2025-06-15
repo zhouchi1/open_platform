@@ -1,0 +1,54 @@
+apiVersion: jenkins.io/v1
+kind: Pipeline
+metadata:
+  name: java-app-pipeline
+spec:
+  agent:
+    kubernetes:
+      yaml: |
+        apiVersion: v1
+        kind: Pod
+        spec:
+          containers:
+          - name: jdk
+            image: maven:3.8.6-openjdk-17
+            command: ["cat"]
+            tty: true
+            volumeMounts:
+              - name: maven-cache
+                mountPath: /root/.m2
+          - name: kubectl
+            image: bitnami/kubectl:latest
+            command: ["cat"]
+            tty: true
+          volumes:
+            - name: maven-cache
+              emptyDir: {}
+
+  stages:
+    - name: Checkout
+      steps:
+        - git:
+            url: 'https://github.com/zhouchi1/open_platform.git'
+            branch: master
+
+    - name: Build
+      steps:
+        - container: jdk
+          sh: 'mvn clean package'
+
+    - name: Build Docker Image
+      steps:
+        - script: |
+            docker.withRegistry('', 'docker-creds') {
+              def image = docker.build("your-dockerhub/my-java-app:${env.BUILD_ID}")
+              image.push()
+            }
+
+    - name: Deploy to Minikube
+      steps:
+        - container: kubectl
+          sh: |
+            sed -i 's|<DOCKER_USER>|your-dockerhub|g' deployment.yaml
+            sed -i 's|\\${BUILD_NUMBER}|${env.BUILD_ID}|g' deployment.yaml
+            kubectl apply -f deployment.yaml
