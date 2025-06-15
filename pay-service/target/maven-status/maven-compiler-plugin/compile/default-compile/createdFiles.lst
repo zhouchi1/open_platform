@@ -4,7 +4,6 @@ com\zhouzhou\cloud\payservice\dto\wxpay\WxPayReFoundAmountFormDTO.class
 com\zhouzhou\cloud\payservice\dto\wxlogin\WxAccessTokenDTO.class
 com\zhouzhou\cloud\payservice\dto\wxlogin\WxMobileInfoDTO.class
 com\zhouzhou\cloud\payservice\req\wxlogin\WxLoginRegisterReq.class
-com\zhouzhou\cloud\payservice\enums\WxPayTradeTypeEnum.class
 com\zhouzhou\cloud\payservice\dto\wxpay\WxPaySceneDetailInfoDTO.class
 com\zhouzhou\cloud\payservice\service\WxPayService.class
 com\zhouzhou\cloud\payservice\dto\wxpay\WxPayCallBackDecryptAmountDTO.class
@@ -20,8 +19,8 @@ com\zhouzhou\cloud\payservice\resp\wxpay\WxPayPrePayInformationResp.class
 com\zhouzhou\cloud\payservice\dto\wxpay\WxPayCallBackDecryptSceneInfoDTO.class
 com\zhouzhou\cloud\payservice\config\WxPayOpenFeignConfig.class
 com\zhouzhou\cloud\payservice\dto\wxpay\WxPayCallBackDecryptPromotionGoodsDTO.class
+com\zhouzhou\cloud\payservice\utils\ExchangeQueueQueryUtil.class
 com\zhouzhou\cloud\payservice\controller\WxPayController.class
-com\zhouzhou\cloud\payservice\enums\RecommendTypeEnum.class
 com\zhouzhou\cloud\payservice\req\wxpay\WxPayReFoundSubmitReq.class
 com\zhouzhou\cloud\payservice\dto\wxpay\WxPayOrderDTO.class
 com\zhouzhou\cloud\payservice\openfeign\WxPayOpenFeignApi.class
@@ -41,13 +40,11 @@ com\zhouzhou\cloud\payservice\dto\wxlogin\WxMobileWaterMarkDTO.class
 com\zhouzhou\cloud\payservice\dto\wxpay\WxPayReFoundAmountDTO.class
 com\zhouzhou\cloud\payservice\dto\wxpay\WxPaySettleInfoDTO.class
 com\zhouzhou\cloud\payservice\dto\wxpay\WxPayReFoundStatusDTO.class
-com\zhouzhou\cloud\payservice\enums\WxPayTradeStateEnum.class
 com\zhouzhou\cloud\payservice\dto\wxpay\WxPayCallBackDecryptDTO.class
 com\zhouzhou\cloud\payservice\dto\wxpay\WxPayCallBackDecryptPayerDTO.class
 com\zhouzhou\cloud\payservice\constants\WxConstants.class
 com\zhouzhou\cloud\payservice\dto\wxpay\WxPayReFoundAmountDetailDTO.class
 com\zhouzhou\cloud\payservice\resp\wxpay\WxPayCallBackResp.class
-com\zhouzhou\cloud\payservice\enums\PayCurrencyEnum.class
 com\zhouzhou\cloud\payservice\utils\WxUtil.class
 com\zhouzhou\cloud\payservice\dto\wxpay\WxPayReFoundAmountStatusDTO.class
 com\zhouzhou\cloud\payservice\req\wxpay\WxPayShoppingCartCommitReq.class
