@@ -78,7 +78,7 @@ spec:
             steps {
                 container('kubectl') {
                     sh '''
-                    for service in auth order pay; do
+                    for service in auth order pay email gateway message task user websocket; do
                       sed "s|<DOCKER_USER>|${DOCKER_USERNAME}|g; s|\\${BUILD_NUMBER}|${BUILD_NUMBER}|g" k8s/${service}-deployment.yaml | kubectl apply -f -
                     done
                     '''
