@@ -50,7 +50,7 @@ spec:
             steps {
                 container('jdk') {
                     sh '''
-                    for service in auth-service order-service pay-service; do
+                    for service in auth order pay email gateway message task user websocket; do
                       echo "Building $service"
                       cd $service
                       mvn clean package -DskipTests
@@ -65,7 +65,7 @@ spec:
                 container('docker') {
                     sh '''
                     echo "${DOCKER_PASSWORD}" | docker login -u "${DOCKER_USERNAME}" --password-stdin
-                    for service in auth-service order-service pay-service email-service gateway-service message-service task-service user-service websocket-service; do
+                    for service in auth order pay email gateway message task user websocket; do
                       echo "Building docker image for $service"
                       docker build -t ${DOCKER_USERNAME}/${service}:${BUILD_NUMBER} $service
                       docker push ${DOCKER_USERNAME}/${service}:${BUILD_NUMBER}
@@ -78,7 +78,7 @@ spec:
             steps {
                 container('kubectl') {
                     sh '''
-                    for service in auth-service order-service pay-service; do
+                    for service in auth order pay; do
                       sed "s|<DOCKER_USER>|${DOCKER_USERNAME}|g; s|\\${BUILD_NUMBER}|${BUILD_NUMBER}|g" k8s/${service}-deployment.yaml | kubectl apply -f -
                     done
                     '''
