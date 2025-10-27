@@ -3,7 +3,7 @@ package com.zhouzhou.cloud.payservice.utils;
 import com.wechat.pay.contrib.apache.httpclient.util.PemUtil;
 import com.zhouzhou.cloud.common.utils.BizExUtil;
 import com.zhouzhou.cloud.payservice.dto.wxpay.WxPayConfigDTO;
-import com.zhouzhou.cloud.payservice.resp.wxpay.WxPayPrePayInformationResp;
+import com.zhouzhou.cloud.payservice.response.wxpay.WxPayPrePayInformationResp;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.context.config.annotation.RefreshScope;

@@ -1,6 +1,6 @@
 package com.zhouzhou.cloud.payservice.dto.wxpay;
 
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -19,9 +19,9 @@ public class WxPayAmountDTO implements Serializable {
 
     private static final Long serialVersionUID = 7462378467823648762L;
 
-    @ApiModelProperty("微信支付金额")
+    @Schema(name ="微信支付金额")
     private Integer total;
 
-    @ApiModelProperty("微信支付币种")
+    @Schema(name ="微信支付币种")
     private String currency;
 }

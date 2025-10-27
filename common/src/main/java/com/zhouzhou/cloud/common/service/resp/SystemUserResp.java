@@ -1,7 +1,7 @@
 package com.zhouzhou.cloud.common.service.resp;
 
 import com.zhouzhou.cloud.common.service.base.BaseAMO;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -14,12 +14,12 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 public class SystemUserResp extends BaseAMO {
 
-    @ApiModelProperty("用户账号 ID")
+    @Schema(name = "用户账号 ID")
     private String userId;
 
-    @ApiModelProperty("saas平台内部唯一识别信息")
-    private String appId;
-
-    @ApiModelProperty("微信用户openId")
+    @Schema(name = "微信用户openId")
     private String openId;
+
+    @Schema(name = "用户编码")
+    private String userCode;
 }

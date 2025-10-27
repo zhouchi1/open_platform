@@ -3,9 +3,9 @@ package com.zhouzhou.cloud.payservice.service;
 import com.zhouzhou.cloud.payservice.dto.wxpay.WxPayOrderDTO;
 import com.zhouzhou.cloud.payservice.dto.wxpay.WxPayReFoundStatusDTO;
 import com.zhouzhou.cloud.payservice.dto.wxpay.WxPayStatusDTO;
-import com.zhouzhou.cloud.payservice.req.wxpay.WxPayCallBackReq;
-import com.zhouzhou.cloud.payservice.resp.wxpay.WxPayCallBackResp;
-import com.zhouzhou.cloud.payservice.resp.wxpay.WxPayPrePayInformationResp;
+import com.zhouzhou.cloud.payservice.request.pay.wxpay.WxPayCallBackReq;
+import com.zhouzhou.cloud.payservice.response.wxpay.WxPayCallBackResp;
+import com.zhouzhou.cloud.payservice.response.wxpay.WxPayPrePayInformationResp;
 
 /**
  * @Author: Sr.Zhou

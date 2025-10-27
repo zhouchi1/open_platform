@@ -1,10 +1,13 @@
 package com.zhouzhou.cloud.websocketservice.hanlder;
 
 import com.zhouzhou.cloud.common.dto.UserIdentityInfoDTO;
-import com.zhouzhou.cloud.common.service.interfaces.AuthServiceApi;
+import com.zhouzhou.cloud.common.service.interfaces.AuthRpcServer;
 import com.zhouzhou.cloud.common.utils.RedisUtil;
 import com.zhouzhou.cloud.websocketservice.config.ChannelConfig;
+import com.zhouzhou.cloud.websocketservice.constant.ConnectConstants;
 import com.zhouzhou.cloud.websocketservice.dto.SecurityCheckCompleteDTO;
+import com.zhouzhou.cloud.websocketservice.service.TokenService;
+import com.zhouzhou.cloud.websocketservice.utils.AttributeKeyUtils;
 import io.netty.channel.*;
 import io.netty.handler.codec.http.*;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
@@ -13,56 +16,62 @@ import io.netty.handler.codec.http.websocketx.WebSocketServerHandshakerFactory;
 import io.netty.handler.ssl.SslHandler;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.ObjectUtils;
 import org.apache.dubbo.config.annotation.DubboReference;
-import org.springframework.boot.web.context.WebServerInitializedEvent;
-import org.springframework.cloud.context.config.annotation.RefreshScope;
-import org.springframework.context.ApplicationListener;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
+import org.springframework.util.ObjectUtils;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.time.LocalDateTime;
-import java.util.List;
-
-import static com.zhouzhou.cloud.websocketservice.constant.ConnectConstants.*;
-import static com.zhouzhou.cloud.websocketservice.utils.AttributeKeyUtils.*;
+import java.util.Map;
 
 /**
  * @Author: Sr.Zhou
  * @CreateTime: 2025-03-26
  * @Description: 身份验证处理器
  */
+
 @Slf4j
-@RefreshScope
 @Component
 @ChannelHandler.Sharable
-public class AuthHandler extends SimpleChannelInboundHandler<FullHttpRequest> implements ApplicationListener<WebServerInitializedEvent> {
+public class AuthHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
+
+    @Value("${websocket.port}")
+    private Integer port;
 
     @DubboReference(version = "1.0.0", loadbalance = "roundrobin")
-    private AuthServiceApi authServiceApi;
+    private AuthRpcServer authRpcServer;
 
     @Resource
     private RedisUtil redisUtil;
 
-    private int port;
+    private final StringRedisTemplate stringRedisTemplate;
+
+    public AuthHandler(StringRedisTemplate stringRedisTemplate) {
+        this.stringRedisTemplate = stringRedisTemplate;
+    }
 
     @Override
-    protected void channelRead0(ChannelHandlerContext ctx, FullHttpRequest request) {
-        String token = getTokenFromRequest(request);
-        if (authServiceApi.checkTokenValidity(token)) {
+    protected void channelRead0(ChannelHandlerContext ctx, FullHttpRequest request) throws UnknownHostException {
 
-            UserIdentityInfoDTO userPlatformUniqueInfo = authServiceApi.queryUserIdentityByToken(token);
+        String token = getTokenFromRequest(request);
+        if (authRpcServer.checkTokenValidity(token)) {
+
+            UserIdentityInfoDTO userPlatformUniqueInfo = authRpcServer.queryUserIdentityByToken(token);
             ctx.fireChannelRead(request.retain());
 
             // 创建WebSocket握手工厂
             final WebSocketServerHandshakerFactory wsFactory = new WebSocketServerHandshakerFactory(
-                    getWebSocketLocation(ctx.pipeline(), request, WEBSOCKET_URL), SUB_PROTOCOLS,
-                    ALLOW_EXTENSIONS);
+                    getWebSocketLocation(ctx.pipeline(), request, ConnectConstants.WEBSOCKET_URL), ConnectConstants.SUB_PROTOCOLS,
+                    ConnectConstants.ALLOW_EXTENSIONS);
             final WebSocketServerHandshaker handshaker = wsFactory.newHandshaker(request);
             if (handshaker == null) {
                 WebSocketServerHandshakerFactory.sendUnsupportedVersionResponse(ctx.channel());
             } else {
                 // 设置自定义头部信息
-                HttpHeaders httpHeaders = new DefaultHttpHeaders().add(SEC_WEBSOCKET_PROTOCOLS, token);
+                HttpHeaders httpHeaders = new DefaultHttpHeaders().add(ConnectConstants.SEC_WEBSOCKET_PROTOCOLS, token);
                 // 执行握手 握手完成后会触发channelActive方法
                 final ChannelFuture handshakeFuture = handshaker.handshake(ctx.channel(), request, httpHeaders, ctx.channel().newPromise());
                 handshakeFuture.addListener((ChannelFutureListener) future -> {
@@ -83,24 +92,33 @@ public class AuthHandler extends SimpleChannelInboundHandler<FullHttpRequest> im
                 // 将登录信息存储在本机内存中
                 SecurityCheckCompleteDTO securityCheckCompleteDTO = new SecurityCheckCompleteDTO();
                 securityCheckCompleteDTO.setChannelId(ctx.channel().id().asLongText());
-                securityCheckCompleteDTO.setUserPlatformUniqueInfo(userPlatformUniqueInfo.getAppId() + ":" + userPlatformUniqueInfo.getUserId());
+                securityCheckCompleteDTO.setUserId(userPlatformUniqueInfo.getUserId());
                 securityCheckCompleteDTO.setConnectTime(LocalDateTime.now());
-                ctx.channel().attr(SECURITY_CHECK_COMPLETE_ATTRIBUTE_KEY).set(securityCheckCompleteDTO);
+                securityCheckCompleteDTO.setUserCode(userPlatformUniqueInfo.getUserCode());
+                ctx.channel().attr(AttributeKeyUtils.SECURITY_CHECK_COMPLETE_ATTRIBUTE_KEY).set(securityCheckCompleteDTO);
 
-                ChannelConfig.addChannel(userPlatformUniqueInfo.getAppId() + ":" + userPlatformUniqueInfo.getUserId(), ctx.channel());
-                ChannelConfig.bindChannelUser(ctx.channel(), userPlatformUniqueInfo.getAppId() + ":" + userPlatformUniqueInfo.getUserId());
+                // 移除同一用户已登录的channel
+                String channelId = (String) redisUtil.hGet(ConnectConstants.NODE_CHANNEL_USER_INFO + InetAddress.getLocalHost().getHostAddress() + ":" + port, userPlatformUniqueInfo.getUserId());
+
+                if (!ObjectUtils.isEmpty(channelId)) {
+
+                    // 此处若以后分布式部署 如果没有找到本机内存中的channel 需要将channelId广播到其他的节点进行强制下线操作
+                    Channel channel = ChannelConfig.getChannel(channelId);
+                    if (!ObjectUtils.isEmpty(channel)) {
+                        channel.close();
+                    }
+                }
+
+                ChannelConfig.addChannel(ctx.channel().id().asLongText(), ctx.channel());
+
+                redisUtil.hSet(ConnectConstants.NODE_CHANNEL_USER_INFO + InetAddress.getLocalHost().getHostAddress() + ":" + port, userPlatformUniqueInfo.getUserId(), ctx.channel().id().asLongText());
             }
 
             try {
-                pushOfflineMessages(userPlatformUniqueInfo.getAppId() + ":" + userPlatformUniqueInfo.getUserId(), ctx.channel());
-
-                // 设置用户在线状态
-                if (ObjectUtils.isEmpty(redisUtil.get(userPlatformUniqueInfo.getAppId() + ":" + userPlatformUniqueInfo.getUserId() + "status"))) {
-                    redisUtil.set(userPlatformUniqueInfo.getAppId() + ":" + userPlatformUniqueInfo.getUserId() + "status", "UP", -1);
-                }
-                log.info("【Saas Platform->{}】,【User->{}】 Status Up！", userPlatformUniqueInfo.getAppId(), userPlatformUniqueInfo.getUserId());
+                pushOfflineMessages(userPlatformUniqueInfo.getUserId(), ctx.channel());
+                log.info("用户 {} 已上线", userPlatformUniqueInfo.getUserId());
             } catch (Exception e) {
-                log.error("Offline message push exception or user online status setting failure！", e);
+                log.error("用户信息获取失败，关闭连接", e);
                 ctx.close();
             }
 
@@ -109,8 +127,12 @@ public class AuthHandler extends SimpleChannelInboundHandler<FullHttpRequest> im
         }
     }
 
+    private String getDeviceTypeFromRequest(FullHttpRequest request) {
+        return request.uri();
+    }
+
     private String getTokenFromRequest(FullHttpRequest request) {
-        return request.headers().get(SEC_WEBSOCKET_PROTOCOLS);
+        return request.headers().get(ConnectConstants.SEC_WEBSOCKET_PROTOCOLS);
     }
 
     private void sendUnauthorizedResponse(ChannelHandlerContext ctx) {
@@ -119,33 +141,36 @@ public class AuthHandler extends SimpleChannelInboundHandler<FullHttpRequest> im
     }
 
     private static String getWebSocketLocation(ChannelPipeline cp, HttpRequest req, String path) {
-        String protocol = WS;
+        String protocol = ConnectConstants.WS;
         if (cp.get(SslHandler.class) != null) {
-            protocol = WSS;
+            protocol = ConnectConstants.WSS;
         }
         String host = req.headers().get(HttpHeaderNames.HOST);
         return protocol + "://" + host + path;
     }
 
-    private void pushOfflineMessages(String appIdPlusUserId, Channel channel) {
-        List<Object> message = redisUtil.lRange("offline-message" + appIdPlusUserId, 0L, -1L);
+    private void pushOfflineMessages(String userId, Channel channel) {
+        Long messageSize = stringRedisTemplate.opsForHash().size(ConnectConstants.OFFLINE_MESSAGE_BY_USER + userId);
 
-        if (message.size() == 0) {
-            log.info("用户 {} 没有离线消息", appIdPlusUserId);
+        if (messageSize == 0) {
             return;
         }
 
-        message.forEach(data -> channel.writeAndFlush(new TextWebSocketFrame((String) data)));
+        Map<Object, Object> message = stringRedisTemplate.opsForHash().entries(ConnectConstants.OFFLINE_MESSAGE_BY_USER + userId);
 
-        log.info("用户 {} 的 {} 条离线消息已推送", appIdPlusUserId, message.size());
+        message.forEach((key, value) -> channel.writeAndFlush(new TextWebSocketFrame((String) value)).addListener((ChannelFutureListener) future -> {
+            if (future.isSuccess()) {
+                redisUtil.hDelete(ConnectConstants.OFFLINE_MESSAGE_BY_USER + userId, key);
+            }
+        }));
+
+        log.info("用户 {} 的 {} 条离线消息已推送", userId, messageSize);
     }
 
     @Override
-    public void onApplicationEvent(WebServerInitializedEvent event) {
-        this.port = event.getWebServer().getPort();
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
+        cause.printStackTrace();
+        ctx.close();
     }
 
-    public int getPort() {
-        return this.port;
-    }
 }

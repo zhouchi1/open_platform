@@ -1,6 +1,6 @@
 package com.zhouzhou.cloud.payservice.dto.wxlogin;
 
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -19,27 +19,27 @@ public class WxAuthDTO implements Serializable {
 
     private static final long serialVersionUID = 8712654785234765327L;
 
-    @ApiModelProperty("用户openId")
+    @Schema(name ="用户openId")
     private String openid;
 
-    @ApiModelProperty("会话密钥")
+    @Schema(name ="会话密钥")
     private String sessionKey;
 
-    @ApiModelProperty("用户在开放平台的唯一标识符")
+    @Schema(name ="用户在开放平台的唯一标识符")
     private String unionid;
 
-    @ApiModelProperty("小程序全局唯一后台接口调用凭据")
+    @Schema(name ="小程序全局唯一后台接口调用凭据")
     private String accessToken;
 
-    @ApiModelProperty("凭证有效时间，单位：秒。目前是7200秒之内的值。")
+    @Schema(name ="凭证有效时间，单位：秒。目前是7200秒之内的值。")
     private String expiresIn;
 
-    @ApiModelProperty("手机信息")
+    @Schema(name ="手机信息")
     private String phoneNumber;
 
-    @ApiModelProperty("错误码")
+    @Schema(name ="错误码")
     private String errcode;
 
-    @ApiModelProperty("错误信息")
+    @Schema(name ="错误信息")
     private String errmsg;
 }

@@ -2,8 +2,8 @@ package com.zhouzhou.cloud.orderservice.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.zhouzhou.cloud.common.entity.ShopOrder;
-import com.zhouzhou.cloud.common.enums.orderPay.WxPayTradeStateEnum;
-import com.zhouzhou.cloud.common.service.interfaces.OrderInventoryServiceApi;
+import com.zhouzhou.cloud.common.enums.payservice.wxpaytype.WxPayTradeStateEnum;
+import com.zhouzhou.cloud.common.service.interfaces.InventoryRpcServer;
 import com.zhouzhou.cloud.common.utils.SnowflakeIdGeneratorUtil;
 import com.zhouzhou.cloud.orderservice.mapper.ShopOrderMapper;
 import com.zhouzhou.cloud.orderservice.req.CreateOrderReq;
@@ -27,7 +27,7 @@ public class OrderServiceImpl extends ServiceImpl<ShopOrderMapper, ShopOrder>
         implements OrderService {
 
     @DubboReference(version = "1.0.0")
-    private OrderInventoryServiceApi orderInventoryServiceApi;
+    private InventoryRpcServer inventoryRpcServer;
 
     @Override
     @GlobalTransactional(name = "order-service", rollbackFor = Exception.class)
@@ -54,6 +54,6 @@ public class OrderServiceImpl extends ServiceImpl<ShopOrderMapper, ShopOrder>
         baseMapper.insert(shopOrder);
 
         // 【Dubbo调用库存扣减服务】
-        orderInventoryServiceApi.deductInventory();
+        inventoryRpcServer.deductInventory();
     }
 }

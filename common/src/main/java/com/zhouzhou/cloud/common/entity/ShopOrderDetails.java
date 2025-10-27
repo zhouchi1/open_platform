@@ -19,9 +19,6 @@ import lombok.NoArgsConstructor;
 @EqualsAndHashCode(callSuper = true)
 public class ShopOrderDetails extends BaseEntity {
 
-
-    private static final long serialVersionUID = 6786876784523846287L;
-
     /**
      * 关联订单号
      */

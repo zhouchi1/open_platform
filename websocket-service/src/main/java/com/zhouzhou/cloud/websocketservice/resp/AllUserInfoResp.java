@@ -1,7 +1,7 @@
 package com.zhouzhou.cloud.websocketservice.resp;
 
 import com.zhouzhou.cloud.common.service.base.BaseAMO;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -20,9 +20,9 @@ public class AllUserInfoResp extends BaseAMO {
 
     private static final Long serialVersionUID = 6728496746395463894L;
 
-    @ApiModelProperty("平台用户唯一识别信息")
-    private String userPlatformUniqueInfo;
+    @Schema(name = "用户Id")
+    private String userId;
 
-    @ApiModelProperty("通道Id")
+    @Schema(name = "通道Id")
     private String channelId;
 }

@@ -24,3 +24,21 @@ dubbo:
   protocol:
     name: dubbo
     port: 20887
+
+knife4j:
+  enable: true
+  openapi:
+    title: PayGateway 支付网关
+    description: PayGateway 支付网关 接口文档
+    version: 1.0.0
+    license: Apache 2.0
+    license-url: https://www.apache.org/licenses/LICENSE-2.0
+    contact:
+      name: Sr.Zhou
+      email: 2177922023@qq.com
+    group:
+      default:
+        group-name: default
+        api-rule: package
+        api-rule-resources:
+          - com.zhouzhou.cloud.controller

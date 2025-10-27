@@ -17,14 +17,6 @@ import lombok.NoArgsConstructor;
 @EqualsAndHashCode(callSuper = true)
 public class UserInfo extends BaseEntity {
 
-
-    private static final long serialVersionUID = 2345782365776235764L;
-
-    /**
-     * saas平台内部唯一标识
-     */
-    private String appId;
-
     /**
      * 用户名
      */
@@ -34,4 +26,14 @@ public class UserInfo extends BaseEntity {
      * 是否启用状态
      */
     private Boolean status;
+
+    /**
+     * 是否是新用户
+     */
+    private Boolean isNewUser;
+
+    /**
+     * 密码
+     */
+    private String password;
 }

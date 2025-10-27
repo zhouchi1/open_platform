@@ -1,11 +1,12 @@
 package com.zhouzhou.cloud.websocketservice.config;
 
 import com.zhouzhou.cloud.websocketservice.hanlder.AuthHandler;
-import com.zhouzhou.cloud.websocketservice.hanlder.HeartbeatIdleHandler;
 import com.zhouzhou.cloud.websocketservice.hanlder.WebSocketChannelInitializer;
 import com.zhouzhou.cloud.websocketservice.hanlder.WebSocketHandler;
+import com.zhouzhou.cloud.websocketservice.service.TokenService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.core.StringRedisTemplate;
 
 /**
  * @Author: Sr.Zhou
@@ -16,22 +17,17 @@ import org.springframework.context.annotation.Configuration;
 public class NettyConfig {
 
     @Bean
-    public AuthHandler authHandler() {
-        return new AuthHandler();
+    public AuthHandler authHandler(StringRedisTemplate stringRedisTemplate) {
+        return new AuthHandler(stringRedisTemplate);
     }
 
     @Bean
-    public WebSocketHandler webSocketHandler() {
-        return new WebSocketHandler();
+    public WebSocketHandler webSocketHandler(StringRedisTemplate stringRedisTemplate) {
+        return new WebSocketHandler(stringRedisTemplate);
     }
 
     @Bean
-    public HeartbeatIdleHandler heartbeatIdleHandler() {
-        return new HeartbeatIdleHandler();
-    }
-
-    @Bean
-    public WebSocketChannelInitializer webSocketChannelInitializer(AuthHandler authHandler, WebSocketHandler webSocketHandler, HeartbeatIdleHandler heartbeatIdleHandler) {
-        return new WebSocketChannelInitializer(authHandler, webSocketHandler, heartbeatIdleHandler);
+    public WebSocketChannelInitializer webSocketChannelInitializer(AuthHandler authHandler, WebSocketHandler webSocketHandler) {
+        return new WebSocketChannelInitializer(authHandler, webSocketHandler);
     }
 }

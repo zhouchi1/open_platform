@@ -10,13 +10,12 @@ import lombok.EqualsAndHashCode;
 import java.math.BigDecimal;
 
 
-@EqualsAndHashCode(callSuper = true)
+
 @ApiModel
 @Data
 @Builder
+@EqualsAndHashCode(callSuper = true)
 public class BaseBigDecimalOneResp extends BaseAMO {
-
-    private static final long serialVersionUID = 7534725532452244234L;
 
     @ApiModelProperty("合计")
     private BigDecimal bigDecimal;

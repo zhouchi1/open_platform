@@ -1,16 +1,31 @@
 package com.zhouzhou.cloud.websocketservice.hanlder;
 
-import com.zhouzhou.cloud.common.utils.RedisUtil;
+import com.alibaba.fastjson2.JSON;
 import com.zhouzhou.cloud.websocketservice.config.ChannelConfig;
+import com.zhouzhou.cloud.websocketservice.constant.ConnectConstants;
+import com.zhouzhou.cloud.websocketservice.dto.MessageTransportDTO;
+import com.zhouzhou.cloud.websocketservice.enums.MessageTypeEnum;
 import com.zhouzhou.cloud.websocketservice.utils.AttributeKeyUtils;
-import io.netty.channel.ChannelHandler;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.SimpleChannelInboundHandler;
+import io.netty.channel.*;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
-import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.ObjectUtils;
+
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.time.Duration;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+import static com.zhouzhou.cloud.websocketservice.constant.ConnectConstants.*;
 
 
 /**
@@ -23,12 +38,124 @@ import org.springframework.stereotype.Component;
 @ChannelHandler.Sharable
 public class WebSocketHandler extends SimpleChannelInboundHandler<TextWebSocketFrame> {
 
-    @Resource
-    private RedisUtil redisUtil;
+    @Value("${websocket.port}")
+    private Integer port;
+
+    private final StringRedisTemplate stringRedisTemplate;
+
+    public WebSocketHandler(StringRedisTemplate stringRedisTemplate) {
+        this.stringRedisTemplate = stringRedisTemplate;
+    }
 
     @Override
+    @SuppressWarnings("Duplicates")
     protected void channelRead0(ChannelHandlerContext ctx, TextWebSocketFrame msg) {
 
+        MessageTransportDTO messageTransportDTO = JSON.parseObject(msg.text(), MessageTransportDTO.class);
+
+        if (MessageTypeEnum.MESSAGE_CONFIRM.getCode().equals(messageTransportDTO.getMessageType().getCode())) {
+
+            if (ObjectUtils.isEmpty(messageTransportDTO.getMessageId())) {
+                ctx.channel().writeAndFlush(new TextWebSocketFrame("请输入已接收的消息Id！"));
+                return;
+            }
+
+            if (ObjectUtils.isEmpty(messageTransportDTO.getMessageSendUserInfoDTO())) {
+                ctx.channel().writeAndFlush(new TextWebSocketFrame("请输入消息所属的用户信息！"));
+                return;
+            }
+
+            if (ObjectUtils.isEmpty(messageTransportDTO.getMessageSendUserInfoDTO().getUserId())) {
+                ctx.channel().writeAndFlush(new TextWebSocketFrame("请输入消息所属用户Id！"));
+                return;
+            }
+
+            stringRedisTemplate.opsForHash().delete(ConnectConstants.OFFLINE_MESSAGE_BY_USER + messageTransportDTO.getMessageSendUserInfoDTO().getUserId()
+                    , messageTransportDTO.getMessageId());
+            return;
+        }
+
+        if (MessageTypeEnum.SEND_MESSAGE.getCode().equals(messageTransportDTO.getMessageType().getCode())) {
+            Boolean tag = isBroadcast(msg.text());
+
+            if (ObjectUtils.isEmpty(tag)) {
+                ctx.channel().writeAndFlush(new TextWebSocketFrame("请输入消息内容或要选择发送的消息的传播类型！"));
+                return;
+            }
+            if (tag) {
+                stringRedisTemplate.convertAndSend(WEBSOCKET_MESSAGE, msg.text());
+            } else {
+                if (CollectionUtils.isEmpty(messageTransportDTO.getMessageAcceptUserInfoDTO().getUserIds())) {
+                    ctx.writeAndFlush(new TextWebSocketFrame("请输入要发送消息的用户Id！"));
+                    return;
+                }
+
+                List<String> userIds = messageTransportDTO.getMessageAcceptUserInfoDTO().getUserIds();
+
+                Set<String> nodeSet = stringRedisTemplate.opsForSet().members(WS_NODE_STATUS);
+                if (CollectionUtils.isEmpty(nodeSet)) {
+                    log.error("没有在线的Netty-Websocket节点！请检查消息服务是否正常启动！");
+                    return;
+                }
+
+                userIds.parallelStream().forEach(userId -> {
+
+                    String messageId = storeOfflineMessage(userId, messageTransportDTO);
+
+                    AtomicBoolean deleteOfflineMessage = new AtomicBoolean(false);
+
+                    for (String node : nodeSet) {
+                        String channelId = (String) stringRedisTemplate.opsForHash().get(NODE_CHANNEL_USER_INFO + node, userId);
+
+                        if (!StringUtils.isEmpty(channelId)) {
+                            try {
+                                if (isCurrentNode(node)) {
+                                    Channel channel = ChannelConfig.getChannel(channelId);
+                                    if (channel != null && channel.isActive()) {
+                                        channel.writeAndFlush(new TextWebSocketFrame(JSON.toJSONString(messageTransportDTO))).addListener((ChannelFutureListener) future -> {
+                                            if (future.isSuccess()) {
+                                                deleteOfflineMessage.set(true);
+                                            }
+                                        });
+                                    } else {
+                                        stringRedisTemplate.opsForHash().delete(NODE_CHANNEL_USER_INFO + node, userId);
+                                    }
+                                } else {
+                                    messageTransportDTO.getMessageAcceptUserInfoDTO().setCurrentUserId(userId);
+                                    stringRedisTemplate.convertAndSend(WEBSOCKET_MESSAGE, JSON.toJSONString(messageTransportDTO));
+                                }
+                            } catch (Exception e) {
+                                log.error("消息发送异常[用户ID:{} 节点:{}]", userId, node, e);
+                            }
+                        }
+                    }
+
+                    if (deleteOfflineMessage.get()) {
+                        deleteOffLineMessage(messageId, userId);
+                    }
+                });
+            }
+        }
+    }
+
+    private boolean isCurrentNode(String node) throws UnknownHostException {
+        String localNode = InetAddress.getLocalHost().getHostAddress() + ":" + port;
+        return Objects.equals(node, localNode);
+    }
+
+    private String storeOfflineMessage(String userId, MessageTransportDTO message) {
+        long expireTime = System.currentTimeMillis() + Duration.ofDays(3).toMillis();
+
+        String messageId = UUID.randomUUID().toString();
+        message.setMessageId(messageId);
+        stringRedisTemplate.opsForHash().put(OFFLINE_MESSAGE_BY_USER + userId, messageId, JSON.toJSONString(message));
+        stringRedisTemplate.opsForZSet().add(OFFLINE_MESSAGE_BY_USER_EXPIRE, messageId, expireTime);
+        return messageId;
+    }
+
+    private void deleteOffLineMessage(String messageId, String userId) {
+        stringRedisTemplate.opsForHash().delete(OFFLINE_MESSAGE_BY_USER + userId, messageId);
+        stringRedisTemplate.opsForZSet().remove(OFFLINE_MESSAGE_BY_USER_EXPIRE, messageId);
     }
 
     @Override
@@ -36,36 +163,40 @@ public class WebSocketHandler extends SimpleChannelInboundHandler<TextWebSocketF
         super.channelActive(ctx);
     }
 
+
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
 
-
         super.channelInactive(ctx);
 
-        // 清除本机Channel - PlatformUser映射关系
-        String userPlatformUniqueInfo = ChannelConfig.getPlatformUserIdByChannel(ctx.channel());
+        ChannelConfig.removeChannel(ctx.channel().id().asLongText());
 
-        // 如果为空说明 映射关系已被清除 无需再次处理（已经被当作是空闲状态被清除）
-        if (ObjectUtils.isEmpty(userPlatformUniqueInfo)){
+        String userId = AttributeKeyUtils.getUserIdFromChannel(ctx);
+
+        if (ObjectUtils.isEmpty(userId)) {
             return;
         }
 
-        String[] parts = userPlatformUniqueInfo.split(":");
-        String platform = parts[0];
-        String user = parts[1];
+        String currentChannelId = (String) stringRedisTemplate.opsForHash().get(NODE_CHANNEL_USER_INFO + InetAddress.getLocalHost().getHostAddress() + ":" + port, userId);
 
-        log.info("【Saas Platform->{}】,【User->{}】 Status Down！", platform, user);
+        if (Objects.equals(currentChannelId, ctx.channel().id().asLongText())) {
+            stringRedisTemplate.opsForHash().delete(ConnectConstants.NODE_CHANNEL_USER_INFO + InetAddress.getLocalHost().getHostAddress() + ":" + port, userId);
+        }
+    }
 
-        // 删除用户在线状态
-        redisUtil.delete(userPlatformUniqueInfo + "status");
-        ChannelConfig.removeChannelUser(ctx.channel());
+    private Boolean isBroadcast(String message) {
+        MessageTransportDTO messageTransportDTO = JSON.parseObject(message, MessageTransportDTO.class);
 
-        // 清除本机PlatformUser映射关系 -Channel映射关系
-        ChannelConfig.removeChannel(userPlatformUniqueInfo);
+        if (ObjectUtils.isEmpty(messageTransportDTO)) {
+            return null;
+        }
 
-        // 删除用户连接信息
-        AttributeKeyUtils.removeSecurityCheckCompleteAttributeKey(ctx);
+        return ObjectUtils.isEmpty(messageTransportDTO.isBroadcast()) ? null : messageTransportDTO.isBroadcast();
+    }
 
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
+        cause.printStackTrace();
         ctx.close();
     }
 }

@@ -13,8 +13,7 @@ import lombok.EqualsAndHashCode;
 @Data
 @Builder
 public class BaseBooleanResp extends BaseAMO {
+
     @ApiModelProperty("是否")
     private Boolean aBoolean;
-
-
 }

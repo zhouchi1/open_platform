@@ -7,7 +7,7 @@ import java.util.Objects;
 
 /**
  * @Author: Sr.Zhou
- * @CreateTime: 2025-05-29
+ * @CreateTime: 2025-04-05
  * @Description: 消息类型枚举
  */
 @Getter

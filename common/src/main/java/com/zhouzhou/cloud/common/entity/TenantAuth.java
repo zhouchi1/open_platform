@@ -1,7 +1,7 @@
 package com.zhouzhou.cloud.common.entity;
 
 import com.zhouzhou.cloud.common.service.base.BaseEntity;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -18,14 +18,12 @@ import lombok.NoArgsConstructor;
 @EqualsAndHashCode(callSuper = true)
 public class TenantAuth extends BaseEntity {
 
-    private static final Long serialVersionUID = 7234562763154761523L;
-
-    @ApiModelProperty("saas平台外部唯一识别ID")
+    @Schema(name = "saas平台外部唯一识别ID")
     private String appId;
 
-    @ApiModelProperty("saas平台识别公共密钥")
+    @Schema(name = "saas平台识别公共密钥")
     private String appPublicSecret;
 
-    @ApiModelProperty("第三方saas账号是否生效")
+    @Schema(name = "第三方saas账号是否生效")
     private Boolean status;
 }

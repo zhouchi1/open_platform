@@ -9,7 +9,7 @@ import com.zhouzhou.cloud.common.dto.MessageDTO;
 import com.zhouzhou.cloud.common.dto.UserIdentityConfirmDTO;
 import com.zhouzhou.cloud.common.service.dto.UserLoginDTO;
 import com.zhouzhou.cloud.common.service.excepetions.BizException;
-import com.zhouzhou.cloud.common.service.interfaces.AuthServiceApi;
+import com.zhouzhou.cloud.common.service.interfaces.AuthRpcServer;
 import com.zhouzhou.cloud.common.utils.RedisUtil;
 import com.zhouzhou.cloud.gatewayservice.rabbitmqproducer.RabbitMqSenderApi;
 import jakarta.annotation.Resource;
@@ -52,7 +52,7 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
     private static final Logger log = LoggerFactory.getLogger(AuthenticationFilter.class);
 
     @DubboReference(version = "1.0.0", timeout = 3000)
-    private AuthServiceApi authServiceApi;
+    private AuthRpcServer authRpcServer;
 
     @Resource
     private RedisUtil redisUtil;
@@ -83,7 +83,7 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
                         UserIdentityConfirmDTO userIdentityConfirmDTO = JSONObject.parseObject(body, UserIdentityConfirmDTO.class);
 
                         // 使用 Dubbo 同步调用放到弹性调度器（弹性线程池） 防止阻塞主线程
-                        return Mono.fromCallable(() -> authServiceApi.getTokenFromAuthServer(userIdentityConfirmDTO))
+                        return Mono.fromCallable(() -> authRpcServer.getTokenFromAuthServer(userIdentityConfirmDTO))
                                 .subscribeOn(Schedulers.boundedElastic())
                                 .flatMap(token -> {
 
@@ -115,8 +115,7 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
                                         UserLoginDTO userLoginDTO = JSONObject.parseObject((String) redisUtil.get(token), UserLoginDTO.class);
 
                                         // 将终端用户识别信息与服务器的映射信息保存到Redis中
-                                        redisUtil.set(userLoginDTO.getUserResp().getAppId() + ":" +
-                                                userLoginDTO.getUserResp().getUserId(), finalAddress, 3600);
+                                        redisUtil.set(userLoginDTO.getUserResp().getUserId(), finalAddress, 3600);
 
                                     } catch (NacosException e) {
                                         e.printStackTrace();
@@ -143,7 +142,7 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
             // 校验Token是否有效 如果无效则直接返回未授权
             Optional<String> token = Objects.requireNonNull(request.getHeaders().get("Token")).stream().findFirst();
 
-            if (!authServiceApi.checkTokenValidity(token.get())) {
+            if (!authRpcServer.checkTokenValidity(token.get())) {
                 exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
                 return exchange.getResponse().setComplete();
             }
@@ -160,18 +159,16 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
             // 获取请求参数
             String message = request.getQueryParams().getFirst("message");
             String targetUserId = request.getQueryParams().getFirst("targetUserId");
-            String appId = request.getQueryParams().getFirst("appId");
 
             // 组装消息传输对象
             MessageDTO messageDTO = new MessageDTO();
             messageDTO.setTargetUserId(targetUserId);
-            messageDTO.setAppId(appId);
             messageDTO.setMessage(message);
 
             // 确认信息无误后 直接将消息发送给MQ消息微服务消费者 进行异步消息持久化操作 异步削峰
             rabbitMqSenderApi.sendTopicMessage("topicExchange", "topic.routing.key1", JSON.toJSONString(messageDTO));
 
-            String targetHost = (String) redisUtil.get(appId + ":" + targetUserId);
+            String targetHost = (String) redisUtil.get(targetUserId);
 
             if (!ObjectUtils.isEmpty(targetHost)) {
 
@@ -185,7 +182,7 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
                     targetHost = instance.getIp() + ":" + instance.getPort();
 
                     // 将映射关系赋值给当前用户的redis存储
-                    redisUtil.set(userLoginDTO.getUserResp().getAppId() + ":" + userLoginDTO.getUserResp().getUserId(), targetHost, -1);
+                    redisUtil.set(userLoginDTO.getUserResp().getUserId(), targetHost, -1);
                 }
 
                 // 组装参数请求目标服务器

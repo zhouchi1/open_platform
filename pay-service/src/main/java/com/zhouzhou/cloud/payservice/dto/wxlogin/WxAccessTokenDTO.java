@@ -1,6 +1,6 @@
 package com.zhouzhou.cloud.payservice.dto.wxlogin;
 
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -19,9 +19,9 @@ public class WxAccessTokenDTO implements Serializable {
 
     private static final long serialVersionUID = 8723647235476235472L;
 
-    @ApiModelProperty("accessToken")
+    @Schema(name = "accessToken")
     private String accessToken;
 
-    @ApiModelProperty("过期时间")
+    @Schema(name = "过期时间")
     private String expiresIn;
 }

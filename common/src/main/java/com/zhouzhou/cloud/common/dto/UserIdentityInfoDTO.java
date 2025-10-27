@@ -1,6 +1,6 @@
 package com.zhouzhou.cloud.common.dto;
 
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -14,9 +14,12 @@ public class UserIdentityInfoDTO implements Serializable {
 
     private static final long serialVersionUID = 3278462378648723641L;
 
-    @ApiModelProperty("用户Id")
+    @Schema(name = "用户Id")
     private String userId;
 
-    @ApiModelProperty("用户saas平台唯一识别信息")
+    @Schema(name = "用户saas平台唯一识别信息")
     private String appId;
+
+    @Schema(name = "用户Id")
+    private String userCode;
 }

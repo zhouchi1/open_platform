@@ -1,6 +1,8 @@
 package com.zhouzhou.cloud.websocketservice.hanlder;
 
+import com.zhouzhou.cloud.websocketservice.constant.ConnectConstants;
 import io.netty.channel.ChannelHandler;
+import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
@@ -9,9 +11,9 @@ import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.stream.ChunkedWriteHandler;
 import io.netty.handler.timeout.IdleStateHandler;
 
+import javax.net.ssl.SSLException;
+import java.security.cert.CertificateException;
 import java.util.concurrent.TimeUnit;
-
-import static com.zhouzhou.cloud.websocketservice.constant.ConnectConstants.*;
 
 /**
  * @Author: Sr.Zhou
@@ -25,25 +27,28 @@ public class WebSocketChannelInitializer extends ChannelInitializer<SocketChanne
 
     private final WebSocketHandler webSocketHandler;
 
-    private final HeartbeatIdleHandler heartbeatIdleHandler;
-
-    public WebSocketChannelInitializer(AuthHandler authHandler, WebSocketHandler webSocketHandler, HeartbeatIdleHandler heartbeatIdleHandler) {
+    public WebSocketChannelInitializer(AuthHandler authHandler, WebSocketHandler webSocketHandler) {
         this.authHandler = authHandler;
         this.webSocketHandler = webSocketHandler;
-        this.heartbeatIdleHandler = heartbeatIdleHandler;
     }
 
+
     @Override
-    protected void initChannel(SocketChannel ch) {
+    protected void initChannel(SocketChannel ch) throws CertificateException, SSLException {
         ChannelPipeline pipeline = ch.pipeline();
         pipeline.addLast(new HttpServerCodec());
-        pipeline.addLast(new IdleStateHandler(READER_IDLE_TIME, WRITER_IDLE_TIME, ALL_IDLE_TIME, TimeUnit.SECONDS));
-        pipeline.addLast(new HeartbeatHandler());
-        pipeline.addLast(heartbeatIdleHandler);
-        pipeline.addLast(new HttpObjectAggregator(MAX_CONTENT_LENGTH));
+        pipeline.addLast(new IdleStateHandler(ConnectConstants.READER_IDLE_TIME, ConnectConstants.WRITER_IDLE_TIME, ConnectConstants.ALL_IDLE_TIME, TimeUnit.SECONDS));
+        pipeline.addLast(new HttpObjectAggregator(ConnectConstants.MAX_CONTENT_LENGTH));
         pipeline.addLast(new ChunkedWriteHandler());
         pipeline.addLast(webSocketHandler);
         pipeline.addLast(authHandler);
-        pipeline.addLast(new CustomWebSocketServerProtocolHandler(WEBSOCKET_URL, SUB_PROTOCOLS, ALLOW_EXTENSIONS, MAX_FRAME_SIZE,true));
+        pipeline.addLast(new CustomWebSocketServerProtocolHandler(ConnectConstants.WEBSOCKET_URL, ConnectConstants.SUB_PROTOCOLS, ConnectConstants.ALLOW_EXTENSIONS, ConnectConstants.MAX_FRAME_SIZE,true));
+        pipeline.addLast(new PingHeartBeatHandler());
+    }
+
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
+        cause.printStackTrace();
+        ctx.close();
     }
 }

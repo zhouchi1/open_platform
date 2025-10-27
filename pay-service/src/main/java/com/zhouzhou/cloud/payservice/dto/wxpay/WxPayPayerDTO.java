@@ -1,6 +1,6 @@
 package com.zhouzhou.cloud.payservice.dto.wxpay;
 
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -22,6 +22,6 @@ public class WxPayPayerDTO implements Serializable {
 //    @ApiModelProperty("用户在此商户下的唯一openId标识")
 //    private String sp_openid;
 
-    @ApiModelProperty("用户在此子商户下的唯一openId标识")
+    @Schema(name = "用户在此子商户下的唯一openId标识")
     private String sub_openid;
 }

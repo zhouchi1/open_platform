@@ -1,6 +1,6 @@
 package com.zhouzhou.cloud.websocketservice.dto;
 
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -12,6 +12,6 @@ import java.io.Serializable;
 @NoArgsConstructor
 public class MessageSendUserInfoDTO implements Serializable {
 
-    @ApiModelProperty("用户id")
+    @Schema(name = "用户id")
     private String userId;
 }

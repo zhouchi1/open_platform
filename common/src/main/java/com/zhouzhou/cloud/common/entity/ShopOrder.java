@@ -20,8 +20,6 @@ import java.time.LocalDateTime;
 @EqualsAndHashCode(callSuper = true)
 public class ShopOrder extends BaseEntity {
 
-    private static final long serialVersionUID = 2345782356476235764L;
-
     /**
      * 关联用户id
      */

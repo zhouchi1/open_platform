@@ -1,6 +1,6 @@
 package com.zhouzhou.cloud.payservice.dto.wxpay;
 
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -21,13 +21,13 @@ public class WxPayReFoundAmountDTO implements Serializable {
 
     // --------------------------------必填项目开始---------------------------------------//
 
-    @ApiModelProperty("退款金额")
+    @Schema(name = "退款金额")
     private Integer refund;
 
-    @ApiModelProperty("原订单金额")
+    @Schema(name = "原订单金额")
     private Integer total;
 
-    @ApiModelProperty("退款币种")
+    @Schema(name = "退款币种")
     private String currency;
 
     // --------------------------------必填项目结束---------------------------------------//

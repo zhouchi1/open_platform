@@ -97,12 +97,6 @@
             <artifactId>mybatis-plus</artifactId>
         </dependency>
 
-        <!-- 接口文档-->
-        <dependency>
-            <groupId>com.github.xiaoymin</groupId>
-            <artifactId>knife4j-annotations</artifactId>
-        </dependency>
-
         <!-- Protobuf 序列化-->
         <dependency>
             <groupId>com.baidu</groupId>
@@ -178,6 +172,11 @@
             <artifactId>fastjson2</artifactId>
         </dependency>
 
+        <!-- knife4j 接口文档 -->
+        <dependency>
+            <groupId>com.github.xiaoymin</groupId>
+            <artifactId>knife4j-openapi3-jakarta-spring-boot-starter</artifactId>
+        </dependency>
 
         <!-- ShardingSphere jdbc 分库分表-->
 <!--        <dependency>-->

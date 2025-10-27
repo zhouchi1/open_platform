@@ -1,6 +1,6 @@
 package com.zhouzhou.cloud.payservice.dto.wxpay;
 
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -19,12 +19,12 @@ public class WxPaySceneInfoDTO implements Serializable {
 
     private static final Long serialVersionUID = 6487236487236487623L;
 
-    @ApiModelProperty("用户终端Ip-必填")
+    @Schema(name = "用户终端Ip-必填")
     private String payer_client_ip;
 
-    @ApiModelProperty("商户端设备号-非必填")
+    @Schema(name = "商户端设备号-非必填")
     private String device_id;
 
-    @ApiModelProperty("商户门店信息-非必填")
+    @Schema(name = "商户门店信息-非必填")
     private WxPaySceneDetailInfoDTO store_info;
 }

@@ -61,7 +61,7 @@ public class WebSocketRoutingFilter implements GlobalFilter, Ordered {
             Optional<String> tokenOptional = Optional.ofNullable(headers.get("Sec-WebSocket-Protocol"))
                     .flatMap(values -> values.stream().findFirst());
 
-            if (!tokenOptional.isPresent()) {
+            if (tokenOptional.isEmpty()) {
                 return unauthorizedResponse(exchange, "Message center denies authorized access");
             }
 
@@ -77,8 +77,7 @@ public class WebSocketRoutingFilter implements GlobalFilter, Ordered {
                         UserLoginDTO userLoginDTO = JSONObject.parseObject(userInfo, UserLoginDTO.class);
 
                         // 3. 获取用户绑定的Netty服务器地址
-                        String bindingKey = userLoginDTO.getUserResp().getAppId() + ":" +
-                                userLoginDTO.getUserResp().getUserId();
+                        String bindingKey = userLoginDTO.getUserResp().getUserId();
                         String address = (String) redisUtil.get(bindingKey);
 
                         if (ObjectUtils.isEmpty(address)) {
@@ -137,8 +136,7 @@ public class WebSocketRoutingFilter implements GlobalFilter, Ordered {
             Instance instance = instances.get(0);
 
             String newBinding = instance.getIp() + ":" + instance.getPort();
-            String bindingKey = userLoginDTO.getUserResp().getAppId() + ":" +
-                    userLoginDTO.getUserResp().getUserId();
+            String bindingKey = userLoginDTO.getUserResp().getUserId();
 
             redisUtil.set(bindingKey, newBinding, -1);
 

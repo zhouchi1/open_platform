@@ -1,0 +1,26 @@
+server:
+  port: 7009
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+  endpoint:
+    prometheus:
+      enabled: true
+  prometheus:
+    metrics:
+      export:
+        enabled: true
+
+dubbo:
+  application:
+    name: promotion-service
+    qos-enable: false
+  registry:
+    address: nacos://nacos-headless.default.svc.cluster.local:8848
+    register-mode: instance
+  protocol:
+    name: dubbo
+    port: 27009

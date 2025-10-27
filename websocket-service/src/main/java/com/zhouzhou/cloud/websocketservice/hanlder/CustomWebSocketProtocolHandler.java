@@ -21,13 +21,10 @@ abstract class CustomWebSocketProtocolHandler extends MessageToMessageDecoder<We
         if (frame instanceof PingWebSocketFrame) {
             frame.content().retain();
             ctx.channel().writeAndFlush(new PongWebSocketFrame(frame.content()));
-            log.info("Received Ping message");
             return;
         }
         if (frame instanceof PongWebSocketFrame) {
             frame.content().retain();
-            ctx.channel().writeAndFlush(new PingWebSocketFrame(frame.content()));
-            log.info("Received Pong message");
             return;
         }
 

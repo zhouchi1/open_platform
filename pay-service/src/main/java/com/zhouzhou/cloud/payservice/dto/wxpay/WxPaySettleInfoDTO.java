@@ -1,6 +1,6 @@
 package com.zhouzhou.cloud.payservice.dto.wxpay;
 
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -17,6 +17,6 @@ import java.io.Serializable;
 @NoArgsConstructor
 public class WxPaySettleInfoDTO implements Serializable {
 
-    @ApiModelProperty("是否指定分账")
+    @Schema(name = "是否指定分账")
     private boolean profit_sharing;
 }

@@ -5,8 +5,8 @@ import com.alibaba.fastjson2.JSONObject;
 import com.zhouzhou.cloud.authservice.util.JwtUtils;
 import com.zhouzhou.cloud.common.dto.UserIdentityConfirmDTO;
 import com.zhouzhou.cloud.common.service.dto.UserLoginDTO;
-import com.zhouzhou.cloud.common.service.interfaces.AuthServiceApi;
-import com.zhouzhou.cloud.common.service.interfaces.UserServiceApi;
+import com.zhouzhou.cloud.common.service.interfaces.AuthRpcServer;
+import com.zhouzhou.cloud.common.service.interfaces.UserRpcServer;
 import com.zhouzhou.cloud.common.service.resp.SystemUserResp;
 import com.zhouzhou.cloud.common.utils.RedisUtil;
 import com.zhouzhou.cloud.common.dto.UserIdentityInfoDTO;
@@ -29,7 +29,7 @@ import static com.zhouzhou.cloud.common.constant.AuthConstant.UN_AUTH;
  */
 @RefreshScope
 @DubboService(version = "1.0.0")
-public class GateWayOpenServiceV1 implements AuthServiceApi {
+public class GateWayOpenServiceV1 implements AuthRpcServer {
 
     @Resource
     private RedisUtil redisUtil;
@@ -41,7 +41,7 @@ public class GateWayOpenServiceV1 implements AuthServiceApi {
     public int expire;
 
     @DubboReference(version = "1.0.0")
-    private UserServiceApi userServiceApi;
+    private UserRpcServer userRpcServer;
 
     /**
      * 获取授权Token
@@ -51,8 +51,7 @@ public class GateWayOpenServiceV1 implements AuthServiceApi {
     @Override
     public String getTokenFromAuthServer(UserIdentityConfirmDTO userIdentityConfirmDTO) throws Exception {
 
-        // 验证saas平台与用户名对应关系是否成立
-        Boolean isAuth = userServiceApi.authConfirm(userIdentityConfirmDTO);
+        Boolean isAuth = userRpcServer.authConfirm(userIdentityConfirmDTO);
 
         // 如果身份验证不通过则直接返回未授权字符串代表未授权
         if (!isAuth){
@@ -63,7 +62,7 @@ public class GateWayOpenServiceV1 implements AuthServiceApi {
         UserLoginDTO userLoginDTO = new UserLoginDTO();
 
         // 查询用户基础信息
-        SystemUserResp systemUserResp = userServiceApi.queryUserInfo(userIdentityConfirmDTO);
+        SystemUserResp systemUserResp = userRpcServer.queryUserInfo(userIdentityConfirmDTO);
         userLoginDTO.setUserResp(systemUserResp);
 
         // 获取JWT Token 失效时间为1小时
@@ -95,12 +94,8 @@ public class GateWayOpenServiceV1 implements AuthServiceApi {
     @Override
     public UserIdentityInfoDTO queryUserIdentityByToken(String token) {
         UserLoginDTO userLoginDTO = JSONObject.parseObject((String) redisUtil.get(token), UserLoginDTO.class);
-
         UserIdentityInfoDTO userIdentityInfoDTO = new UserIdentityInfoDTO();
         userIdentityInfoDTO.setUserId(userLoginDTO.getUserResp().getUserId());
-        userIdentityInfoDTO.setAppId(userLoginDTO.getUserResp().getAppId());
         return userIdentityInfoDTO;
     }
-
-
 }

@@ -1,8 +1,9 @@
 package com.zhouzhou.cloud.common.entity;
 
-import com.zhouzhou.cloud.common.enums.message.MessageSendEnum;
+import com.zhouzhou.cloud.common.enums.messageservice.MessageKindEnum;
+import com.zhouzhou.cloud.common.enums.messageservice.MessageReadStatusEnum;
 import com.zhouzhou.cloud.common.service.base.BaseEntity;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -21,14 +22,30 @@ import java.time.LocalDateTime;
 @EqualsAndHashCode(callSuper = true)
 public class MessageCenter extends BaseEntity {
 
-    private static final Long serialVersionUID = 7234562768956361523L;
+    @Schema(name = "信息编码")
+    private String messageCode;
 
-    @ApiModelProperty("消息Id")
-    private String messageId;
+    @Schema(name = "用户编码")
+    private String userCode;
 
-    @ApiModelProperty("消息内容")
+    @Schema(name = "消息内容")
     private String message;
 
-    @ApiModelProperty("消息发送类型")
-    private MessageSendEnum messageSendEnum;
+    @Schema(name = "消息类型")
+    private MessageKindEnum type;
+
+    @Schema(name = "状态 1：已读 0：未读")
+    private MessageReadStatusEnum messageStatus;
+
+    @Schema(name = "创建人")
+    private String createNo;
+
+    @Schema(name = "创建时间")
+    private LocalDateTime createTime;
+
+    @Schema(name = "修改人")
+    private String updateNo;
+
+    @Schema(name = "修改时间")
+    private LocalDateTime updateTime;
 }

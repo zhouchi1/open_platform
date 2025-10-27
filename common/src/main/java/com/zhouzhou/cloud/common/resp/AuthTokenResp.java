@@ -14,8 +14,6 @@ import lombok.EqualsAndHashCode;
 @Builder
 public class AuthTokenResp extends BaseAMO {
 
-    private static final long serialVersionUID = 7964540578692932033L;
-
     @ApiModelProperty("访问接口 TOKEN")
     private String accessToken;
 

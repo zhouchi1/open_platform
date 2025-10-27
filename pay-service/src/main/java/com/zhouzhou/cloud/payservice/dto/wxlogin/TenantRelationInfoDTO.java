@@ -1,7 +1,6 @@
 package com.zhouzhou.cloud.payservice.dto.wxlogin;
 
-
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -20,9 +19,9 @@ public class TenantRelationInfoDTO implements Serializable {
 
     private static final long serialVersionUID = 8723647235476908772L;
 
-    @ApiModelProperty("租户编码")
+    @Schema(name = "租户编码")
     private String tenantCode;
 
-    @ApiModelProperty("租户名称")
+    @Schema(name = "租户名称")
     private String tenantName;
 }

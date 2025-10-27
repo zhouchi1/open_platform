@@ -1,6 +1,6 @@
 package com.zhouzhou.cloud.payservice.dto.wxpay;
 
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -19,7 +19,7 @@ public class WxPayGoodsDetailDTO implements Serializable {
 
     private static final Long serialVersionUID = 6542736487236487236L;
 
-    @ApiModelProperty("每日橙方面的商品编码-必填")
+    @Schema(name = "商城的商品编码-必填")
     private String merchant_goods_id;
 
 //    @ApiModelProperty("微信方面定义的通用的商品编码-非必填")
@@ -28,9 +28,9 @@ public class WxPayGoodsDetailDTO implements Serializable {
 //    @ApiModelProperty("每日橙商品名称-非必填")
 //    private String goods_name;
 
-    @ApiModelProperty("每日橙商品单价-单位为分-必填")
+    @Schema(name = "商城商品单价-单位为分-必填")
     private Integer unit_price;
 
-    @ApiModelProperty("每日橙商品数量-必填")
+    @Schema(name = "商城商品数量-必填")
     private Integer quantity;
 }
