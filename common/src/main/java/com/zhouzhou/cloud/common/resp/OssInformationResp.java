@@ -2,8 +2,7 @@ package com.zhouzhou.cloud.common.resp;
 
 import com.zhouzhou.cloud.common.dto.OssInformationDTO;
 import com.zhouzhou.cloud.common.service.base.BaseAMO;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -15,7 +14,6 @@ import lombok.NoArgsConstructor;
  * @Description: APP上传OSS信息获取
  */
 @Data
-@Api(tags = "APP上传OSS信息获取")
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
@@ -26,21 +24,21 @@ public class OssInformationResp extends BaseAMO {
     /**
      * 存储空间
      */
-    @ApiModelProperty("存储空间")
+    @Schema(name = "存储空间")
     private String bucket;
     /**
      * 地域
      */
-    @ApiModelProperty("地域")
+    @Schema(name = "地域")
     private String region;
     /**
      * 临时授权信息
      */
-    @ApiModelProperty("临时授权信息")
+    @Schema(name = "临时授权信息")
     private OssInformationDTO ossInformationDTO;
     /**
      * 根路径
      */
-    @ApiModelProperty("根路径")
+    @Schema(name = "根路径")
     private String basePath;
 }

@@ -2,8 +2,6 @@ package com.zhouzhou.cloud.messageservice.rabbitmqconsumer.process;
 
 import com.alibaba.fastjson2.JSONObject;
 import com.zhouzhou.cloud.common.dto.MessageDTO;
-import com.zhouzhou.cloud.common.entity.MessageCenter;
-import com.zhouzhou.cloud.common.entity.MessageCenterDetail;
 import com.zhouzhou.cloud.common.mapper.MessageCenterDetailMapper;
 import com.zhouzhou.cloud.common.mapper.MessageCenterMapper;
 import jakarta.annotation.Resource;

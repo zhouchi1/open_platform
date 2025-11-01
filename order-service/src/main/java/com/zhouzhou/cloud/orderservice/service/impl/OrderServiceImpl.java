@@ -26,8 +26,8 @@ import java.time.LocalDateTime;
 public class OrderServiceImpl extends ServiceImpl<ShopOrderMapper, ShopOrder>
         implements OrderService {
 
-    @DubboReference(version = "1.0.0")
-    private InventoryRpcServer inventoryRpcServer;
+//    @DubboReference(version = "1.0.0")
+//    private InventoryRpcServer inventoryRpcServer;
 
     @Override
     @GlobalTransactional(name = "order-service", rollbackFor = Exception.class)
@@ -54,6 +54,6 @@ public class OrderServiceImpl extends ServiceImpl<ShopOrderMapper, ShopOrder>
         baseMapper.insert(shopOrder);
 
         // 【Dubbo调用库存扣减服务】
-        inventoryRpcServer.deductInventory();
+//        inventoryRpcServer.deductInventory();
     }
 }

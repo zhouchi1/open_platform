@@ -1,0 +1,123 @@
+version: '3.8'
+services:
+  # SkyWalking 服务
+  skywalking-oap:
+    image: apache/skywalking-oap-server:9.5.0
+    container_name: skywalking-oap
+    restart: always
+    ports:
+      - "11800:11800"
+      - "12800:12800"
+    environment:
+      SW_STORAGE: elasticsearch
+      SW_STORAGE_ES_CLUSTER_NODES: elasticsearch:9200
+    networks:
+      - microservice-net
+
+  skywalking-ui:
+    image: apache/skywalking-ui:9.5.0
+    container_name: skywalking-ui
+    restart: always
+    ports:
+      - "8080:8080"
+    environment:
+      SW_OAP_ADDRESS: skywalking-oap:12800
+    depends_on:
+      - skywalking-oap
+    networks:
+      - microservice-net
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.6
+    container_name: elasticsearch
+    restart: always
+    environment:
+      - discovery.type=single-node
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+      - xpack.security.enabled=false
+    volumes:
+      - es_data:/data
+    networks:
+      - microservice-net
+
+  # 微服务
+  gateway-service:
+    build: ./gateway-service
+    container_name: gateway-service
+    restart: always
+    ports:
+      - "8000:8000"
+    environment:
+      SW_AGENT_NAME: gateway-service
+      SW_AGENT_COLLECTOR_BACKEND_SERVICES: skywalking-oap:11800
+    depends_on:
+      - skywalking-oap
+    networks:
+      - microservice-net
+
+  user-service:
+    build: ./user-service
+    container_name: user-service
+    restart: always
+    ports:
+      - "8081:8080"
+    environment:
+      SW_AGENT_NAME: user-service
+      SW_AGENT_COLLECTOR_BACKEND_SERVICES: skywalking-oap:11800
+    depends_on:
+      - skywalking-oap
+      - mysql
+    networks:
+      - microservice-net
+
+  order-service:
+    build: ./order-service
+    container_name: order-service
+    restart: always
+    ports:
+      - "8082:8080"
+    environment:
+      SW_AGENT_NAME: order-service
+      SW_AGENT_COLLECTOR_BACKEND_SERVICES: skywalking-oap:11800
+    depends_on:
+      - skywalking-oap
+      - mysql
+    networks:
+      - microservice-net
+
+  auth-service:
+    build: ./auth-service
+    container_name: auth-service
+    restart: always
+    ports:
+      - "8083:8080"
+    environment:
+      SW_AGENT_NAME: auth-service
+      SW_AGENT_COLLECTOR_BACKEND_SERVICES: skywalking-oap:11800
+    depends_on:
+      - skywalking-oap
+      - mysql
+    networks:
+      - microservice-net
+
+  mysql:
+    image: mysql:8.0
+    container_name: mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: microservices
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - microservice-net
+
+volumes:
+  es_data:
+  mysql_data:
+
+networks:
+  microservice-net:
+    driver: bridge

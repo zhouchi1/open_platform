@@ -4,13 +4,13 @@ spring:
   cloud:
     nacos:
       config:
-        server-addr: nacos-headless.default.svc.cluster.local:8848
+        server-addr: 127.0.0.1:8848,127.0.0.1:8850,127.0.0.1:8852
         file-extension: yaml
         group: DEFAULT_GROUP
         namespace: public
       discovery:
         enabled: true
-        server-addr: nacos-headless.default.svc.cluster.local:8848
+        server-addr: 127.0.0.1:8848,127.0.0.1:8850,127.0.0.1:8852
         namespace: public
   main:
     allow-bean-definition-overriding: true

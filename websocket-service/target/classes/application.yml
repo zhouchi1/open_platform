@@ -6,10 +6,12 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info,prometheus  # 暴露 prometheus 指标
+        include: health,info,prometheus,metrics
   endpoint:
     prometheus:
-      enabled: true  # 显式启用 prometheus endpoint
+      enabled: true
+    health:
+      show-details: always
   prometheus:
     metrics:
       export:
@@ -20,7 +22,7 @@ dubbo:
     name: websocket-service
     qos-enable: false
   registry:
-    address: nacos://nacos-headless.default.svc.cluster.local:8848
+    address: nacos://127.0.0.1:8848,127.0.0.1:8850,127.0.0.1:8852
     register-mode: instance
   protocol:
     name: dubbo
@@ -28,4 +30,4 @@ dubbo:
 
 spring:
   lifecycle:
-    timeout-per-shutdown-phase: 30s # 延长停机超时时间
+    timeout-per-shutdown-phase: 30s

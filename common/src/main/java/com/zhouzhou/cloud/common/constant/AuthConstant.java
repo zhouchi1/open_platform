@@ -1,9 +1,9 @@
 package com.zhouzhou.cloud.common.constant;
 
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 public class AuthConstant {
 
-    @ApiModelProperty("未授权")
+    @Schema(name = "accessToken")
     public static final String UN_AUTH = "UN_AUTH";
 }

@@ -2,8 +2,7 @@ package com.zhouzhou.cloud.common.resp;
 
 import com.google.common.collect.Lists;
 import com.zhouzhou.cloud.common.service.base.BaseAMO;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.collections.CollectionUtils;
@@ -14,13 +13,12 @@ import java.util.stream.Collectors;
 
 
 @EqualsAndHashCode(callSuper = true)
-@ApiModel
 @Data
 public class BaseListResp<T> extends BaseAMO {
 
     private static final long serialVersionUID = -8997670094316032406L;
 
-    @ApiModelProperty("列表")
+    @Schema(name = "列表")
     private List<T> records = Lists.newArrayList();
 
     public static <T> BaseListResp<T> build(List<T> list) {

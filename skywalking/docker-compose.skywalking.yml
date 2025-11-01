@@ -1,0 +1,56 @@
+# skywalking docker部署文件
+version: '3.8'
+services:
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.6
+    container_name: elasticsearch
+    environment:
+      - discovery.type=single-node
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+      - xpack.security.enabled=false
+    ports:
+      - "9200:9200"
+    volumes:
+      - es_data:/usr/share/elasticsearch/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9200"]
+      interval: 30s
+      timeout: 10s
+      retries: 10
+      start_period: 60s
+
+  oap:
+    image: apache/skywalking-oap-server:9.4.0
+    container_name: oap
+    environment:
+      SW_STORAGE: elasticsearch
+      SW_STORAGE_ES_CLUSTER_NODES: elasticsearch:9200
+      SW_CLUSTER: standalone
+      SW_TELEMETRY: prometheus
+      JAVA_OPTS: "-Xms256m -Xmx512m"  # 移除了 -Dmode=init
+    ports:
+      - "11800:11800"
+      - "12800:12800"
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:12800 || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 10
+      start_period: 120s
+
+  ui:
+    image: apache/skywalking-ui:9.4.0
+    container_name: ui
+    environment:
+      SW_OAP_ADDRESS: http://oap:12800
+    ports:
+      - "8080:8080"
+    depends_on:
+      oap:
+        condition: service_healthy
+
+volumes:
+  es_data:

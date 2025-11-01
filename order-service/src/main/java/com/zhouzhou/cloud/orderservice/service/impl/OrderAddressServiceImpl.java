@@ -12,15 +12,15 @@ import org.springframework.stereotype.Service;
 public class OrderAddressServiceImpl implements OrderAddressService {
 
 
-    // version：调用的微服务版本号
-    // loadbalance：负载均衡策略 1、random：随机；2、roundrobin：轮训；3、consistentHash：一致性哈希；4、leastActive：最小活跃度
-    @DubboReference(version = "1.0.0", loadbalance = "roundrobin")
-    private AddressRpcServer addressRpcServer;
-
-    @Override
-    public BaseStringResp getAddressInfo() {
-        String addressInfo = addressRpcServer.getAddressInfo();
-        log.info(addressInfo);;
-        return BaseStringResp.builder().str(addressInfo).build();
-    }
+//    // version：调用的微服务版本号
+//    // loadbalance：负载均衡策略 1、random：随机；2、roundrobin：轮训；3、consistentHash：一致性哈希；4、leastActive：最小活跃度
+//    @DubboReference(version = "1.0.0", loadbalance = "roundrobin")
+//    private AddressRpcServer addressRpcServer;
+//
+//    @Override
+//    public BaseStringResp getAddressInfo() {
+//        String addressInfo = addressRpcServer.getAddressInfo();
+//        log.info(addressInfo);;
+//        return BaseStringResp.builder().str(addressInfo).build();
+//    }
 }

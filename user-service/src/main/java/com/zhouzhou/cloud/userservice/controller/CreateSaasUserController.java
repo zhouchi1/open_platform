@@ -8,8 +8,8 @@ import com.zhouzhou.cloud.userservice.annotation.SignSaasIdentity;
 import com.zhouzhou.cloud.userservice.dto.ProcessSaasUserInfoDTO;
 import com.zhouzhou.cloud.userservice.req.ProcessSaasReq;
 import com.zhouzhou.cloud.userservice.service.UserInfoService;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @CreateTime: 2025-05-29
  * @Description: saas平台用户入驻接口
  */
-@Api(tags = "用户微服务 >> Saas用户")
+@Tag(name = "用户微服务 >> Saas用户")
 @RestController
 @RequestMapping("/saasUser")
 public class CreateSaasUserController {
@@ -32,7 +32,7 @@ public class CreateSaasUserController {
 
     @SignSaasIdentity
     @SignPayloadType(ProcessSaasUserInfoDTO.class)
-    @ApiOperation("处理Saas平台用户信息（支持批量）(对外接口)")
+    @Operation(description = "处理Saas平台用户信息（支持批量）(对外接口)")
     @ApiOperationSupport(author = "Sr.Zhou")
     @PostMapping("/processSaasUser")
     public ResponseData<?> processSaasUser(@RequestBody @Validated ProcessSaasReq<ProcessSaasUserInfoDTO> processSaasReq) {

@@ -36,4 +36,6 @@ public class UserInfo extends BaseEntity {
      * 密码
      */
     private String password;
+
+    private String appId;
 }

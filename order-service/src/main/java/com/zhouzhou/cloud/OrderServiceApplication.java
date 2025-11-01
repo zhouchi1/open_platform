@@ -11,7 +11,6 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 @EnableFeignClients
 @EnableDiscoveryClient
 @SpringBootApplication
-@MapperScan("com.zhouzhou.cloud.orderservice.mapper")
 public class OrderServiceApplication {
 
     public static void main(String[] args) {

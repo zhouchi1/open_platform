@@ -1,7 +1,7 @@
 package com.zhouzhou.cloud.userservice.req;
 
 import com.zhouzhou.cloud.common.service.base.BaseAMO;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -18,10 +18,10 @@ public class SaasPlatformCreateReq extends BaseAMO {
     private static final long serialVersionUID = 6328764872364876238L;
 
     @NotNull(message = "saas平台唯一识别平台类型不能为空")
-    @ApiModelProperty("saas平台唯一识别平台类型")
+    @Schema(name = "saas平台唯一识别平台类型")
     private String saasPlatformType;
 
     @NotNull(message = "saas平台公钥不能为空")
-    @ApiModelProperty("saas平台自身公钥")
+    @Schema(name = "saas平台自身公钥")
     private String appPublicSecret;
 }

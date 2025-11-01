@@ -2,6 +2,7 @@ package com.zhouzhou.cloud.messageservice.config;
 
 import jakarta.annotation.Resource;
 import org.springframework.amqp.core.*;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.context.annotation.Bean;
@@ -176,49 +177,50 @@ public class RabbitMqStartConfig {
      * 注册交换机、队列、绑定
      */
     @Bean
-    public void registerRabbitComponents() {
+    public CommandLineRunner initRabbitMQ() {
+        return args -> {
+            // 删除所有队列（可选）
+//            if (queues != null) {
+//                for (QueueConfig queueConfig : queues) {
+//                    amqpAdmin.deleteQueue(queueConfig.getName());
+//                }
+//            }
 
-        // 删除所有队列（可选）
-        if (queues != null) {
+            // 声明交换机
+            for (ExchangeConfig exchangeConfig : exchanges) {
+                Exchange exchange;
+                if ("direct".equalsIgnoreCase(exchangeConfig.getType())) {
+                    exchange = new DirectExchange(exchangeConfig.getName(), true, false);
+                } else if ("topic".equalsIgnoreCase(exchangeConfig.getType())) {
+                    exchange = new TopicExchange(exchangeConfig.getName(), true, false);
+                } else {
+                    throw new IllegalArgumentException("Unsupported exchange type: " + exchangeConfig.getType());
+                }
+                amqpAdmin.declareExchange(exchange);
+            }
+
+            // 声明队列并配置死信队列
             for (QueueConfig queueConfig : queues) {
-                amqpAdmin.deleteQueue(queueConfig.getName());
-            }
-        }
+                QueueBuilder queueBuilder = QueueBuilder.durable(queueConfig.getName());
 
-        // 声明交换机
-        for (ExchangeConfig exchangeConfig : exchanges) {
-            Exchange exchange;
-            if ("direct".equalsIgnoreCase(exchangeConfig.getType())) {
-                exchange = new DirectExchange(exchangeConfig.getName(), true, false);
-            } else if ("topic".equalsIgnoreCase(exchangeConfig.getType())) {
-                exchange = new TopicExchange(exchangeConfig.getName(), true, false);
-            } else {
-                throw new IllegalArgumentException("Unsupported exchange type: " + exchangeConfig.getType());
-            }
-            amqpAdmin.declareExchange(exchange);
-        }
+                // 配置死信交换机和死信路由键
+                if (queueConfig.getDeadLetterExchange() != null) {
+                    queueBuilder.deadLetterExchange(queueConfig.getDeadLetterExchange())
+                            .deadLetterRoutingKey(queueConfig.getDeadLetterRoutingKey());
+                }
 
-        // 声明队列并配置死信队列
-        for (QueueConfig queueConfig : queues) {
-            QueueBuilder queueBuilder = QueueBuilder.durable(queueConfig.getName());
-
-            // 配置死信交换机和死信路由键
-            if (queueConfig.getDeadLetterExchange() != null) {
-                queueBuilder.deadLetterExchange(queueConfig.getDeadLetterExchange())
-                        .deadLetterRoutingKey(queueConfig.getDeadLetterRoutingKey());
+                Queue queue = queueBuilder.build();
+                amqpAdmin.declareQueue(queue);
             }
 
-            Queue queue = queueBuilder.build();
-            amqpAdmin.declareQueue(queue);
-        }
-
-        // 声明绑定关系
-        for (BindingConfig bindingConfig : bindings) {
-            Exchange exchange = new DirectExchange(bindingConfig.getExchange());
-            Queue queue = new Queue(bindingConfig.getQueue(), true);
-            Binding binding = BindingBuilder.bind(queue).to(exchange).with(bindingConfig.getRoutingKey()).noargs();
-            amqpAdmin.declareBinding(binding);
-        }
+            // 声明绑定关系
+            for (BindingConfig bindingConfig : bindings) {
+                Exchange exchange = new DirectExchange(bindingConfig.getExchange());
+                Queue queue = new Queue(bindingConfig.getQueue(), true);
+                Binding binding = BindingBuilder.bind(queue).to(exchange).with(bindingConfig.getRoutingKey()).noargs();
+                amqpAdmin.declareBinding(binding);
+            }
+        };
     }
 
 

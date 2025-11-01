@@ -12,8 +12,8 @@ import com.zhouzhou.cloud.userservice.req.ProcessSaasReq;
 import com.zhouzhou.cloud.userservice.req.SaasPlatformCreateReq;
 import com.zhouzhou.cloud.userservice.resp.QuerySaasPlatformAuthResp;
 import com.zhouzhou.cloud.userservice.service.TenantAuthService;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @CreateTime: 2025-05-29
  * @Description: saas平台对外接口
  */
-@Api(tags = "用户微服务 >> Saas平台")
+@Tag(name = "用户微服务 >> Saas平台")
 @RestController
 @RequestMapping("/saasPlatform")
 public class CreateSaasPlatformController {
@@ -34,7 +34,7 @@ public class CreateSaasPlatformController {
     @Resource
     private TenantAuthService tenantAuthService;
 
-    @ApiOperation("创建Saas平台授权")
+    @Operation(description = "创建Saas平台授权")
     @ApiOperationSupport(author = "Sr.Zhou")
     @PostMapping("/createSaasPlatform")
     public ResponseData<?> createSaasPlatform(@RequestBody @Validated SaasPlatformCreateReq saasPlatformCreateReq) {
@@ -44,7 +44,7 @@ public class CreateSaasPlatformController {
 
     @SignSaasIdentity
     @SignPayloadType(ProcessSaasPlatformInfoDTO.class)
-    @ApiOperation("Saas授权平台操作")
+    @Operation(description = "Saas授权平台操作")
     @ApiOperationSupport(author = "Sr.Zhou")
     @PostMapping("/saasPlatformProcess")
     public ResponseData<?> saasPlatformProcess(@RequestBody @Validated ProcessSaasReq<ProcessSaasPlatformInfoDTO> processSaasReq) {
@@ -55,7 +55,7 @@ public class CreateSaasPlatformController {
 
     @SignSaasIdentity
     @SignPayloadType(QuerySaasPlatformDTO.class)
-    @ApiOperation("查询Saas平台以及下设用户的授权信息")
+    @Operation(description = "查询Saas平台以及下设用户的授权信息")
     @ApiOperationSupport(author = "Sr.Zhou")
     @PostMapping("/querySaasPlatformAuthInfo")
     public ResponseData<QuerySaasPlatformAuthResp> querySaasPlatformAuthInfo(@RequestBody @Validated ProcessSaasReq<QuerySaasPlatformDTO> processSaasReq) {

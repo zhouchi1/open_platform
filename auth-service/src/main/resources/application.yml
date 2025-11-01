@@ -19,7 +19,8 @@ dubbo:
     name: auth-service
     qos-enable: false
   registry:
-    address: nacos://nacos-headless.default.svc.cluster.local:8848
+    address: nacos://127.0.0.1:8848,127.0.0.1:8850,127.0.0.1:8852
+#nacos://nacos-headless.default.svc.cluster.local:8848（k8s部署配置）
     register-mode: instance
   protocol:
     name: dubbo

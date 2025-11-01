@@ -1,6 +1,6 @@
 package com.zhouzhou.cloud.common.req;
 
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -13,6 +13,6 @@ public class BaseStringReq implements Serializable {
     /**
      * 字典编号
      **/
-    @ApiModelProperty("入参字符串（实体复用）")
+    @Schema(name = "入参字符串（实体复用）")
     private String str;
 }

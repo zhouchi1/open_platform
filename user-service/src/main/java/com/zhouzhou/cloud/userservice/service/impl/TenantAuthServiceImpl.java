@@ -90,7 +90,7 @@ public class TenantAuthServiceImpl extends ServiceImpl<TenantAuthMapper, TenantA
         List<UserInfo> userInfoList = userInfoService.list(new LambdaQueryWrapper<UserInfo>().eq(UserInfo::getAppId, appId));
 
         if (CollectionUtils.isEmpty(userInfoList)) {
-            querySaasPlatformAuthResp.setQuerySaasPlatformAuthDetailRespList(Collections.EMPTY_LIST);
+            querySaasPlatformAuthResp.setQuerySaasPlatformAuthDetailRespList(Collections.emptyList());
         } else {
             querySaasPlatformAuthResp.setQuerySaasPlatformAuthDetailRespList(userInfoList.stream().map(userInfo -> {
                 QuerySaasPlatformAuthDetailResp querySaasPlatformAuthDetailResp = new QuerySaasPlatformAuthDetailResp();

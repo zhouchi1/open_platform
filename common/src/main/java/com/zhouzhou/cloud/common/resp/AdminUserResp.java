@@ -1,7 +1,7 @@
 package com.zhouzhou.cloud.common.resp;
 
 import com.zhouzhou.cloud.common.service.base.BaseAMO;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -18,15 +18,15 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class AdminUserResp extends BaseAMO {
 
-    @ApiModelProperty("用户账号 ID")
+    @Schema(name = "用户账号 ID")
     private Long userId;
 
-    @ApiModelProperty("用户账号")
+    @Schema(name = "用户账号")
     private String userName;
 
-    @ApiModelProperty("用户编码")
+    @Schema(name = "用户编码")
     private String userCode;
 
-    @ApiModelProperty("是否是管理员")
+    @Schema(name = "是否是管理员")
     private Boolean admin;
 }

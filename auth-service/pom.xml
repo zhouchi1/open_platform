@@ -85,6 +85,28 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>com.google.cloud.tools</groupId>
+                <artifactId>jib-maven-plugin</artifactId>
+                <version>3.3.1</version>
+                <configuration>
+                    <from>
+                        <image>openjdk:17</image>
+                    </from>
+                    <to>
+                        <image>${project.artifactId}:${project.version}</image>
+                    </to>
+                    <container>
+                        <jvmFlags>
+                            <jvmFlag>-javaagent:/skywalking-agent/skywalking-agent.jar</jvmFlag>
+                        </jvmFlags>
+                        <environment>
+                            <SW_AGENT_NAME>${project.artifactId}</SW_AGENT_NAME>
+                            <SW_AGENT_COLLECTOR_BACKEND_SERVICES>skywalking-oap:11800</SW_AGENT_COLLECTOR_BACKEND_SERVICES>
+                        </environment>
+                    </container>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 </project>

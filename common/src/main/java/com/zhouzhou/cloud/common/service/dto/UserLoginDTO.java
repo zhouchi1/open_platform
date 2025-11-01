@@ -4,10 +4,8 @@ package com.zhouzhou.cloud.common.service.dto;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.zhouzhou.cloud.common.service.base.BaseAMO;
 import com.zhouzhou.cloud.common.service.resp.SystemUserResp;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
-
-import java.util.List;
 
 /**
  * @author sunqingrui
@@ -25,7 +23,7 @@ public class UserLoginDTO extends BaseAMO {
 
     private static final long serialVersionUID = 7859932538758651243L;
 
-    @ApiModelProperty("用户信息")
+    @Schema(name = "用户信息")
     private SystemUserResp userResp;
 
 }

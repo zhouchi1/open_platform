@@ -1,17 +1,15 @@
 package com.zhouzhou.cloud.common.req;
 
 import com.zhouzhou.cloud.common.service.base.BaseAMO;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.Setter;
 
 
-@ApiModel
 @Getter
 @Setter
 public class BaseLimitReq extends BaseAMO {
-    @ApiModelProperty(value = "获取条数")
+    @Schema(name = "获取条数")
     protected Integer limit;
 
 }

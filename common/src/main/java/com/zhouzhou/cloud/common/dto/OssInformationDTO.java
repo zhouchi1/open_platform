@@ -1,7 +1,7 @@
 package com.zhouzhou.cloud.common.dto;
 
 import com.zhouzhou.cloud.common.service.base.BaseAMO;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -20,15 +20,15 @@ public class OssInformationDTO extends BaseAMO {
 
     private static final long serialVersionUID = 5671254671257612948L;
 
-    @ApiModelProperty("临时授权Id")
+    @Schema(name = "临时授权Id")
     private String accessKeyId;
 
-    @ApiModelProperty("临时身份密钥")
+    @Schema(name = "临时身份密钥")
     private String accessKeySecret;
 
-    @ApiModelProperty("到期时间")
+    @Schema(name = "到期时间")
     private String expiration;
 
-    @ApiModelProperty("Sts token")
+    @Schema(name = "Sts token")
     private String securityToken;
 }
