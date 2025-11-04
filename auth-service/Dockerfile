@@ -15,7 +15,7 @@ COPY target/auth-service-1.0.0-SNAPSHOT.jar app.jar
 
 # 设置环境变量
 ENV SW_AGENT_NAME=auth-service
-ENV SW_AGENT_COLLECTOR_BACKEND_SERVICE=127.0.0.1:11800
+ENV SW_AGENT_COLLECTOR_BACKEND_SERVICE=host.docker.internal:11800
 ENV JAVA_OPTS="-Xms256m -Xmx512m"
 
 # 暴露应用端口

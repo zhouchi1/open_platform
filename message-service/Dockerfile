@@ -1,24 +1,29 @@
-# message-service/Dockerfile
+# 使用包含SkyWalking Agent的官方镜像
+FROM apache/skywalking-java-agent:9.4.0-java17 as agent
+
+# 然后使用Java镜像
 FROM openjdk:17-alpine
 
-# 安装 SkyWalking Agent
-RUN apk update && apk add --no-cache wget && \
-    wget https://archive.apache.org/dist/skywalking/9.5.0/apache-skywalking-apm-9.5.0.tar.gz && \
-    tar -xzf apache-skywalking-apm-9.5.0.tar.gz && \
-    # 查找并移动 agent 目录
-    find . -type d -name "agent" -exec mv {} /skywalking-agent \; && \
-    rm -rf apache-skywalking-apm-9.5.0.tar.gz apache-skywalking-apm-*
+# 设置工作目录
+WORKDIR /app
 
-# 复制应用 JAR 文件
+# 从agent阶段复制SkyWalking Agent
+COPY --from=agent /skywalking/agent /app/skywalking-agent
+
+# 复制应用程序
 COPY target/message-service-1.0.0-SNAPSHOT.jar app.jar
 
 # 设置环境变量
 ENV SW_AGENT_NAME=message-service
-ENV SW_AGENT_COLLECTOR_BACKEND_SERVICES=skywalking-oap:11800
-ENV JAVA_OPTS="-javaagent:/skywalking-agent/skywalking-agent.jar"
+ENV SW_AGENT_COLLECTOR_BACKEND_SERVICE=host.docker.internal:11800
+ENV JAVA_OPTS="-Xms256m -Xmx512m"
 
-# 暴露端口
+# 暴露应用端口
 EXPOSE 8085
 
-# 启动命令
-ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar /app.jar"]
+# 启动应用
+ENTRYPOINT exec java $JAVA_OPTS \
+    -javaagent:/app/skywalking-agent/skywalking-agent.jar \
+    -Dskywalking.agent.service_name=$SW_AGENT_NAME \
+    -Dskywalking.collector.backend_service=$SW_AGENT_COLLECTOR_BACKEND_SERVICE \
+    -jar app.jar

@@ -1,13 +1,29 @@
-FROM openjdk:21-jdk-slim
-#FROM openjdk:17-jdk-slim
+# 使用包含SkyWalking Agent的官方镜像
+FROM apache/skywalking-java-agent:9.4.0-java17 as agent
 
-MAINTAINER xuxueli
+# 然后使用Java镜像
+FROM openjdk:17-alpine
 
-ENV PARAMS=""
+# 设置工作目录
+WORKDIR /app
 
-ENV TZ=PRC
-RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+# 从agent阶段复制SkyWalking Agent
+COPY --from=agent /skywalking/agent /app/skywalking-agent
 
-ADD target/xxl-job-admin-*.jar /app.jar
+# 复制应用程序
+COPY target/xxl-job-admin-3.0.0.jar app.jar
 
-ENTRYPOINT ["sh","-c","java -jar $JAVA_OPTS /app.jar $PARAMS"]
+# 设置环境变量
+ENV SW_AGENT_NAME=xxl-job-admin
+ENV SW_AGENT_COLLECTOR_BACKEND_SERVICE=host.docker.internal:11800
+ENV JAVA_OPTS="-Xms256m -Xmx512m"
+
+# 暴露应用端口
+EXPOSE 9001
+
+# 启动应用
+ENTRYPOINT exec java $JAVA_OPTS \
+    -javaagent:/app/skywalking-agent/skywalking-agent.jar \
+    -Dskywalking.agent.service_name=$SW_AGENT_NAME \
+    -Dskywalking.collector.backend_service=$SW_AGENT_COLLECTOR_BACKEND_SERVICE \
+    -jar app.jar

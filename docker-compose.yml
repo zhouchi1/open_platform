@@ -1,123 +1,161 @@
 version: '3.8'
+
 services:
-  # SkyWalking 服务
-  skywalking-oap:
-    image: apache/skywalking-oap-server:9.5.0
-    container_name: skywalking-oap
-    restart: always
-    ports:
-      - "11800:11800"
-      - "12800:12800"
+  ai-service:
+    build:
+      context: ./ai-service
+      dockerfile: Dockerfile
+    container_name: ai-service
     environment:
-      SW_STORAGE: elasticsearch
-      SW_STORAGE_ES_CLUSTER_NODES: elasticsearch:9200
+      - SW_AGENT_NAME=ai-service
+      - SW_AGENT_COLLECTOR_BACKEND_SERVICE=host.docker.internal:11800
+      - JAVA_OPTS=-Xms256m -Xmx512m
     networks:
-      - microservice-net
-
-  skywalking-ui:
-    image: apache/skywalking-ui:9.5.0
-    container_name: skywalking-ui
-    restart: always
-    ports:
-      - "8080:8080"
-    environment:
-      SW_OAP_ADDRESS: skywalking-oap:12800
-    depends_on:
-      - skywalking-oap
-    networks:
-      - microservice-net
-
-  elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.6
-    container_name: elasticsearch
-    restart: always
-    environment:
-      - discovery.type=single-node
-      - ES_JAVA_OPTS=-Xms512m -Xmx512m
-      - xpack.security.enabled=false
-    volumes:
-      - es_data:/data
-    networks:
-      - microservice-net
-
-  # 微服务
-  gateway-service:
-    build: ./gateway-service
-    container_name: gateway-service
-    restart: always
-    ports:
-      - "8000:8000"
-    environment:
-      SW_AGENT_NAME: gateway-service
-      SW_AGENT_COLLECTOR_BACKEND_SERVICES: skywalking-oap:11800
-    depends_on:
-      - skywalking-oap
-    networks:
-      - microservice-net
-
-  user-service:
-    build: ./user-service
-    container_name: user-service
-    restart: always
-    ports:
-      - "8081:8080"
-    environment:
-      SW_AGENT_NAME: user-service
-      SW_AGENT_COLLECTOR_BACKEND_SERVICES: skywalking-oap:11800
-    depends_on:
-      - skywalking-oap
-      - mysql
-    networks:
-      - microservice-net
-
-  order-service:
-    build: ./order-service
-    container_name: order-service
-    restart: always
-    ports:
-      - "8082:8080"
-    environment:
-      SW_AGENT_NAME: order-service
-      SW_AGENT_COLLECTOR_BACKEND_SERVICES: skywalking-oap:11800
-    depends_on:
-      - skywalking-oap
-      - mysql
-    networks:
-      - microservice-net
+      - app-network
 
   auth-service:
-    build: ./auth-service
+    build:
+      context: ./auth-service
+      dockerfile: Dockerfile
     container_name: auth-service
-    restart: always
-    ports:
-      - "8083:8080"
     environment:
-      SW_AGENT_NAME: auth-service
-      SW_AGENT_COLLECTOR_BACKEND_SERVICES: skywalking-oap:11800
-    depends_on:
-      - skywalking-oap
-      - mysql
+      - SW_AGENT_NAME=auth-service
+      - SW_AGENT_COLLECTOR_BACKEND_SERVICE=host.docker.internal:11800
+      - JAVA_OPTS=-Xms256m -Xmx512m
     networks:
-      - microservice-net
+      - app-network
 
-  mysql:
-    image: mysql:8.0
-    container_name: mysql
-    restart: always
+  email-service:
+    build:
+      context: ./email-service
+      dockerfile: Dockerfile
+    container_name: email-service
     environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: microservices
-    ports:
-      - "3306:3306"
-    volumes:
-      - mysql_data:/var/lib/mysql
+      - SW_AGENT_NAME=email-service
+      - SW_AGENT_COLLECTOR_BACKEND_SERVICE=host.docker.internal:11800
+      - JAVA_OPTS=-Xms256m -Xmx512m
     networks:
-      - microservice-net
+      - app-network
 
-volumes:
-  es_data:
-  mysql_data:
+  gateway-service:
+    build:
+      context: ./gateway-service
+      dockerfile: Dockerfile
+    container_name: gateway-service
+    environment:
+      - SW_AGENT_NAME=gateway-service
+      - SW_AGENT_COLLECTOR_BACKEND_SERVICE=host.docker.internal:11800
+      - JAVA_OPTS=-Xms256m -Xmx512m
+    networks:
+      - app-network
 
+  message-service:
+    build:
+      context: ./message-service
+      dockerfile: Dockerfile
+    container_name: message-service
+    environment:
+      - SW_AGENT_NAME=message-service
+      - SW_AGENT_COLLECTOR_BACKEND_SERVICE=host.docker.internal:11800
+      - JAVA_OPTS=-Xms256m -Xmx512m
+    networks:
+      - app-network
+
+  order-service:
+    build:
+      context: ./order-service
+      dockerfile: Dockerfile
+    container_name: order-service
+    environment:
+      - SW_AGENT_NAME=order-service
+      - SW_AGENT_COLLECTOR_BACKEND_SERVICE=host.docker.internal:11800
+      - JAVA_OPTS=-Xms256m -Xmx512m
+    networks:
+      - app-network
+
+  pay-service:
+    build:
+      context: ./pay-service
+      dockerfile: Dockerfile
+    container_name: pay-service
+    environment:
+      - SW_AGENT_NAME=pay-service
+      - SW_AGENT_COLLECTOR_BACKEND_SERVICE=host.docker.internal:11800
+      - JAVA_OPTS=-Xms256m -Xmx512m
+    networks:
+      - app-network
+
+  promotion-service:
+    build:
+      context: ./promotion-service
+      dockerfile: Dockerfile
+    container_name: promotion-service
+    environment:
+      - SW_AGENT_NAME=promotion-service
+      - SW_AGENT_COLLECTOR_BACKEND_SERVICE=host.docker.internal:11800
+      - JAVA_OPTS=-Xms256m -Xmx512m
+    networks:
+      - app-network
+
+  task-service:
+    build:
+      context: ./task-service
+      dockerfile: Dockerfile
+    container_name: task-service
+    environment:
+      - SW_AGENT_NAME=task-service
+      - SW_AGENT_COLLECTOR_BACKEND_SERVICE=host.docker.internal:11800
+      - JAVA_OPTS=-Xms256m -Xmx512m
+    networks:
+      - app-network
+
+  user-service:
+    build:
+      context: ./user-service
+      dockerfile: Dockerfile
+    container_name: user-service
+    environment:
+      - SW_AGENT_NAME=user-service
+      - SW_AGENT_COLLECTOR_BACKEND_SERVICE=host.docker.internal:11800
+      - JAVA_OPTS=-Xms256m -Xmx512m
+    networks:
+      - app-network
+
+  websocket-service:
+    build:
+      context: ./websocket-service
+      dockerfile: Dockerfile
+    container_name: websocket-service
+    environment:
+      - SW_AGENT_NAME=websocket-service
+      - SW_AGENT_COLLECTOR_BACKEND_SERVICE=host.docker.internal:11800
+      - JAVA_OPTS=-Xms256m -Xmx512m
+    networks:
+      - app-network
+
+  xxl-job-admin:
+    build:
+      context: ./xxl-job-admin
+      dockerfile: Dockerfile
+    container_name: xxl-job-admin
+    environment:
+      - SW_AGENT_NAME=xxl-job-admin
+      - SW_AGENT_COLLECTOR_BACKEND_SERVICE=host.docker.internal:11800
+      - JAVA_OPTS=-Xms256m -Xmx512m
+    networks:
+      - app-network
+
+  sentinel-dashboard-service:
+    build:
+      context: ./sentinel-dashboard-service
+      dockerfile: Dockerfile
+    container_name: sentinel-dashboard-service
+    environment:
+      - SW_AGENT_NAME=sentinel-dashboard-service
+      - SW_AGENT_COLLECTOR_BACKEND_SERVICE=host.docker.internal:11800
+      - JAVA_OPTS=-Xms256m -Xmx512m
+    networks:
+      - app-network
 networks:
-  microservice-net:
+  app-network:
     driver: bridge
