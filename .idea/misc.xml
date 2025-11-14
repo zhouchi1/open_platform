@@ -38,6 +38,7 @@
         <option value="$PROJECT_DIR$/gateway-service/pom.xml" />
         <option value="$PROJECT_DIR$/ai-service/pom.xml" />
         <option value="$PROJECT_DIR$/promotion-service/pom.xml" />
+        <option value="$PROJECT_DIR$/xxl-job-admin/pom.xml" />
       </list>
     </option>
     <option name="ignoredFiles">

@@ -10,6 +10,8 @@ services:
       - SW_AGENT_NAME=ai-service
       - SW_AGENT_COLLECTOR_BACKEND_SERVICE=host.docker.internal:11800
       - JAVA_OPTS=-Xms256m -Xmx512m
+    ports:
+      - "7009:7009"
     networks:
       - app-network
 
@@ -22,6 +24,8 @@ services:
       - SW_AGENT_NAME=auth-service
       - SW_AGENT_COLLECTOR_BACKEND_SERVICE=host.docker.internal:11800
       - JAVA_OPTS=-Xms256m -Xmx512m
+    ports:
+      - "8184:8184"
     networks:
       - app-network
 
@@ -34,6 +38,8 @@ services:
       - SW_AGENT_NAME=email-service
       - SW_AGENT_COLLECTOR_BACKEND_SERVICE=host.docker.internal:11800
       - JAVA_OPTS=-Xms256m -Xmx512m
+    ports:
+      - "8083:8083"
     networks:
       - app-network
 
@@ -46,6 +52,8 @@ services:
       - SW_AGENT_NAME=gateway-service
       - SW_AGENT_COLLECTOR_BACKEND_SERVICE=host.docker.internal:11800
       - JAVA_OPTS=-Xms256m -Xmx512m
+    ports:
+      - "9700:9700"
     networks:
       - app-network
 
@@ -58,6 +66,8 @@ services:
       - SW_AGENT_NAME=message-service
       - SW_AGENT_COLLECTOR_BACKEND_SERVICE=host.docker.internal:11800
       - JAVA_OPTS=-Xms256m -Xmx512m
+    ports:
+      - "8085:8085"
     networks:
       - app-network
 
@@ -70,6 +80,8 @@ services:
       - SW_AGENT_NAME=order-service
       - SW_AGENT_COLLECTOR_BACKEND_SERVICE=host.docker.internal:11800
       - JAVA_OPTS=-Xms256m -Xmx512m
+    ports:
+      - "8086:8086"
     networks:
       - app-network
 
@@ -82,6 +94,8 @@ services:
       - SW_AGENT_NAME=pay-service
       - SW_AGENT_COLLECTOR_BACKEND_SERVICE=host.docker.internal:11800
       - JAVA_OPTS=-Xms256m -Xmx512m
+    ports:
+      - "8087:8087"
     networks:
       - app-network
 
@@ -94,6 +108,8 @@ services:
       - SW_AGENT_NAME=promotion-service
       - SW_AGENT_COLLECTOR_BACKEND_SERVICE=host.docker.internal:11800
       - JAVA_OPTS=-Xms256m -Xmx512m
+    ports:
+      - "7010:7010"
     networks:
       - app-network
 
@@ -106,6 +122,9 @@ services:
       - SW_AGENT_NAME=task-service
       - SW_AGENT_COLLECTOR_BACKEND_SERVICE=host.docker.internal:11800
       - JAVA_OPTS=-Xms256m -Xmx512m
+    ports:
+      - "8090:8090"
+      - "9002:9002"
     networks:
       - app-network
 
@@ -118,6 +137,8 @@ services:
       - SW_AGENT_NAME=user-service
       - SW_AGENT_COLLECTOR_BACKEND_SERVICE=host.docker.internal:11800
       - JAVA_OPTS=-Xms256m -Xmx512m
+    ports:
+      - "8555:8555"
     networks:
       - app-network
 
@@ -130,6 +151,8 @@ services:
       - SW_AGENT_NAME=websocket-service
       - SW_AGENT_COLLECTOR_BACKEND_SERVICE=host.docker.internal:11800
       - JAVA_OPTS=-Xms256m -Xmx512m
+    ports:
+      - "9400:9400"
     networks:
       - app-network
 
@@ -142,6 +165,8 @@ services:
       - SW_AGENT_NAME=xxl-job-admin
       - SW_AGENT_COLLECTOR_BACKEND_SERVICE=host.docker.internal:11800
       - JAVA_OPTS=-Xms256m -Xmx512m
+    ports:
+      - "9001:9001"
     networks:
       - app-network
 
@@ -154,6 +179,9 @@ services:
       - SW_AGENT_NAME=sentinel-dashboard-service
       - SW_AGENT_COLLECTOR_BACKEND_SERVICE=host.docker.internal:11800
       - JAVA_OPTS=-Xms256m -Xmx512m
+    ports:
+      - "8099:8099"
+      - "8721:8721"
     networks:
       - app-network
 networks:

@@ -8,6 +8,10 @@ spring:
         file-extension: yaml
         group: DEFAULT_GROUP
         namespace: public
+      discovery:
+        enabled: true
+        server-addr: 10.0.0.253:8848,10.0.0.253:8850,10.0.0.253:8852
+        namespace: public
   main:
     allow-bean-definition-overriding: true
   config:

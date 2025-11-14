@@ -29,7 +29,9 @@ spring:
             rule-type: degrade
     nacos:
       discovery:
+        enabled: true
         server-addr: 10.0.0.253:8848,10.0.0.253:8850,10.0.0.253:8852
+        namespace: public
 
 # spring settings
 # cookie name setting
@@ -42,6 +44,7 @@ server:
       charset: UTF-8
       enabled: true
       force: true
+  port: 8099
 
 # logging settings
 logging:

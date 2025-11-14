@@ -19,7 +19,6 @@
         <module>user-service</module>
         <module>gateway-service</module>
         <module>auth-service</module>
-        <module>xxl-job-admin</module>
         <module>ai-service</module>
         <module>promotion-service</module>
     </modules>
@@ -48,7 +47,7 @@
         <jjwt.version>0.12.6</jjwt.version>
         <hutool.version>5.8.12</hutool.version>
         <feign-httpclient.version>11.2</feign-httpclient.version>
-        <xxl.job.version>2.2.0</xxl.job.version>
+        <xxl.job.version>3.0.0</xxl.job.version>
         <knfe4j.version>4.4.0</knfe4j.version>
         <curator-framework.version>5.4.0</curator-framework.version>
         <sentinel-dubbo.version>1.8.6</sentinel-dubbo.version>

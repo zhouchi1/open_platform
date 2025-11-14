@@ -19,7 +19,7 @@ dubbo:
     name: order-service
     qos-enable: false
   registry:
-    address: nacos://192.168.83.225:8848,192.168.83.225:8850,192.168.83.225:8852
+    address: nacos://10.0.0.253:8848,10.0.0.253:8850,10.0.0.253:8852
     register-mode: instance
   protocol:
     name: dubbo

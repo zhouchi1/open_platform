@@ -1,12 +1,12 @@
 C:\Users\21779\IdeaProjects\open_platform\order-service\src\main\java\com\zhouzhou\cloud\orderservice\service\OrderAddressService.java
 C:\Users\21779\IdeaProjects\open_platform\order-service\src\main\java\com\zhouzhou\cloud\orderservice\dto\OrderDetailDTO.java
 C:\Users\21779\IdeaProjects\open_platform\order-service\src\main\java\com\zhouzhou\cloud\orderservice\service\OrderInfoService.java
+C:\Users\21779\IdeaProjects\open_platform\order-service\src\main\java\com\zhouzhou\cloud\orderservice\dubboprovider\OrderRpcServerImplV1.java
 C:\Users\21779\IdeaProjects\open_platform\order-service\src\main\java\com\zhouzhou\cloud\orderservice\mapper\ShopOrderMapper.java
 C:\Users\21779\IdeaProjects\open_platform\order-service\src\main\java\com\zhouzhou\cloud\orderservice\service\impl\OrderInfoServiceImpl.java
 C:\Users\21779\IdeaProjects\open_platform\order-service\src\main\java\com\zhouzhou\cloud\orderservice\controller\OrderController.java
 C:\Users\21779\IdeaProjects\open_platform\order-service\src\main\java\com\zhouzhou\cloud\orderservice\mapper\ShopOrderDetailsMapper.java
 C:\Users\21779\IdeaProjects\open_platform\order-service\src\main\java\com\zhouzhou\cloud\orderservice\req\CreateOrderReq.java
-C:\Users\21779\IdeaProjects\open_platform\order-service\src\main\java\com\zhouzhou\cloud\orderservice\dubboprovider\WxPayOrderServiceApiImplV1.java
 C:\Users\21779\IdeaProjects\open_platform\order-service\src\main\java\com\zhouzhou\cloud\orderservice\service\OrderService.java
 C:\Users\21779\IdeaProjects\open_platform\order-service\src\main\java\com\zhouzhou\cloud\orderservice\service\impl\OrderServiceImpl.java
 C:\Users\21779\IdeaProjects\open_platform\order-service\src\main\java\com\zhouzhou\cloud\orderservice\req\CreateOrderDetailReq.java

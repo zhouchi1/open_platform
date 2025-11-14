@@ -18,7 +18,7 @@
 			<dependency>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-starter-parent</artifactId>
-				<version>3.0.3</version>
+				<version>3.2.0</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
@@ -26,28 +26,29 @@
 	</dependencyManagement>
 
 	<dependencies>
+
 		<dependency>
 			<groupId>com.alibaba.cloud</groupId>
 			<artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
-			<version>2022.0.0.0</version>
+			<version>2023.0.1.0</version>
 		</dependency>
 
 		<dependency>
 			<groupId>com.alibaba.cloud</groupId>
 			<artifactId>spring-cloud-starter-alibaba-nacos-config</artifactId>
-			<version>2022.0.0.0</version>
+			<version>2023.0.1.0</version>
 		</dependency>
 
 		<dependency>
 			<groupId>com.alibaba.cloud</groupId>
 			<artifactId>spring-cloud-alibaba-sentinel-datasource</artifactId>
-			<version>2022.0.0.0</version>
+			<version>2023.0.1.0</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-starter-bootstrap</artifactId>
-			<version>3.1.5</version>
+			<version>4.1.2</version>
 		</dependency>
 
 		<!-- starter-web：spring-webmvc + autoconfigure + logback + yaml + tomcat -->
@@ -99,6 +100,12 @@
 			<artifactId>xxl-job-core</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>com.baomidou</groupId>
+			<artifactId>mybatis-plus-extension</artifactId>
+			<version>3.5.5</version>
+			<scope>compile</scope>
+		</dependency>
 
 	</dependencies>
 
@@ -107,7 +114,7 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
-				<version>${spring-boot.version}</version>
+				<!--<version>${spring-boot.version}</version>-->
 				<executions>
 					<execution>
 						<goals>

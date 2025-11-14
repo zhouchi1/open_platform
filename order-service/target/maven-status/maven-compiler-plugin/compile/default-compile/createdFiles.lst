@@ -1,6 +1,5 @@
 com\zhouzhou\cloud\orderservice\service\impl\OrderAddressServiceImpl.class
 com\zhouzhou\cloud\orderservice\service\OrderInfoService.class
-com\zhouzhou\cloud\orderservice\dubboprovider\WxPayOrderServiceApiImplV1.class
 com\zhouzhou\cloud\orderservice\req\CreateOrderReq.class
 com\zhouzhou\cloud\orderservice\controller\OrderController.class
 com\zhouzhou\cloud\orderservice\service\OrderService.class
@@ -8,6 +7,7 @@ com\zhouzhou\cloud\orderservice\service\impl\OrderServiceImpl.class
 com\zhouzhou\cloud\orderservice\service\impl\OrderInfoServiceImpl.class
 com\zhouzhou\cloud\orderservice\mapper\ShopOrderMapper.class
 com\zhouzhou\cloud\orderservice\req\CreateOrderDetailReq.class
+com\zhouzhou\cloud\orderservice\dubboprovider\OrderRpcServerImplV1.class
 com\zhouzhou\cloud\OrderServiceApplication.class
 com\zhouzhou\cloud\orderservice\dto\OrderDetailDTO.class
 com\zhouzhou\cloud\orderservice\service\OrderAddressService.class

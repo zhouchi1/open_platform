@@ -2,10 +2,3 @@ server:
   port: 9001
   servlet:
     context-path: /xxl-job-admin
-
-management:
-  server:
-    base-path: /actuator
-  health:
-    mail:
-      enabled: false
