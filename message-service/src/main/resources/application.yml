@@ -24,3 +24,8 @@ dubbo:
   protocol:
     name: dubbo
     port: 20885
+    serialization: fastjson2
+  security:
+    serialize:
+      allow-list:
+        - com.zhouzhou.cloud.common.service.excepetions.*

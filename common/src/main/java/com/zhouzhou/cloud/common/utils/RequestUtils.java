@@ -14,23 +14,23 @@ import java.util.Map;
  * @description :
  */
 public class RequestUtils {
-  public static HttpServletRequest getRequest() {
-    ServletRequestAttributes attributes =
-            (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-    return attributes.getRequest();
-  }
-
-  public static Map<String, String> getHeaders() {
-    Map<String, String> map = Maps.newHashMap();
-
-    HttpServletRequest request = getRequest();
-
-    Enumeration<String> headerNames = request.getHeaderNames();
-    while (headerNames.hasMoreElements()) {
-      String headerName = headerNames.nextElement();
-      String headerValue = request.getHeader(headerName);
-      map.put(headerName, headerValue);
+    public static HttpServletRequest getRequest() {
+        ServletRequestAttributes attributes =
+                (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        return attributes.getRequest();
     }
-    return map;
-  }
+
+    public static Map<String, String> getHeaders() {
+        Map<String, String> map = Maps.newHashMap();
+
+        HttpServletRequest request = getRequest();
+
+        Enumeration<String> headerNames = request.getHeaderNames();
+        while (headerNames.hasMoreElements()) {
+            String headerName = headerNames.nextElement();
+            String headerValue = request.getHeader(headerName);
+            map.put(headerName, headerValue);
+        }
+        return map;
+    }
 }

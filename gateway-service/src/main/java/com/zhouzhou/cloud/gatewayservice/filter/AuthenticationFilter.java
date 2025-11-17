@@ -8,29 +8,36 @@ import com.alibaba.nacos.api.naming.pojo.Instance;
 import com.zhouzhou.cloud.common.dto.MessageDTO;
 import com.zhouzhou.cloud.common.dto.UserIdentityConfirmDTO;
 import com.zhouzhou.cloud.common.service.dto.UserLoginDTO;
-import com.zhouzhou.cloud.common.service.excepetions.BizException;
 import com.zhouzhou.cloud.common.service.interfaces.AuthRpcServer;
 import com.zhouzhou.cloud.common.utils.RedisUtil;
 import com.zhouzhou.cloud.gatewayservice.rabbitmqproducer.RabbitMqSenderApi;
 import jakarta.annotation.Resource;
-import lombok.SneakyThrows;
+import jakarta.validation.constraints.NotNull;
 import org.apache.dubbo.common.utils.JsonUtils;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
+import org.springframework.cloud.gateway.filter.factory.rewrite.CachedBodyOutputMessage;
 import org.springframework.core.Ordered;
+import org.springframework.core.io.buffer.DataBuffer;
+import org.springframework.core.io.buffer.DataBufferFactory;
+import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.server.reactive.ServerHttpRequest;
+import org.springframework.http.server.reactive.ServerHttpRequestDecorator;
+import org.springframework.lang.NonNull;
+import org.springframework.lang.NonNullApi;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.util.UriComponentsBuilder;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
@@ -40,11 +47,10 @@ import java.util.*;
 
 import static com.zhouzhou.cloud.common.constant.AuthConstant.UN_AUTH;
 
-
 /**
  * @Author: Sr.Zhou
  * @CreateTime: 2025-05-10
- * @Description: 授权过滤器 + websocket对话
+ * @Description: 安全、响应式、状态码清晰的全局认证过滤器
  */
 @Component
 public class AuthenticationFilter implements GlobalFilter, Ordered {
@@ -66,148 +72,293 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
     @Resource
     private WebClient.Builder webClientBuilder;
 
-    @SneakyThrows
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
+        ServerHttpRequest request = exchange.getRequest();
+        String path = request.getPath().value();
+        String method = request.getMethod().name();
 
-        String path = exchange.getRequest().getPath().value();
+        log.info("Processing request: {} {}", method, path);
+
+        try {
+            if ("/login".equals(path) && "POST".equalsIgnoreCase(method)) {
+                return handleLogin(exchange);
+            }
+
+            if ("/chat/sendMessage".equals(path)) {
+                return handleMessageSend(exchange);
+            }
+
+            return chain.filter(exchange);
+
+        } catch (Exception e) {
+            log.error("Unexpected error in filter", e);
+            return buildErrorResponse(exchange, "Internal server error: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * 登录处理
+     */
+    private Mono<Void> handleLogin(ServerWebExchange exchange) {
         ServerHttpRequest request = exchange.getRequest();
 
-        // 登录授权
-        if ("/login".equals(path) && "POST".equalsIgnoreCase(exchange.getRequest().getMethod().toString())) {
-            return exchange.getRequest().getBody().next()
-                    .flatMap(buffer -> {
-                        String body = buffer.toString(StandardCharsets.UTF_8);
-                        log.debug("Login request body: {}", body);
+        return DataBufferUtils.join(request.getBody())
+                .flatMap(dataBuffer -> {
+                    byte[] bodyBytes = new byte[dataBuffer.readableByteCount()];
+                    dataBuffer.read(bodyBytes);
+                    DataBufferUtils.release(dataBuffer);
 
-                        UserIdentityConfirmDTO userIdentityConfirmDTO = JSONObject.parseObject(body, UserIdentityConfirmDTO.class);
+                    String body = new String(bodyBytes, StandardCharsets.UTF_8);
+                    log.info("Login request body: {}", body);
 
-                        // 使用 Dubbo 同步调用放到弹性调度器（弹性线程池） 防止阻塞主线程
-                        return Mono.fromCallable(() -> authRpcServer.getTokenFromAuthServer(userIdentityConfirmDTO))
-                                .subscribeOn(Schedulers.boundedElastic())
-                                .flatMap(token -> {
+                    if (body.trim().isEmpty()) {
+                        return buildErrorResponse(exchange, "Request body is empty", HttpStatus.BAD_REQUEST);
+                    }
 
-                                    // 拒绝授权访问
-                                    if (UN_AUTH.equals(token)) {
-                                        exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
-                                        exchange.getResponse().getHeaders().setContentType(MediaType.APPLICATION_JSON);
+                    UserIdentityConfirmDTO userDTO;
+                    try {
+                        userDTO = JSONObject.parseObject(body, UserIdentityConfirmDTO.class);
+                    } catch (Exception e) {
+                        return buildErrorResponse(exchange, "Invalid JSON format", HttpStatus.BAD_REQUEST);
+                    }
 
-                                        Map<String, Object> result = new HashMap<>();
-                                        result.put("code", 401);
-                                        result.put("message", "Message center denies authorized access");
+                    // ------------------------------
+                    // ⭐ 使用 CachedBodyOutputMessage 缓存 body
+                    // ------------------------------
+                    DataBufferFactory bufferFactory = exchange.getResponse().bufferFactory();
+                    CachedBodyOutputMessage cachedBody = new CachedBodyOutputMessage(exchange, request.getHeaders());
 
-                                        byte[] respBytes = JsonUtils.toJson(result).getBytes(StandardCharsets.UTF_8);
-                                        return exchange.getResponse().writeWith(Mono.just(exchange.getResponse()
-                                                .bufferFactory().wrap(respBytes)));
-                                    }
+                    // 将 bodyBytes 包装成 DataBuffer
+                    Flux<DataBuffer> bodyFlux = Flux.defer(() -> Mono.just(bufferFactory.wrap(bodyBytes)));
 
-                                    String finalAddress;
+                    // 写入 CachedBodyOutputMessage
+                    return cachedBody.writeWith(bodyFlux)
+                            .then(Mono.defer(() -> {
+                                // 用 decorator 让下游读取 cached body
+                                ServerHttpRequestDecorator decoratedRequest =
+                                        new ServerHttpRequestDecorator(request) {
+                                            @Override
+                                            public Flux<DataBuffer> getBody() {
+                                                return cachedBody.getBody();
+                                            }
 
-                                    // 如果授权成功 正确的生成了Token 从Nacos注册中心中挑选一台Netty服务器用于连接 将连接映射信息保存到Redis中 用于后续指定机器进行连接
-                                    try {
-                                        List<Instance> instances = namingService.getAllInstances("websocket-service");
+                                            @Override
+                                            public HttpHeaders getHeaders() {
+                                                HttpHeaders headers = new HttpHeaders();
+                                                headers.putAll(super.getHeaders());
+                                                headers.setContentLength(bodyBytes.length);
+                                                if (!headers.containsKey(HttpHeaders.CONTENT_TYPE)) {
+                                                    headers.setContentType(MediaType.APPLICATION_JSON);
+                                                }
+                                                return headers;
+                                            }
+                                        };
 
-                                        // 随机挑选一台netty服务器 用于连接
-                                        Instance selected = instances.get(new Random().nextInt(instances.size()));
-                                        finalAddress = selected.getIp() + ":" + selected.getPort();
+                                ServerWebExchange mutatedExchange = exchange.mutate()
+                                        .request(decoratedRequest)
+                                        .build();
 
-                                        // 根据token查询用户信息
-                                        UserLoginDTO userLoginDTO = JSONObject.parseObject((String) redisUtil.get(token), UserLoginDTO.class);
+                                return processLogin(mutatedExchange, userDTO);
+                            }));
+                });
+    }
 
-                                        // 将终端用户识别信息与服务器的映射信息保存到Redis中
-                                        redisUtil.set(userLoginDTO.getUserResp().getUserId(), finalAddress, 3600);
+    private Mono<Void> processLogin(ServerWebExchange exchange, UserIdentityConfirmDTO userDTO) {
+        return Mono.fromCallable(() -> authRpcServer.getTokenFromAuthServer(userDTO))
+                .subscribeOn(Schedulers.boundedElastic())
+                .flatMap(token -> {
+                    if (UN_AUTH.equals(token)) {
+                        return buildUnauthorizedResponse(exchange, "Authentication failed");
+                    }
+                    return processLoginSuccess(exchange, token);
+                })
+                .onErrorResume(throwable -> {
+                    log.error("Login processing error", throwable);
+                    if (throwable instanceof java.util.concurrent.TimeoutException) {
+                        return buildErrorResponse(exchange, "Authentication service timeout", HttpStatus.GATEWAY_TIMEOUT);
+                    } else if (throwable instanceof org.apache.dubbo.rpc.RpcException) {
+                        return buildErrorResponse(exchange, "Authentication service unavailable", HttpStatus.SERVICE_UNAVAILABLE);
+                    } else {
+                        return buildErrorResponse(exchange, "Login failed: " + throwable.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+                    }
+                });
+    }
 
-                                    } catch (NacosException e) {
-                                        e.printStackTrace();
-                                        return Mono.error(e);
-                                    }
+    private Mono<Void> processLoginSuccess(ServerWebExchange exchange, String token) {
+        try {
+            List<Instance> instances = namingService.getAllInstances("websocket-service");
+            Instance selected = instances.isEmpty() ? null : instances.get(new Random().nextInt(instances.size()));
+            String wsAddress = selected == null ? null : selected.getIp() + ":" + selected.getPort();
 
-                                    // 写入响应
-                                    exchange.getResponse().getHeaders().add(HttpHeaders.AUTHORIZATION, "Bearer " + token);
-                                    exchange.getResponse().getHeaders().setContentType(MediaType.APPLICATION_JSON);
-
-                                    // 编码返回给客户端
-                                    Map<String, String> result = new HashMap<>();
-                                    result.put("accessToken", token);
-                                    byte[] respBytes = JsonUtils.toJson(result).getBytes(StandardCharsets.UTF_8);
-                                    return exchange.getResponse().writeWith(Mono.just(exchange.getResponse()
-                                            .bufferFactory().wrap(respBytes)));
-                                });
-                    });
-        }
-
-        // 消息发送
-        if ("/chat/sendMessage".equals(path)) {
-
-            // 校验Token是否有效 如果无效则直接返回未授权
-            Optional<String> token = Objects.requireNonNull(request.getHeaders().get("Token")).stream().findFirst();
-
-            if (!authRpcServer.checkTokenValidity(token.get())) {
-                exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
-                return exchange.getResponse().setComplete();
-            }
-
-            // 从请求中获取 消息的终点 查看用户当前是否存在有效的服务路由信息 如果有的话 将消息转发至指定的Netty消息推送分布式节点
-            // 如果当前用户没有有效的服务器路由信息 则不进行推送
-            // 根据token查询发送消息者用户信息
-            UserLoginDTO userLoginDTO = JSONObject.parseObject((String) redisUtil.get(token.get()), UserLoginDTO.class);
-
-            if (ObjectUtils.isEmpty(userLoginDTO.getUserResp().getUserId())) {
-                throw new BizException("The message Sender userId cannot be empty.");
-            }
-
-            // 获取请求参数
-            String message = request.getQueryParams().getFirst("message");
-            String targetUserId = request.getQueryParams().getFirst("targetUserId");
-
-            // 组装消息传输对象
-            MessageDTO messageDTO = new MessageDTO();
-            messageDTO.setTargetUserId(targetUserId);
-            messageDTO.setMessage(message);
-
-            // 确认信息无误后 直接将消息发送给MQ消息微服务消费者 进行异步消息持久化操作 异步削峰
-            rabbitMqSenderApi.sendTopicMessage("topicExchange", "topic.routing.key1", JSON.toJSONString(messageDTO));
-
-            String targetHost = (String) redisUtil.get(targetUserId);
-
-            if (!ObjectUtils.isEmpty(targetHost)) {
-
-                // 判断targetHost是否在Nacos注册中心中能找到（因为Redis中存储的与netty服务器可能发生了宕机）
-                List<Instance> websocketInstances = namingService.getAllInstances("websocket-service");
-                String finalTargetHost = targetHost;
-                if (websocketInstances.stream().noneMatch(instance -> instance.getIp().equals(finalTargetHost.split(":")[0]) && instance.getPort() == Integer.parseInt(finalTargetHost.split(":")[1]))) {
-                    // 如果找不到 则从Nacos中重新获取
-                    Instance instance = websocketInstances.get(0);
-
-                    targetHost = instance.getIp() + ":" + instance.getPort();
-
-                    // 将映射关系赋值给当前用户的redis存储
-                    redisUtil.set(userLoginDTO.getUserResp().getUserId(), targetHost, -1);
+            String userInfoJson = (String) redisUtil.get(token);
+            UserLoginDTO userLoginDTO;
+            if (userInfoJson != null) {
+                try {
+                    userLoginDTO = JSONObject.parseObject(userInfoJson, UserLoginDTO.class);
+                    if (userLoginDTO != null && userLoginDTO.getUserResp() != null &&
+                            userLoginDTO.getUserResp().getUserId() != null && wsAddress != null) {
+                        redisUtil.set(userLoginDTO.getUserResp().getUserId(), wsAddress, 3600);
+                    }
+                } catch (Exception e) {
+                    log.warn("User info parse error, continue", e);
                 }
-
-                // 组装参数请求目标服务器
-                URI uri = UriComponentsBuilder.fromHttpUrl("http://" + targetHost)
-                        .path("/chat/sendMessage")
-                        .build(true)
-                        .toUri();
-
-                // 使用 WebClient 转发
-                return webClientBuilder.build()
-                        .post()
-                        .uri(uri)
-                        .headers(headers -> headers.addAll(request.getHeaders()))
-                        .body(BodyInserters.fromValue(messageDTO))
-                        .retrieve()
-                        .bodyToMono(String.class)
-                        .then();
-            } else {
-                // 将消息加入到MQ中 指定离线类型发送 削峰
-                rabbitMqSenderApi.sendTopicMessage("topicExchange", "topic.routing.key2", JSON.toJSONString(messageDTO));
-                return exchange.getResponse().setComplete();
             }
+
+            return buildLoginSuccessResponse(exchange, token, wsAddress);
+        } catch (NacosException e) {
+            log.error("Nacos discovery error", e);
+            return buildLoginSuccessResponse(exchange, token, null);
+        } catch (Exception e) {
+            log.error("Unexpected login success processing error", e);
+            return buildLoginSuccessResponse(exchange, token, null);
+        }
+    }
+
+    private Mono<Void> buildLoginSuccessResponse(ServerWebExchange exchange, String token, String websocketAddress) {
+        exchange.getResponse().getHeaders().add(HttpHeaders.AUTHORIZATION, "Bearer " + token);
+        exchange.getResponse().getHeaders().setContentType(MediaType.APPLICATION_JSON);
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("accessToken", token);
+        result.put("tokenType", "Bearer");
+        result.put("expiresIn", 3600);
+        if (websocketAddress != null) result.put("websocketServer", websocketAddress);
+
+        byte[] respBytes = JsonUtils.toJson(result).getBytes(StandardCharsets.UTF_8);
+        return exchange.getResponse().writeWith(Mono.just(exchange.getResponse().bufferFactory().wrap(respBytes)));
+    }
+
+    /**
+     * 消息发送处理
+     */
+    private Mono<Void> handleMessageSend(ServerWebExchange exchange) {
+        List<String> tokenHeaders = exchange.getRequest().getHeaders().get("Token");
+        if (tokenHeaders == null || tokenHeaders.isEmpty()) {
+            return buildUnauthorizedResponse(exchange, "Token header is required");
         }
 
-        return chain.filter(exchange);
+        String token = tokenHeaders.get(0);
+        if (token == null || token.trim().isEmpty()) {
+            return buildUnauthorizedResponse(exchange, "Token is empty");
+        }
+
+        return Mono.fromCallable(() -> authRpcServer.checkTokenValidity(token))
+                .subscribeOn(Schedulers.boundedElastic())
+                .flatMap(valid -> valid ? processMessageSend(exchange, token)
+                        : buildUnauthorizedResponse(exchange, "Invalid token"))
+                .onErrorResume(throwable -> {
+                    log.error("Token validation error", throwable);
+                    return buildErrorResponse(exchange, "Token validation failed: " + throwable.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+                });
+    }
+
+    private Mono<Void> processMessageSend(ServerWebExchange exchange, String token) {
+        ServerHttpRequest request = exchange.getRequest();
+        String userInfoJson = (String) redisUtil.get(token);
+        if (userInfoJson == null) return buildUnauthorizedResponse(exchange, "User information not found");
+
+        UserLoginDTO userDTO;
+        try {
+            userDTO = JSONObject.parseObject(userInfoJson, UserLoginDTO.class);
+        } catch (Exception e) {
+            return buildErrorResponse(exchange, "Invalid user info format", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+        if (userDTO == null || userDTO.getUserResp() == null ||
+                ObjectUtils.isEmpty(userDTO.getUserResp().getUserId())) {
+            return buildErrorResponse(exchange, "UserId cannot be empty", HttpStatus.BAD_REQUEST);
+        }
+
+        String message = request.getQueryParams().getFirst("message");
+        String targetUserId = request.getQueryParams().getFirst("targetUserId");
+        if (ObjectUtils.isEmpty(message) || ObjectUtils.isEmpty(targetUserId)) {
+            return buildErrorResponse(exchange, "Message and targetUserId are required", HttpStatus.BAD_REQUEST);
+        }
+
+        MessageDTO messageDTO = new MessageDTO();
+        messageDTO.setMessage(message);
+        messageDTO.setTargetUserId(targetUserId);
+
+        try { rabbitMqSenderApi.sendTopicMessage("topicExchange","topic.routing.key1", JSON.toJSONString(messageDTO)); }
+        catch (Exception e) { log.warn("MQ send error, continue", e); }
+
+        String targetHost = (String) redisUtil.get(targetUserId);
+        if (!ObjectUtils.isEmpty(targetHost)) {
+            return forwardMessageToWebSocket(exchange, request, messageDTO, targetHost, userDTO);
+        }
+
+        try { rabbitMqSenderApi.sendTopicMessage("topicExchange","topic.routing.key2", JSON.toJSONString(messageDTO)); }
+        catch (Exception e) { log.warn("MQ offline send error, continue", e); }
+
+        return buildSuccessResponse(exchange, "Message sent to offline queue");
+    }
+
+    private Mono<Void> forwardMessageToWebSocket(ServerWebExchange exchange, ServerHttpRequest request,
+                                                 MessageDTO messageDTO, String targetHost, UserLoginDTO userDTO) {
+        try {
+            List<Instance> instances = namingService.getAllInstances("websocket-service");
+            String finalTargetHost = targetHost;
+            boolean hostAvailable = instances.stream().anyMatch(i ->
+                    i.getIp().equals(finalTargetHost.split(":")[0]) &&
+                            i.getPort() == Integer.parseInt(finalTargetHost.split(":")[1]));
+
+            if (!hostAvailable && !instances.isEmpty()) {
+                Instance instance = instances.get(0);
+                targetHost = instance.getIp() + ":" + instance.getPort();
+                try { redisUtil.set(userDTO.getUserResp().getUserId(), targetHost, -1); }
+                catch (Exception e) { log.warn("Update Redis mapping failed", e); }
+            }
+
+            URI uri = UriComponentsBuilder.fromHttpUrl("http://" + targetHost)
+                    .path("/chat/sendMessage")
+                    .build(true)
+                    .toUri();
+
+            return webClientBuilder.build()
+                    .post()
+                    .uri(uri)
+                    .headers(h -> { h.addAll(request.getHeaders()); h.remove(HttpHeaders.HOST); })
+                    .body(BodyInserters.fromValue(messageDTO))
+                    .retrieve()
+                    .bodyToMono(String.class)
+                    .then(buildSuccessResponse(exchange, "Message sent successfully"))
+                    .onErrorResume(throwable -> buildErrorResponse(exchange, "WebSocket forwarding failed: " + throwable.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR));
+
+        } catch (NacosException e) {
+            return buildErrorResponse(exchange, "Service discovery error: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (Exception e) {
+            return buildErrorResponse(exchange, "Forwarding error: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    private Mono<Void> buildSuccessResponse(ServerWebExchange exchange, String message) {
+        return buildResponse(exchange, HttpStatus.OK, 200, message);
+    }
+
+    private Mono<Void> buildUnauthorizedResponse(ServerWebExchange exchange, String message) {
+        return buildResponse(exchange, HttpStatus.UNAUTHORIZED, 401, message);
+    }
+
+    private Mono<Void> buildErrorResponse(ServerWebExchange exchange, String message, HttpStatus status) {
+        log.error("构建错误的返回信息");
+        return buildResponse(exchange, status, status.value(), message);
+    }
+
+    private Mono<Void> buildResponse(ServerWebExchange exchange, HttpStatus status, int code, String message) {
+
+        exchange.getResponse().setStatusCode(status);
+        exchange.getResponse().getHeaders().setContentType(MediaType.APPLICATION_JSON);
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("code", code);
+        result.put("message", message);
+        result.put("timestamp", System.currentTimeMillis());
+
+        log.error(result.toString());
+
+        byte[] respBytes = JsonUtils.toJson(result).getBytes(StandardCharsets.UTF_8);
+        return exchange.getResponse().writeWith(Mono.just(exchange.getResponse().bufferFactory().wrap(respBytes)));
     }
 
     @Override

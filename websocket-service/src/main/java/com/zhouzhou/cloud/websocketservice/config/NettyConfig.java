@@ -1,9 +1,8 @@
 package com.zhouzhou.cloud.websocketservice.config;
 
-import com.zhouzhou.cloud.websocketservice.hanlder.AuthHandler;
-import com.zhouzhou.cloud.websocketservice.hanlder.WebSocketChannelInitializer;
-import com.zhouzhou.cloud.websocketservice.hanlder.WebSocketHandler;
-import com.zhouzhou.cloud.websocketservice.service.TokenService;
+import com.zhouzhou.cloud.websocketservice.handler.AuthHandler;
+import com.zhouzhou.cloud.websocketservice.handler.WebSocketChannelInitializer;
+import com.zhouzhou.cloud.websocketservice.handler.WebSocketHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.core.StringRedisTemplate;

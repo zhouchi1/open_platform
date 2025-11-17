@@ -19,7 +19,7 @@ ENV SW_AGENT_COLLECTOR_BACKEND_SERVICE=host.docker.internal:11800
 ENV JAVA_OPTS="-Xms256m -Xmx512m"
 
 # 暴露应用端口
-EXPOSE 9400
+EXPOSE 6111
 
 # 启动应用
 ENTRYPOINT exec java $JAVA_OPTS \

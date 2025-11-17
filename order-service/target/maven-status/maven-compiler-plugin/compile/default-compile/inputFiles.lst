@@ -3,6 +3,7 @@ C:\Users\21779\IdeaProjects\open_platform\order-service\src\main\java\com\zhouzh
 C:\Users\21779\IdeaProjects\open_platform\order-service\src\main\java\com\zhouzhou\cloud\orderservice\service\OrderInfoService.java
 C:\Users\21779\IdeaProjects\open_platform\order-service\src\main\java\com\zhouzhou\cloud\orderservice\dubboprovider\OrderRpcServerImplV1.java
 C:\Users\21779\IdeaProjects\open_platform\order-service\src\main\java\com\zhouzhou\cloud\orderservice\mapper\ShopOrderMapper.java
+C:\Users\21779\IdeaProjects\open_platform\order-service\src\main\java\com\zhouzhou\cloud\orderservice\handler\GlobalExceptionHandler.java
 C:\Users\21779\IdeaProjects\open_platform\order-service\src\main\java\com\zhouzhou\cloud\orderservice\service\impl\OrderInfoServiceImpl.java
 C:\Users\21779\IdeaProjects\open_platform\order-service\src\main\java\com\zhouzhou\cloud\orderservice\controller\OrderController.java
 C:\Users\21779\IdeaProjects\open_platform\order-service\src\main\java\com\zhouzhou\cloud\orderservice\mapper\ShopOrderDetailsMapper.java

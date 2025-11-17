@@ -1,4 +1,4 @@
-package com.zhouzhou.cloud.websocketservice.hanlder;
+package com.zhouzhou.cloud.websocketservice.handler;
 
 import com.zhouzhou.cloud.websocketservice.constant.ConnectConstants;
 import io.netty.channel.ChannelHandler;

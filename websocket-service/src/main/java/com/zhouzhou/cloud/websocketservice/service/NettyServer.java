@@ -1,6 +1,6 @@
 package com.zhouzhou.cloud.websocketservice.service;
 
-import com.zhouzhou.cloud.websocketservice.hanlder.WebSocketChannelInitializer;
+import com.zhouzhou.cloud.websocketservice.handler.WebSocketChannelInitializer;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelOption;

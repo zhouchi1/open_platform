@@ -27,6 +27,11 @@ dubbo:
   protocol:
     name: dubbo
     port: 24894
+    serialization: fastjson2
+  security:
+    serialize:
+      allow-list:
+        - com.zhouzhou.cloud.common.service.excepetions.*
 
 spring:
   lifecycle:

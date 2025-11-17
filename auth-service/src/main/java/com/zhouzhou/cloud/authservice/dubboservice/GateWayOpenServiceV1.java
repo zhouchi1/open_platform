@@ -45,6 +45,7 @@ public class GateWayOpenServiceV1 implements AuthRpcServer {
 
     /**
      * 获取授权Token
+     *
      * @param userIdentityConfirmDTO 用户名以及密码
      * @return valid token or UN_AUTH
      */
@@ -54,7 +55,7 @@ public class GateWayOpenServiceV1 implements AuthRpcServer {
         Boolean isAuth = userRpcServer.authConfirm(userIdentityConfirmDTO);
 
         // 如果身份验证不通过则直接返回未授权字符串代表未授权
-        if (!isAuth){
+        if (!isAuth) {
             return UN_AUTH;
         }
 
@@ -78,6 +79,7 @@ public class GateWayOpenServiceV1 implements AuthRpcServer {
 
     /**
      * 验证Token是否有效
+     *
      * @param token token
      * @return token是否有效
      */
@@ -88,6 +90,7 @@ public class GateWayOpenServiceV1 implements AuthRpcServer {
 
     /**
      * 根据token获取用户信息
+     *
      * @param token token
      * @return 用户信息
      */

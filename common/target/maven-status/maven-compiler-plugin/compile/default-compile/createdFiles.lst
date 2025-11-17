@@ -40,7 +40,6 @@ com\zhouzhou\cloud\common\utils\SnowflakeIdGeneratorUtil.class
 com\zhouzhou\cloud\common\service\excepetions\BizExCode.class
 com\zhouzhou\cloud\common\enums\payservice\wxpaytype\PayCurrencyEnum.class
 com\zhouzhou\cloud\common\service\enums\CommonStatusEnum.class
-com\zhouzhou\cloud\common\handler\GlobalExceptionHandler.class
 com\zhouzhou\cloud\common\req\BaseIdsReq.class
 com\zhouzhou\cloud\common\mapper\MessageCenterMapper.class
 com\zhouzhou\cloud\common\service\enums\BizTagEnum.class

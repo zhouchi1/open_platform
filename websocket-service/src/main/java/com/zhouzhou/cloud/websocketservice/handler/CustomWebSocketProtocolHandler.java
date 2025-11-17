@@ -1,4 +1,4 @@
-package com.zhouzhou.cloud.websocketservice.hanlder;
+package com.zhouzhou.cloud.websocketservice.handler;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToMessageDecoder;

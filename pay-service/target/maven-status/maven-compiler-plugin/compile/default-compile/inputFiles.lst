@@ -1,5 +1,6 @@
 C:\Users\21779\IdeaProjects\open_platform\pay-service\src\main\java\com\zhouzhou\cloud\payservice\request\wxlogin\WxLoginRegisterReq.java
 C:\Users\21779\IdeaProjects\open_platform\pay-service\src\main\java\com\zhouzhou\cloud\payservice\openfeign\wx\WxPayOpenFeignApi.java
+C:\Users\21779\IdeaProjects\open_platform\pay-service\src\main\java\com\zhouzhou\cloud\payservice\handler\GlobalExceptionHandler.java
 C:\Users\21779\IdeaProjects\open_platform\pay-service\src\main\java\com\zhouzhou\cloud\payservice\dto\wxpay\WxPayOrderDTO.java
 C:\Users\21779\IdeaProjects\open_platform\pay-service\src\main\java\com\zhouzhou\cloud\payservice\response\wxpay\WxPayCallBackResp.java
 C:\Users\21779\IdeaProjects\open_platform\pay-service\src\main\java\com\zhouzhou\cloud\payservice\strategy\PaymentStrategy.java

@@ -56,6 +56,9 @@ public class WebSocketRoutingFilter implements GlobalFilter, Ordered {
         ServerHttpRequest request = exchange.getRequest();
 
         if (originalUri != null && originalUri.getPath().startsWith("/open-platform/websocket")) {
+
+            log.info("进入websocket连接请求处理");
+
             // 1. 获取Token
             HttpHeaders headers = request.getHeaders();
             Optional<String> tokenOptional = Optional.ofNullable(headers.get("Sec-WebSocket-Protocol"))
@@ -66,19 +69,31 @@ public class WebSocketRoutingFilter implements GlobalFilter, Ordered {
             }
 
             String token = tokenOptional.get();
+            log.info("获取token 进行身份授权认证: {}", token);
 
-            // 2. 验证Token并获取用户信息
-            return Mono.fromCallable(() -> (String) redisUtil.get(token))
+            // 2. 验证Token并获取用户信息 - 使用 justOrEmpty 确保执行
+            return Mono.justOrEmpty((String) redisUtil.get(token))
                     .flatMap(userInfo -> {
+                        log.info("Redis查询结果: {}", userInfo);
+
                         if (ObjectUtils.isEmpty(userInfo)) {
+                            log.info("未查询到认证授权的用户访问信息 返回未授权退出");
                             return unauthorizedResponse(exchange, "Message center denies authorized access type:userInfo");
                         }
 
-                        UserLoginDTO userLoginDTO = JSONObject.parseObject(userInfo, UserLoginDTO.class);
+                        UserLoginDTO userLoginDTO;
+                        try {
+                            userLoginDTO = JSONObject.parseObject(userInfo, UserLoginDTO.class);
+                        } catch (Exception e) {
+                            log.error("用户信息解析失败", e);
+                            return unauthorizedResponse(exchange, "用户信息解析失败");
+                        }
 
                         // 3. 获取用户绑定的Netty服务器地址
                         String bindingKey = userLoginDTO.getUserResp().getUserId();
                         String address = (String) redisUtil.get(bindingKey);
+
+                        log.info("获取netty服务器地址: {}", address);
 
                         if (ObjectUtils.isEmpty(address)) {
                             return unauthorizedResponse(exchange, "Message center denies authorized access type:address");
@@ -98,6 +113,8 @@ public class WebSocketRoutingFilter implements GlobalFilter, Ordered {
                             return unauthorizedResponse(exchange, "Message center denies authorized access type:serverPort");
                         }
 
+                        log.info("开始转发websocket连接至netty微服务: {}:{}", serverIp, serverPort);
+
                         // 5. 查找匹配的服务实例
                         return findServiceInstance(serverIp, serverPort)
                                 .switchIfEmpty(rebindToAvailableNettyServer(userLoginDTO))
@@ -114,6 +131,10 @@ public class WebSocketRoutingFilter implements GlobalFilter, Ordered {
                                     return chain.filter(exchange);
                                 });
                     })
+                    .switchIfEmpty(Mono.defer(() -> {
+                        log.info("Token在Redis中不存在");
+                        return unauthorizedResponse(exchange, "Message center denies authorized access type:userInfo");
+                    }))
                     .onErrorResume(e -> {
                         log.error("access websocket route error", e);
                         return unauthorizedResponse(exchange, "Message center denies authorized access: netty server unavailable");
@@ -162,8 +183,11 @@ public class WebSocketRoutingFilter implements GlobalFilter, Ordered {
     }
 
     private Mono<Void> unauthorizedResponse(ServerWebExchange exchange, String message) {
+
+        log.info("开始返回无授权响应");
+
         if (isWebSocketRequest(exchange)) {
-            log.warn("Unauthorized WebSocket access: {}", message);
+            log.info("Unauthorized WebSocket access: {}", message);
             // 对于 WebSocket，不返回响应体，直接结束连接
             exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
             return exchange.getResponse().setComplete();

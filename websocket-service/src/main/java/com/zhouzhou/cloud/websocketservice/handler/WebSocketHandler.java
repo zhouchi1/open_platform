@@ -1,4 +1,4 @@
-package com.zhouzhou.cloud.websocketservice.hanlder;
+package com.zhouzhou.cloud.websocketservice.handler;
 
 import com.alibaba.fastjson2.JSON;
 import com.zhouzhou.cloud.websocketservice.config.ChannelConfig;

@@ -1,6 +1,4 @@
-# 主题：Netty-Websocket-Cluster    
-
-
+# 主题：Netty-Websocket-Cluster
 
 ## 第一部分：项目中使用的技术栈：
 
@@ -13,14 +11,12 @@
 - **消息持久化存储使用Mysql。**
 - **分布式服务通讯组件采用Alibaba Dubbo。**
 - **分布式流量控制组件采用Alibaba Sentinel。**
-
-
+- **采用Nginx作为流量负载均衡器。**
+- **采用Apache SkyWalking作为链路追踪器。**
 
 ## 第二部分（架构图）：
 
 ![image-20250509160139256](C:\Users\21779\AppData\Roaming\Typora\typora-user-images\image-20250509160139256.png)
-
-
 
 ## 第三部分：项目各部分 分层讲解：
 
@@ -38,8 +34,6 @@
 
 至此，客户端与服务端顺利的建立了Websocket通讯连接。
 
-
-
 #### 2、消息发送：客户端<----->服务器端<----->客户端进行消息通讯：
 
 （1）用户发送单聊消息给另外一位用户，携带Token访问网关层，网关层将消息发送至Rabbit MQ集群中异步削峰处理。
@@ -54,8 +48,6 @@
 
 至此，客户端与服务端间正确的完成了消息通讯。
 
-
-
 #### 3、消息接收：客户端<----->服务端进行消息通讯：
 
 （1）当客户端接收到服务端推送的消息时，需要相应给服务端接收到了消息。
@@ -68,11 +60,10 @@
 
 至此，客户端与服务端间正确的进行了消息的接收认证处理。
 
-
-
 ## 第四部分：在开发过程中遇到的问题：
 
-1、因为Netty消息推送微服务是在Spring Boot的环境中运行，但是Nacos注册中心注册的服务地址是SpringBoot的启动端口，所以在Gateway + LoadBalancer负载websocket连接请求时，会出现404连接不上的问题，所以在Netty消息推送微服务中，需要额外定义Netty启动端口暴漏给Nacos注册中心作为元数据。同时在Gateway网关微服务中重写LoadBalancer负载，选用自定义元数据netty-port作为负载核心。
+1、因为Netty消息推送微服务是在Spring Boot的环境中运行，但是Nacos注册中心注册的服务地址是SpringBoot的启动端口，所以在Gateway +
+LoadBalancer负载websocket连接请求时，会出现404连接不上的问题，所以在Netty消息推送微服务中，需要额外定义Netty启动端口暴漏给Nacos注册中心作为元数据。同时在Gateway网关微服务中重写LoadBalancer负载，选用自定义元数据netty-port作为负载核心。
 
 2、
 

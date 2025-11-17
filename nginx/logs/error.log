@@ -1,0 +1,51 @@
+2025/11/14 10:02:26 [emerg] 1#1: host not found in upstream "pay-service:8087" in /etc/nginx/nginx.conf:30
+2025/11/14 10:02:34 [emerg] 1#1: host not found in upstream "pay-service:8087" in /etc/nginx/nginx.conf:30
+2025/11/14 10:02:41 [emerg] 1#1: host not found in upstream "pay-service:8087" in /etc/nginx/nginx.conf:30
+2025/11/14 10:02:48 [emerg] 1#1: host not found in upstream "pay-service:8087" in /etc/nginx/nginx.conf:30
+2025/11/14 10:02:57 [emerg] 1#1: host not found in upstream "pay-service:8087" in /etc/nginx/nginx.conf:30
+2025/11/14 10:03:05 [emerg] 1#1: host not found in upstream "pay-service:8087" in /etc/nginx/nginx.conf:30
+2025/11/14 10:03:12 [emerg] 1#1: host not found in upstream "pay-service:8087" in /etc/nginx/nginx.conf:30
+2025/11/14 10:03:24 [emerg] 1#1: host not found in upstream "pay-service:8087" in /etc/nginx/nginx.conf:30
+2025/11/14 10:03:41 [emerg] 1#1: host not found in upstream "pay-service:8087" in /etc/nginx/nginx.conf:30
+2025/11/14 10:04:12 [emerg] 1#1: host not found in upstream "pay-service:8087" in /etc/nginx/nginx.conf:30
+2025/11/14 10:17:48 [emerg] 1#1: host not found in upstream "pay-service:8087" in /etc/nginx/nginx.conf:30
+2025/11/14 10:18:03 [emerg] 1#1: host not found in upstream "pay-service:8087" in /etc/nginx/nginx.conf:30
+2025/11/14 10:18:11 [emerg] 1#1: host not found in upstream "pay-service:8087" in /etc/nginx/nginx.conf:30
+2025/11/14 10:18:20 [emerg] 1#1: host not found in upstream "pay-service:8087" in /etc/nginx/nginx.conf:30
+2025/11/14 10:18:30 [emerg] 1#1: host not found in upstream "pay-service:8087" in /etc/nginx/nginx.conf:30
+2025/11/14 10:18:38 [emerg] 1#1: host not found in upstream "pay-service:8087" in /etc/nginx/nginx.conf:30
+2025/11/14 10:18:45 [emerg] 1#1: host not found in upstream "pay-service:8087" in /etc/nginx/nginx.conf:30
+2025/11/14 10:18:54 [emerg] 1#1: host not found in upstream "pay-service:8087" in /etc/nginx/nginx.conf:30
+2025/11/14 10:19:06 [emerg] 1#1: host not found in upstream "pay-service:8087" in /etc/nginx/nginx.conf:30
+2025/11/14 10:19:24 [emerg] 1#1: host not found in upstream "pay-service:8087" in /etc/nginx/nginx.conf:30
+2025/11/14 10:19:56 [emerg] 1#1: host not found in upstream "pay-service:8087" in /etc/nginx/nginx.conf:30
+2025/11/15 01:00:49 [error] 22#22: *7 open() "/etc/nginx/html/open-platform/websocket" failed (2: No such file or directory), client: 172.20.0.1, server: localhost, request: "GET /open-platform/websocket HTTP/1.1", host: "localhost"
+2025/11/15 01:03:17 [error] 23#23: *1 open() "/etc/nginx/html/open-platform/websocket" failed (2: No such file or directory), client: 172.20.0.1, server: localhost, request: "GET /open-platform/websocket HTTP/1.1", host: "localhost"
+2025/11/15 01:03:28 [error] 23#23: *4 open() "/etc/nginx/html/open-platform/websocket" failed (2: No such file or directory), client: 172.20.0.1, server: localhost, request: "GET /open-platform/websocket HTTP/1.1", host: "localhost"
+2025/11/15 01:04:01 [error] 30#30: *1 open() "/etc/nginx/html/open-platform/websocket" failed (2: No such file or directory), client: 172.20.0.1, server: localhost, request: "GET /open-platform/websocket HTTP/1.1", host: "localhost"
+2025/11/15 01:04:02 [error] 30#30: *2 open() "/etc/nginx/html/open-platform/websocket" failed (2: No such file or directory), client: 172.20.0.1, server: localhost, request: "GET /open-platform/websocket HTTP/1.1", host: "localhost"
+2025/11/15 01:04:03 [error] 30#30: *3 open() "/etc/nginx/html/open-platform/websocket" failed (2: No such file or directory), client: 172.20.0.1, server: localhost, request: "GET /open-platform/websocket HTTP/1.1", host: "localhost"
+2025/11/15 01:04:03 [error] 30#30: *4 open() "/etc/nginx/html/open-platform/websocket" failed (2: No such file or directory), client: 172.20.0.1, server: localhost, request: "GET /open-platform/websocket HTTP/1.1", host: "localhost"
+2025/11/15 01:04:03 [error] 30#30: *5 open() "/etc/nginx/html/open-platform/websocket" failed (2: No such file or directory), client: 172.20.0.1, server: localhost, request: "GET /open-platform/websocket HTTP/1.1", host: "localhost"
+2025/11/15 01:04:03 [error] 30#30: *6 open() "/etc/nginx/html/open-platform/websocket" failed (2: No such file or directory), client: 172.20.0.1, server: localhost, request: "GET /open-platform/websocket HTTP/1.1", host: "localhost"
+2025/11/15 01:04:04 [error] 30#30: *7 open() "/etc/nginx/html/open-platform/websocket" failed (2: No such file or directory), client: 172.20.0.1, server: localhost, request: "GET /open-platform/websocket HTTP/1.1", host: "localhost"
+2025/11/15 01:04:04 [error] 30#30: *8 open() "/etc/nginx/html/open-platform/websocket" failed (2: No such file or directory), client: 172.20.0.1, server: localhost, request: "GET /open-platform/websocket HTTP/1.1", host: "localhost"
+2025/11/15 01:04:04 [error] 30#30: *9 open() "/etc/nginx/html/open-platform/websocket" failed (2: No such file or directory), client: 172.20.0.1, server: localhost, request: "GET /open-platform/websocket HTTP/1.1", host: "localhost"
+2025/11/15 01:04:04 [error] 30#30: *10 open() "/etc/nginx/html/open-platform/websocket" failed (2: No such file or directory), client: 172.20.0.1, server: localhost, request: "GET /open-platform/websocket HTTP/1.1", host: "localhost"
+2025/11/15 01:04:05 [error] 30#30: *11 open() "/etc/nginx/html/open-platform/websocket" failed (2: No such file or directory), client: 172.20.0.1, server: localhost, request: "GET /open-platform/websocket HTTP/1.1", host: "localhost"
+2025/11/15 01:04:05 [error] 30#30: *12 open() "/etc/nginx/html/open-platform/websocket" failed (2: No such file or directory), client: 172.20.0.1, server: localhost, request: "GET /open-platform/websocket HTTP/1.1", host: "localhost"
+2025/11/15 01:04:05 [error] 30#30: *13 open() "/etc/nginx/html/open-platform/websocket" failed (2: No such file or directory), client: 172.20.0.1, server: localhost, request: "GET /open-platform/websocket HTTP/1.1", host: "localhost"
+2025/11/15 01:10:36 [error] 22#22: *2 open() "/etc/nginx/html/open-platform/websocket" failed (2: No such file or directory), client: 172.20.0.1, server: localhost, request: "GET /open-platform/websocket HTTP/1.1", host: "localhost"
+2025/11/15 01:54:46 [error] 30#30: *2 upstream timed out (110: Operation timed out) while reading response header from upstream, client: 172.20.0.1, server: localhost, request: "POST /api/login HTTP/1.1", upstream: "http://172.20.0.4:9700/login", host: "localhost"
+2025/11/15 01:55:27 [error] 30#30: *2 upstream timed out (110: Operation timed out) while reading response header from upstream, client: 172.20.0.1, server: localhost, request: "POST /api/login HTTP/1.1", upstream: "http://172.20.0.4:9700/login", host: "localhost"
+2025/11/15 01:56:02 [error] 30#30: *2 upstream timed out (110: Operation timed out) while reading response header from upstream, client: 172.20.0.1, server: localhost, request: "POST /api/login HTTP/1.1", upstream: "http://172.20.0.4:9700/login", host: "localhost"
+2025/11/15 02:00:33 [error] 30#30: *8 upstream timed out (110: Operation timed out) while reading response header from upstream, client: 172.20.0.1, server: localhost, request: "POST /api/login HTTP/1.1", upstream: "http://172.20.0.4:9700/login", host: "localhost"
+2025/11/15 02:23:17 [error] 30#30: *2 connect() failed (111: Connection refused) while connecting to upstream, client: 172.20.0.1, server: localhost, request: "POST /api/login HTTP/1.1", upstream: "http://172.20.0.2:9700/login", host: "localhost"
+2025/11/15 03:50:59 [error] 30#30: *15 open() "/etc/nginx/html/1/api/login" failed (2: No such file or directory), client: 172.20.0.1, server: localhost, request: "POST /1/api/login HTTP/1.1", host: "localhost"
+2025/11/15 05:30:15 [error] 30#30: *2 connect() failed (111: Connection refused) while connecting to upstream, client: 172.20.0.1, server: localhost, request: "POST /api/login HTTP/1.1", upstream: "http://172.20.0.10:9700/login", host: "localhost"
+2025/11/15 06:17:13 [error] 30#30: *2 open() "/etc/nginx/html/1api/login" failed (2: No such file or directory), client: 172.20.0.1, server: localhost, request: "POST /1api/login HTTP/1.1", host: "localhost"
+2025/11/15 06:18:37 [error] 30#30: *2 "/etc/nginx/html/index.html" is not found (2: No such file or directory), client: 172.20.0.1, server: localhost, request: "POST / HTTP/1.1", host: "localhost"
+2025/11/15 06:18:50 [error] 30#30: *2 open() "/etc/nginx/html/login" failed (2: No such file or directory), client: 172.20.0.1, server: localhost, request: "POST /login HTTP/1.1", host: "localhost"
+2025/11/16 13:25:18 [error] 31#31: *44 connect() failed (111: Connection refused) while connecting to upstream, client: 172.20.0.1, server: localhost, request: "POST /api/login HTTP/1.1", upstream: "http://172.20.0.11:9700/login", host: "localhost"
+2025/11/16 13:25:34 [error] 31#31: *44 connect() failed (111: Connection refused) while connecting to upstream, client: 172.20.0.1, server: localhost, request: "POST /api/login HTTP/1.1", upstream: "http://172.20.0.11:9700/login", host: "localhost"
+2025/11/17 11:02:48 [error] 30#30: *16 connect() failed (111: Connection refused) while connecting to upstream, client: 172.20.0.1, server: localhost, request: "GET /open-platform/websocket/ HTTP/1.1", upstream: "http://172.20.0.11:9700/open-platform/websocket", host: "localhost"
