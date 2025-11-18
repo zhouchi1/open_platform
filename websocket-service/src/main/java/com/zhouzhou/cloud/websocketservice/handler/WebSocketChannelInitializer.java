@@ -11,8 +11,6 @@ import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.stream.ChunkedWriteHandler;
 import io.netty.handler.timeout.IdleStateHandler;
 
-import javax.net.ssl.SSLException;
-import java.security.cert.CertificateException;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -32,9 +30,8 @@ public class WebSocketChannelInitializer extends ChannelInitializer<SocketChanne
         this.webSocketHandler = webSocketHandler;
     }
 
-
     @Override
-    protected void initChannel(SocketChannel ch) throws CertificateException, SSLException {
+    protected void initChannel(SocketChannel ch) {
         ChannelPipeline pipeline = ch.pipeline();
         pipeline.addLast(new HttpServerCodec());
         pipeline.addLast(new IdleStateHandler(ConnectConstants.READER_IDLE_TIME, ConnectConstants.WRITER_IDLE_TIME, ConnectConstants.ALL_IDLE_TIME, TimeUnit.SECONDS));

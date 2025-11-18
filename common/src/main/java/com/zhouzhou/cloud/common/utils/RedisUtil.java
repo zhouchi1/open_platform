@@ -171,7 +171,7 @@ public class RedisUtil {
      * @param hashKey Hash 键
      * @param value 值
      */
-    public void hSet(String key, String hashKey, Object value) {
+    public void hSet(String key, String hashKey, String value) {
         try {
             redisTemplate.opsForHash().put(key, hashKey, value);
         } catch (Exception e) {

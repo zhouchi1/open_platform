@@ -110,6 +110,8 @@ public class AuthHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
 
                 ChannelConfig.addChannel(ctx.channel().id().asLongText(), ctx.channel());
 
+                log.info("将连接信息放入到redis中，缓存信息为：" + ConnectConstants.NODE_CHANNEL_USER_INFO + InetAddress.getLocalHost().getHostAddress() + "," + port + "," + userPlatformUniqueInfo.getUserId() + "," + ctx.channel().id().asLongText());
+
                 redisUtil.hSet(ConnectConstants.NODE_CHANNEL_USER_INFO + InetAddress.getLocalHost().getHostAddress() + ":" + port, userPlatformUniqueInfo.getUserId(), ctx.channel().id().asLongText());
             }
 
@@ -124,10 +126,6 @@ public class AuthHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
         } else {
             sendUnauthorizedResponse(ctx);
         }
-    }
-
-    private String getDeviceTypeFromRequest(FullHttpRequest request) {
-        return request.uri();
     }
 
     private String getTokenFromRequest(FullHttpRequest request) {

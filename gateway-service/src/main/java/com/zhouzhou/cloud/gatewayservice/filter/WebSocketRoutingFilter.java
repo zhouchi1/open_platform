@@ -131,10 +131,10 @@ public class WebSocketRoutingFilter implements GlobalFilter, Ordered {
                                     return chain.filter(exchange);
                                 });
                     })
-                    .switchIfEmpty(Mono.defer(() -> {
-                        log.info("Token在Redis中不存在");
-                        return unauthorizedResponse(exchange, "Message center denies authorized access type:userInfo");
-                    }))
+//                    .switchIfEmpty(Mono.defer(() -> {
+//                        log.info("Token在Redis中不存在");
+//                        return unauthorizedResponse(exchange, "Message center denies authorized access type:userInfo");
+//                    }))
                     .onErrorResume(e -> {
                         log.error("access websocket route error", e);
                         return unauthorizedResponse(exchange, "Message center denies authorized access: netty server unavailable");

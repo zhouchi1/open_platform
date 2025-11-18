@@ -141,7 +141,7 @@ public class NettyServer {
                     "|  |_| \\_|\\___|_|_|\\___||___/\\___/ \\__\\___/ \\__\\___/ \\___/|_|\\_\\  |\n" +
                     "|                                                                 |\n" +
                     "|  Netty - Websocket - Redis - Cluster Port: " + port + " Author：Sr.Zhou |\n" +
-                    "|  Node: " + getNodeKey() + "                                      |\n" +
+                    "|  Node: " + getNodeKey() + "                                         |\n" +
                     "+-----------------------------------------------------------------+\n");
 
             registerNodeHeartbeat();

@@ -101,6 +101,7 @@ com\zhouzhou\cloud\common\resp\BasePriceResp$BasePriceRespBuilder.class
 com\zhouzhou\cloud\common\service\enums\DictCodeEnum.class
 com\zhouzhou\cloud\common\dto\ParamInfoDTO.class
 com\zhouzhou\cloud\common\service\interfaces\OrderRpcServer.class
+com\zhouzhou\cloud\common\config\RedisConfig.class
 com\zhouzhou\cloud\common\service\base\BaseEntity.class
 com\zhouzhou\cloud\common\req\BasePageOrderReq.class
 com\zhouzhou\cloud\common\resp\BaseUrlResp$BaseUrlRespBuilder.class

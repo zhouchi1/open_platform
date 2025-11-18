@@ -167,6 +167,8 @@ public class WebSocketHandler extends SimpleChannelInboundHandler<TextWebSocketF
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
 
+        log.info("开始清理连接信息");
+
         super.channelInactive(ctx);
 
         ChannelConfig.removeChannel(ctx.channel().id().asLongText());
@@ -174,14 +176,27 @@ public class WebSocketHandler extends SimpleChannelInboundHandler<TextWebSocketF
         String userId = AttributeKeyUtils.getUserIdFromChannel(ctx);
 
         if (ObjectUtils.isEmpty(userId)) {
+            log.info("清理连接失败 未查询到userId信息");
             return;
         }
 
         String currentChannelId = (String) stringRedisTemplate.opsForHash().get(NODE_CHANNEL_USER_INFO + InetAddress.getLocalHost().getHostAddress() + ":" + port, userId);
 
-        if (Objects.equals(currentChannelId, ctx.channel().id().asLongText())) {
+        if (ObjectUtils.isEmpty(currentChannelId)){
+            log.error("未查询到用户绑定的通道信息");
+            return;
+        }
+
+        String cleanString = currentChannelId.substring(1, currentChannelId.length() - 1);
+
+        log.info("redis中保存的channelId：" + cleanString);
+        log.info("内存中保存的channelId：" + ctx.channel().id().asLongText());
+
+        if (ctx.channel().id().asLongText().equals(cleanString)) {
+            log.info("清理连接信息中");
             stringRedisTemplate.opsForHash().delete(ConnectConstants.NODE_CHANNEL_USER_INFO + InetAddress.getLocalHost().getHostAddress() + ":" + port, userId);
         }
+        log.info("管理连接清理完成");
     }
 
     private Boolean isBroadcast(String message) {

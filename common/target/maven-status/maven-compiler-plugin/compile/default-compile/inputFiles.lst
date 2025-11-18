@@ -34,6 +34,7 @@ C:\Users\21779\IdeaProjects\open_platform\common\src\main\java\com\zhouzhou\clou
 C:\Users\21779\IdeaProjects\open_platform\common\src\main\java\com\zhouzhou\cloud\common\utils\ResponseDataUtil.java
 C:\Users\21779\IdeaProjects\open_platform\common\src\main\java\com\zhouzhou\cloud\common\service\excepetions\BizException.java
 C:\Users\21779\IdeaProjects\open_platform\common\src\main\java\com\zhouzhou\cloud\common\resp\BasePriceResp.java
+C:\Users\21779\IdeaProjects\open_platform\common\src\main\java\com\zhouzhou\cloud\common\config\RedisConfig.java
 C:\Users\21779\IdeaProjects\open_platform\common\src\main\java\com\zhouzhou\cloud\common\entity\MessageCenterDetail.java
 C:\Users\21779\IdeaProjects\open_platform\common\src\main\java\com\zhouzhou\cloud\common\service\excepetions\IErrorCode.java
 C:\Users\21779\IdeaProjects\open_platform\common\src\main\java\com\zhouzhou\cloud\common\dto\UserIdentityInfoDTO.java
