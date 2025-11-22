@@ -26,6 +26,8 @@ import java.net.UnknownHostException;
 import java.time.LocalDateTime;
 import java.util.Map;
 
+import static com.zhouzhou.cloud.websocketservice.constant.ConnectConstants.OFFLINE_MESSAGE_BY_USER_EXPIRE;
+
 /**
  * @Author: Sr.Zhou
  * @CreateTime: 2025-03-26
@@ -158,6 +160,7 @@ public class AuthHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
         message.forEach((key, value) -> channel.writeAndFlush(new TextWebSocketFrame((String) value)).addListener((ChannelFutureListener) future -> {
             if (future.isSuccess()) {
                 redisUtil.hDelete(ConnectConstants.OFFLINE_MESSAGE_BY_USER + userId, key);
+                stringRedisTemplate.opsForZSet().remove(OFFLINE_MESSAGE_BY_USER_EXPIRE, key);
             }
         }));
 

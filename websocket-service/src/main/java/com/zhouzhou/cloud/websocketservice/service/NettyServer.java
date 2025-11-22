@@ -19,6 +19,7 @@ import org.springframework.context.annotation.DependsOn;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
+
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.concurrent.ExecutorService;
@@ -78,7 +79,7 @@ public class NettyServer {
         }, "Netty-Starter-Thread").start();
     }
 
-    public void startChannelGroup(){
+    public void startChannelGroup() {
         // 初始化线程组
         bossGroup = new NioEventLoopGroup(1, new DefaultThreadFactory("netty-boss", true) {
             @Override
@@ -141,7 +142,7 @@ public class NettyServer {
                     "|  |_| \\_|\\___|_|_|\\___||___/\\___/ \\__\\___/ \\__\\___/ \\___/|_|\\_\\  |\n" +
                     "|                                                                 |\n" +
                     "|  Netty - Websocket - Redis - Cluster Port: " + port + " Author：Sr.Zhou |\n" +
-                    "|  Node: " + getNodeKey() + "                                         |\n" +
+                    "|  Node: " + getNodeKey() + "                                          |\n" +
                     "+-----------------------------------------------------------------+\n");
 
             registerNodeHeartbeat();

@@ -12,7 +12,6 @@ import com.zhouzhou.cloud.common.service.interfaces.AuthRpcServer;
 import com.zhouzhou.cloud.common.utils.RedisUtil;
 import com.zhouzhou.cloud.gatewayservice.rabbitmqproducer.RabbitMqSenderApi;
 import jakarta.annotation.Resource;
-import jakarta.validation.constraints.NotNull;
 import org.apache.dubbo.common.utils.JsonUtils;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.slf4j.Logger;
@@ -29,9 +28,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpRequestDecorator;
-import org.springframework.lang.NonNull;
-import org.springframework.lang.NonNullApi;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -44,6 +42,7 @@ import reactor.core.scheduler.Schedulers;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.zhouzhou.cloud.common.constant.AuthConstant.UN_AUTH;
 
@@ -271,25 +270,42 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
         }
 
         String message = request.getQueryParams().getFirst("message");
-        String targetUserId = request.getQueryParams().getFirst("targetUserId");
-        if (ObjectUtils.isEmpty(message) || ObjectUtils.isEmpty(targetUserId)) {
+
+        List<String> targetUserIds = new ArrayList<>();
+        String targetUserIdParam = request.getQueryParams().getFirst("targetUserId");
+        if (targetUserIdParam != null && !targetUserIdParam.trim().isEmpty()) {
+            targetUserIds = Arrays.stream(targetUserIdParam.split(","))
+                    .map(String::trim)
+                    .filter(s -> !s.isEmpty())
+                    .collect(Collectors.toList());
+        }
+
+        if (ObjectUtils.isEmpty(message) || CollectionUtils.isEmpty(targetUserIds)) {
             return buildErrorResponse(exchange, "Message and targetUserId are required", HttpStatus.BAD_REQUEST);
         }
 
         MessageDTO messageDTO = new MessageDTO();
         messageDTO.setMessage(message);
-        messageDTO.setTargetUserId(targetUserId);
+        messageDTO.setTargetUserIds(targetUserIds);
 
-        try { rabbitMqSenderApi.sendTopicMessage("topicExchange","topic.routing.key1", JSON.toJSONString(messageDTO)); }
-        catch (Exception e) { log.warn("MQ send error, continue", e); }
-
-        String targetHost = (String) redisUtil.get(targetUserId);
-        if (!ObjectUtils.isEmpty(targetHost)) {
-            return forwardMessageToWebSocket(exchange, request, messageDTO, targetHost, userDTO);
+        try {
+            rabbitMqSenderApi.sendTopicMessage("topicExchange", "topic.routing.key1", JSON.toJSONString(messageDTO));
+        } catch (Exception e) {
+            log.warn("MQ send error, continue", e);
         }
 
-        try { rabbitMqSenderApi.sendTopicMessage("topicExchange","topic.routing.key2", JSON.toJSONString(messageDTO)); }
-        catch (Exception e) { log.warn("MQ offline send error, continue", e); }
+        for (String targetUserId : targetUserIds){
+            String targetHost = (String) redisUtil.get(targetUserId);
+            if (!ObjectUtils.isEmpty(targetHost)) {
+                return forwardMessageToWebSocket(exchange, request, messageDTO, targetHost, userDTO);
+            }
+
+            try {
+                rabbitMqSenderApi.sendTopicMessage("topicExchange", "topic.routing.key2", JSON.toJSONString(messageDTO));
+            } catch (Exception e) {
+                log.warn("MQ offline send error, continue", e);
+            }
+        }
 
         return buildSuccessResponse(exchange, "Message sent to offline queue");
     }
@@ -306,8 +322,11 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
             if (!hostAvailable && !instances.isEmpty()) {
                 Instance instance = instances.get(0);
                 targetHost = instance.getIp() + ":" + instance.getPort();
-                try { redisUtil.set(userDTO.getUserResp().getUserId(), targetHost, -1); }
-                catch (Exception e) { log.warn("Update Redis mapping failed", e); }
+                try {
+                    redisUtil.set(userDTO.getUserResp().getUserId(), targetHost, -1);
+                } catch (Exception e) {
+                    log.warn("Update Redis mapping failed", e);
+                }
             }
 
             URI uri = UriComponentsBuilder.fromHttpUrl("http://" + targetHost)
@@ -318,7 +337,10 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
             return webClientBuilder.build()
                     .post()
                     .uri(uri)
-                    .headers(h -> { h.addAll(request.getHeaders()); h.remove(HttpHeaders.HOST); })
+                    .headers(h -> {
+                        h.addAll(request.getHeaders());
+                        h.remove(HttpHeaders.HOST);
+                    })
                     .body(BodyInserters.fromValue(messageDTO))
                     .retrieve()
                     .bodyToMono(String.class)

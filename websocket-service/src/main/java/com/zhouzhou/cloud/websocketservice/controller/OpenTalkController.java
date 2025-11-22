@@ -1,6 +1,7 @@
 package com.zhouzhou.cloud.websocketservice.controller;
 
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
+import com.zhouzhou.cloud.common.dto.MessageDTO;
 import com.zhouzhou.cloud.common.resp.BaseListResp;
 import com.zhouzhou.cloud.common.service.base.ResponseData;
 import com.zhouzhou.cloud.common.utils.ResponseDataUtil;
@@ -47,13 +48,13 @@ public class OpenTalkController {
 
     /**
      * 发送私人消息
-     * @param messageTransportDTO 消息传输对象
+     * @param messageDTO 消息传输对象
      */
     @Operation(description = "发送私人消息")
     @ApiOperationSupport(author = "Sr.Zhou",order = 2)
-    @PostMapping("/testSendPrivateMessage")
-    public void testSendPrivateMessage(@RequestBody MessageTransportDTO messageTransportDTO){
-        sendMessageService.sendPrivateMessage(messageTransportDTO);
+    @PostMapping("/chat/sendMessage")
+    public void testSendPrivateMessage(@RequestBody MessageDTO messageDTO){
+        sendMessageService.sendPrivateMessage(messageDTO);
     }
 
     /**

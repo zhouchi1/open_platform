@@ -19,7 +19,9 @@ public class ChatMessageCacheProcess {
     public void processMessage(Message message) {
         String deserializeMessage = new String(message.getBody());
         MessageDTO messageDTO = JSONObject.parseObject(deserializeMessage, MessageDTO.class);
-        redisUtil.lPush("offline-message" + messageDTO.getAppId() + ":" + messageDTO.getTargetUserId(), messageDTO.getMessage());
+
+        messageDTO.getTargetUserIds().forEach(data -> redisUtil.lPush("offline-message-userId" + ":" + data, messageDTO.getMessage()));
+
         log.info("消息缓存成功，消息Id：{}", messageDTO.getMessageId());
     }
 }

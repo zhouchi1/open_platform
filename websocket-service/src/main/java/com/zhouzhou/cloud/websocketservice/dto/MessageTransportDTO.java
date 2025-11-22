@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serial;
 import java.io.Serializable;
 
 /**
@@ -19,6 +20,7 @@ import java.io.Serializable;
 @NoArgsConstructor
 public class MessageTransportDTO implements Serializable {
 
+    @Serial
     private static final long serialVersionUID = 6475839755638363489L;
 
     @Schema(name = "消息内容")

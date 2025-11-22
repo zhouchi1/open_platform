@@ -1,13 +1,13 @@
 package com.zhouzhou.cloud.websocketservice.listener;
 
 import com.alibaba.fastjson2.JSON;
+import com.zhouzhou.cloud.common.dto.MessageDTO;
 import com.zhouzhou.cloud.common.entity.MessageCenter;
 import com.zhouzhou.cloud.common.enums.messageservice.MessageKindEnum;
 import com.zhouzhou.cloud.common.enums.messageservice.MessageReadStatusEnum;
 import com.zhouzhou.cloud.common.mapper.MessageCenterMapper;
 import com.zhouzhou.cloud.common.service.excepetions.BizException;
 import com.zhouzhou.cloud.websocketservice.config.ChannelConfig;
-import com.zhouzhou.cloud.websocketservice.dto.MessageTransportDTO;
 import com.zhouzhou.cloud.websocketservice.dto.SecurityCheckCompleteDTO;
 import com.zhouzhou.cloud.websocketservice.utils.AttributeKeyUtils;
 import io.netty.channel.Channel;
@@ -61,20 +61,19 @@ public class RedisMessageListener {
 
             String payload = new String(message.getBody());
 
-            MessageTransportDTO messageTransportDTO = JSON.parseObject(payload, MessageTransportDTO.class);
+            MessageDTO messageDTO = JSON.parseObject(payload, MessageDTO.class);
 
             // 是否是广播消息(请注意 这里后期需要进行修改 把！去掉（因为当前调用此接口的地方都没有进行字段传递默认为false,后续正常入参true即可解决）)
-            if (!messageTransportDTO.isBroadcast()) {
+            if (!messageDTO.isBroadcast()) {
                 try {
-                    if (Boolean.FALSE.equals(stringRedisTemplate.opsForValue().setIfAbsent(SOCKET_MESSAGE_ID + InetAddress.getLocalHost().getHostName() + messageTransportDTO.getMessageId(), messageTransportDTO.getMessage(), Duration.ofMinutes(1)))) {
-                        log.info("消息ID重复[用户ID:{}]", messageTransportDTO.getMessageSendUserInfoDTO().getUserId());
+                    if (Boolean.FALSE.equals(stringRedisTemplate.opsForValue().setIfAbsent(SOCKET_MESSAGE_ID + InetAddress.getLocalHost().getHostName() + messageDTO.getMessageId(), messageDTO.getMessage(), Duration.ofMinutes(1)))) {
                         return;
                     }
                 } catch (UnknownHostException e) {
                     throw new BizException("获取本机IP失败");
                 }
 
-                String sendMessageUserId = messageTransportDTO.getMessageSendUserInfoDTO().getUserId();
+                String sendMessageUserId = messageDTO.getSendUserId();
 
                 String sendMessageChannelId;
                 try {
@@ -93,8 +92,8 @@ public class RedisMessageListener {
                         }
                         // 消息中心-消息持久化
                         MessageCenter messageCenter = new MessageCenter();
-                        messageCenter.setMessageCode(messageTransportDTO.getMessageId());
-                        messageCenter.setMessage(messageTransportDTO.getMessage());
+                        messageCenter.setMessageCode(messageDTO.getMessageId());
+                        messageCenter.setMessage(messageDTO.getMessage());
                         messageCenter.setType(MessageKindEnum.JOIN_MESSAGE);
                         messageCenter.setMessageStatus(MessageReadStatusEnum.UNREAD);
                         messageCenter.setUserCode(securityInfo.getUserCode());
@@ -105,7 +104,7 @@ public class RedisMessageListener {
                 }
             } else {
 
-                String targetUserId = messageTransportDTO.getMessageAcceptUserInfoDTO().getCurrentUserId();
+                String targetUserId = messageDTO.getNotOnThisNodeUserId();
 
                 if (ObjectUtils.isEmpty(targetUserId)) {
                     return;
@@ -125,9 +124,9 @@ public class RedisMessageListener {
                         return;
                     }
 
-                    channel.writeAndFlush(new TextWebSocketFrame(JSON.toJSONString(messageTransportDTO))).addListener((ChannelFutureListener) future -> {
+                    channel.writeAndFlush(new TextWebSocketFrame(JSON.toJSONString(messageDTO))).addListener((ChannelFutureListener) future -> {
                         if (future.isSuccess()) {
-                            stringRedisTemplate.opsForHash().delete(OFFLINE_MESSAGE_BY_USER + targetUserId, messageTransportDTO.getMessageId());
+                            stringRedisTemplate.opsForHash().delete(OFFLINE_MESSAGE_BY_USER + targetUserId, messageDTO.getMessageId());
                         }
                     });
                 } catch (UnknownHostException e) {

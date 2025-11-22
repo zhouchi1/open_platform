@@ -27,9 +27,11 @@ public class UserRpcServerImplV1 implements UserRpcServer {
         queryWrapper.eq(UserInfo::getId, userIdentityConfirmDTO.getUserId());
         UserInfo userInfo = userInfoMapper.selectOne(queryWrapper);
 
-        BizExUtil.requirefalse(
-                !StringUtils.equals(DigestUtils.md5DigestAsHex(userIdentityConfirmDTO.getUserPassword().getBytes()),
-                        userInfo.getPassword()), "用户密码错误");
+        // 输入的密码错误
+        if (!StringUtils.equals(DigestUtils.md5DigestAsHex(userIdentityConfirmDTO.getUserPassword().getBytes()),
+                userInfo.getPassword())){
+            return Boolean.FALSE;
+        }
 
         return !ObjectUtils.isEmpty(userInfo);
     }

@@ -102,8 +102,6 @@ public class WebSocketHandler extends SimpleChannelInboundHandler<TextWebSocketF
 
                     String messageId = storeOfflineMessage(userId, messageTransportDTO);
 
-                    AtomicBoolean deleteOfflineMessage = new AtomicBoolean(false);
-
                     for (String node : nodeSet) {
                         String channelId = (String) stringRedisTemplate.opsForHash().get(NODE_CHANNEL_USER_INFO + node, userId);
 
@@ -114,7 +112,7 @@ public class WebSocketHandler extends SimpleChannelInboundHandler<TextWebSocketF
                                     if (channel != null && channel.isActive()) {
                                         channel.writeAndFlush(new TextWebSocketFrame(JSON.toJSONString(messageTransportDTO))).addListener((ChannelFutureListener) future -> {
                                             if (future.isSuccess()) {
-                                                deleteOfflineMessage.set(true);
+                                                deleteOffLineMessage(messageId, userId);
                                             }
                                         });
                                     } else {
@@ -128,10 +126,6 @@ public class WebSocketHandler extends SimpleChannelInboundHandler<TextWebSocketF
                                 log.error("消息发送异常[用户ID:{} 节点:{}]", userId, node, e);
                             }
                         }
-                    }
-
-                    if (deleteOfflineMessage.get()) {
-                        deleteOffLineMessage(messageId, userId);
                     }
                 });
             }
@@ -182,7 +176,7 @@ public class WebSocketHandler extends SimpleChannelInboundHandler<TextWebSocketF
 
         String currentChannelId = (String) stringRedisTemplate.opsForHash().get(NODE_CHANNEL_USER_INFO + InetAddress.getLocalHost().getHostAddress() + ":" + port, userId);
 
-        if (ObjectUtils.isEmpty(currentChannelId)){
+        if (ObjectUtils.isEmpty(currentChannelId)) {
             log.error("未查询到用户绑定的通道信息");
             return;
         }
