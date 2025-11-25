@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
  * @CreateTime: 2024-11-27
  * @Description: 微信调用接口
  */
-@FeignClient(name = "wx-service", url = "https://api.weixin.qq.com")
+//@FeignClient(name = "wx-service", url = "https://api.weixin.qq.com")
 public interface WxOpenFeignApi {
 
     /**

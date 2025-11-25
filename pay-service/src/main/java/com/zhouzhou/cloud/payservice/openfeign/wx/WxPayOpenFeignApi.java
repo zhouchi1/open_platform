@@ -1,12 +1,10 @@
 package com.zhouzhou.cloud.payservice.openfeign.wx;
 
-import com.zhouzhou.cloud.payservice.config.WxPayOpenFeignConfig;
 import com.zhouzhou.cloud.payservice.dto.wxpay.WxPayOrderDTO;
 import com.zhouzhou.cloud.payservice.dto.wxpay.WxPayReFoundStatusDTO;
 import com.zhouzhou.cloud.payservice.dto.wxpay.WxPayStatusDTO;
 import com.zhouzhou.cloud.payservice.request.pay.wxpay.WxPayReFoundReq;
 import com.zhouzhou.cloud.payservice.response.wxpay.WxPayPrePayInformationResp;
-import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -18,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestBody;
  * @CreateTime: 2024-11-27
  * @Description: 微信支付接口 - 调取支付模块接口
  */
-@FeignClient(name = "wxPay-service", url = "https://api.mch.weixin.qq.com", configuration = WxPayOpenFeignConfig.class)
+//@FeignClient(name = "wxPay-service", url = "https://api.mch.weixin.qq.com", configuration = WxPayOpenFeignConfig.class)
 public interface WxPayOpenFeignApi {
 
     /**

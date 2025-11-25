@@ -4,7 +4,7 @@ spring:
       filter:
         enabled: true
       transport:
-        dashboard: 127.0.0.1:8080
+        dashboard: host.docker.internal:8099
         port: 8721
       datasource:
         ds1:
@@ -27,6 +27,7 @@ spring:
             groupId: DEFAULT_GROUP
             data-type: json
             rule-type: degrade
+
     nacos:
       discovery:
         enabled: true

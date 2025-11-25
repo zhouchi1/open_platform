@@ -222,7 +222,7 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
         result.put("accessToken", token);
         result.put("tokenType", "Bearer");
         result.put("expiresIn", 3600);
-        if (websocketAddress != null) result.put("websocketServer", websocketAddress);
+//        if (websocketAddress != null) result.put("websocketServer", websocketAddress);
 
         byte[] respBytes = JsonUtils.toJson(result).getBytes(StandardCharsets.UTF_8);
         return exchange.getResponse().writeWith(Mono.just(exchange.getResponse().bufferFactory().wrap(respBytes)));
