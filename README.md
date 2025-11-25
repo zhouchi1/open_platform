@@ -1,24 +1,5 @@
 # open_platform 分布式消息中台
 
-## 项目结构：
-
-```bash
-open_platform
-├── address-service           # 地址服务
-├── cart-service              # 购物车服务
-├── common                    # 公共模块
-├── email-service             # 邮箱服务
-├── login-service             # 登录服务
-├── order-service             # 订单服务
-├── pay-service               # 支付服务
-├── register-service          # 注册服务
-├── sentinel-dashboard-service # Sentinel Dashboard 控制台
-├── warehouse-service         # 仓库服务
-├── task-service              # 定时任务服务
-├── xxl-job-admin             # xxl-job 控制台
-└── pom.xml                   # 根 POM 文件
-```
-
 ## 项目采用的技术栈：
 
 **1、模块之间采用 Springcloud OpenFeign HTTP + Alibaba Dubbo3 RPC的方式进行通讯。**
