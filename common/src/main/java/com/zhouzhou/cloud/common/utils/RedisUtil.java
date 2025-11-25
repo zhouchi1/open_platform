@@ -1,13 +1,17 @@
 package com.zhouzhou.cloud.common.utils;
 
 import jakarta.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.*;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+@Slf4j
 @Component
 public class RedisUtil {
 
@@ -18,8 +22,9 @@ public class RedisUtil {
 
     /**
      * 设置缓存
-     * @param key 键
-     * @param value 值
+     *
+     * @param key     键
+     * @param value   值
      * @param timeout 超时时间（秒）
      */
     public void set(String key, Object value, long timeout) {
@@ -37,6 +42,7 @@ public class RedisUtil {
 
     /**
      * 获取缓存
+     *
      * @param key 键
      * @return 值
      */
@@ -51,6 +57,7 @@ public class RedisUtil {
 
     /**
      * 删除缓存
+     *
      * @param key 键
      * @return 是否成功
      */
@@ -72,7 +79,8 @@ public class RedisUtil {
 
     /**
      * 设置过期时间
-     * @param key 键
+     *
+     * @param key     键
      * @param timeout 超时时间（秒）
      * @return 是否成功
      */
@@ -96,6 +104,7 @@ public class RedisUtil {
 
     /**
      * 获取过期时间
+     *
      * @param key 键
      * @return 剩余时间（秒），-1 表示永久有效
      */
@@ -113,6 +122,7 @@ public class RedisUtil {
 
     /**
      * 判断 key 是否存在
+     *
      * @param key 键
      * @return 是否存在
      */
@@ -129,7 +139,8 @@ public class RedisUtil {
 
     /**
      * 递增
-     * @param key 键
+     *
+     * @param key   键
      * @param delta 增量（必须大于 0）
      * @return 递增后的值
      */
@@ -147,7 +158,8 @@ public class RedisUtil {
 
     /**
      * 递减
-     * @param key 键
+     *
+     * @param key   键
      * @param delta 减量（必须大于 0）
      * @return 递减后的值
      */
@@ -167,9 +179,10 @@ public class RedisUtil {
 
     /**
      * 设置 Hash 缓存
-     * @param key 键
+     *
+     * @param key     键
      * @param hashKey Hash 键
-     * @param value 值
+     * @param value   值
      */
     public void hSet(String key, String hashKey, String value) {
         try {
@@ -181,7 +194,8 @@ public class RedisUtil {
 
     /**
      * 获取 Hash 缓存
-     * @param key 键
+     *
+     * @param key     键
      * @param hashKey Hash 键
      * @return 值
      */
@@ -196,7 +210,8 @@ public class RedisUtil {
 
     /**
      * 删除 Hash 键
-     * @param key 键
+     *
+     * @param key      键
      * @param hashKeys Hash 键数组
      */
     public void hDelete(String key, Object... hashKeys) {
@@ -209,7 +224,8 @@ public class RedisUtil {
 
     /**
      * 判断 Hash 键是否存在
-     * @param key 键
+     *
+     * @param key     键
      * @param hashKey Hash 键
      * @return 是否存在
      */
@@ -226,7 +242,8 @@ public class RedisUtil {
 
     /**
      * 添加 Set 缓存
-     * @param key 键
+     *
+     * @param key    键
      * @param values 值数组
      * @return 添加的元素个数
      */
@@ -241,6 +258,7 @@ public class RedisUtil {
 
     /**
      * 获取 Set 缓存
+     *
      * @param key 键
      * @return 值集合
      */
@@ -255,13 +273,21 @@ public class RedisUtil {
 
     /**
      * 判断值是否在 Set 中
-     * @param key 键
+     *
+     * @param key   键
      * @param value 值
      * @return 是否存在
      */
-    public boolean sIsMember(String key, Object value) {
+    public boolean sIsMember(String key, String value) {
         try {
-            return redisTemplate.opsForSet().isMember(key, value);
+
+            if (redisTemplate == null || value == null) {
+                log.info("redisTemplate与value中存在空值");
+                return false;
+            }
+            Boolean result = redisTemplate.opsForSet().isMember(key, value);
+            log.info(redisTemplate.opsForSet().isMember(key, value).toString());
+            return Boolean.TRUE.equals(result);
         } catch (Exception e) {
             e.printStackTrace();
             return false;
@@ -272,7 +298,8 @@ public class RedisUtil {
 
     /**
      * 向 List 右侧推入值
-     * @param key 键
+     *
+     * @param key   键
      * @param value 值
      * @return 推入后的列表长度
      */
@@ -287,6 +314,7 @@ public class RedisUtil {
 
     /**
      * 从 List 左侧弹出值
+     *
      * @param key 键
      * @return 弹出的值
      */
@@ -301,9 +329,10 @@ public class RedisUtil {
 
     /**
      * 获取 List 范围内的值
-     * @param key 键
+     *
+     * @param key   键
      * @param start 起始索引
-     * @param end 结束索引
+     * @param end   结束索引
      * @return 值集合
      */
     public List<Object> lRange(String key, long start, long end) {

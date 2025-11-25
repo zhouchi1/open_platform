@@ -1,5 +1,6 @@
 package com.zhouzhou.cloud.websocketservice.service;
 
+import com.zhouzhou.cloud.common.utils.RedisUtil;
 import com.zhouzhou.cloud.websocketservice.handler.WebSocketChannelInitializer;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
@@ -22,6 +23,7 @@ import org.springframework.stereotype.Component;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
@@ -142,7 +144,7 @@ public class NettyServer {
                     "|  |_| \\_|\\___|_|_|\\___||___/\\___/ \\__\\___/ \\__\\___/ \\___/|_|\\_\\  |\n" +
                     "|                                                                 |\n" +
                     "|  Netty - Websocket - Redis - Cluster Port: " + port + " Author：Sr.Zhou |\n" +
-                    "|  Node: " + getNodeKey() + "                                          |\n" +
+                    "|  Node: " + getNodeKey() + "                                         |\n" +
                     "+-----------------------------------------------------------------+\n");
 
             registerNodeHeartbeat();
@@ -164,11 +166,24 @@ public class NettyServer {
         // 保存心跳任务引用
         this.heartbeatFuture = scheduledThreadPoolExecutor.scheduleAtFixedRate(() -> {
             try {
+
+                Boolean aBoolean = Optional.ofNullable(stringRedisTemplate)
+                        .map(StringRedisTemplate::opsForSet)
+                        .map(ops -> ops.isMember(WS_NODE_STATUS, nodeKey))
+                        .map(Boolean.TRUE::equals)
+                        .orElse(false);
+
+                // 重新将自身注册到redis中
+                if (!aBoolean) {
+                    log.info("该节点信息不在redis中注册 已完成重新注册");
+                    stringRedisTemplate.opsForSet().add(WS_NODE_STATUS, nodeKey);
+                }
+
                 // 心跳续期操作
                 stringRedisTemplate.expire(WS_NODE_STATUS, 30, TimeUnit.SECONDS);
-                log.debug("节点心跳续期: {}", nodeKey);
+                log.info("节点心跳续期: {}", nodeKey);
             } catch (Exception e) {
-                log.error("节点心跳续期失败", e);
+                log.error("节点心跳续期失败:", e);
             }
         }, 0, 5, TimeUnit.SECONDS);
 
