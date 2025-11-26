@@ -28,10 +28,9 @@ import com.alibaba.csp.sentinel.dashboard.domain.vo.gateway.rule.AddFlowRuleReqV
 import com.alibaba.csp.sentinel.dashboard.domain.vo.gateway.rule.GatewayParamFlowItemVo;
 import com.alibaba.csp.sentinel.dashboard.domain.vo.gateway.rule.UpdateFlowRuleReqVo;
 import com.alibaba.csp.sentinel.dashboard.repository.gateway.InMemGatewayFlowRuleStore;
+import com.alibaba.csp.sentinel.dashboard.rule.DynamicRuleProvider;
 import com.alibaba.csp.sentinel.dashboard.rule.DynamicRulePublisher;
 import com.alibaba.csp.sentinel.util.StringUtil;
-import com.alibaba.fastjson.JSON;
-import com.alibaba.nacos.api.config.ConfigService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -72,6 +71,11 @@ public class GatewayFlowRuleController {
     @Qualifier("gatewayFlowRuleNacosPublisher")
     private DynamicRulePublisher<List<GatewayFlowRule>> gatewayFlowRuleNacosPublisher;
 
+    // 新增：注入 Nacos 提供器
+    @Autowired
+    @Qualifier("gatewayFlowRuleNacosProvider")
+    private DynamicRuleProvider<List<GatewayFlowRule>> gatewayFlowRuleNacosProvider;
+
     @GetMapping("/list.json")
     @AuthAction(AuthService.PrivilegeType.READ_RULE)
     public Result<List<GatewayFlowRuleEntity>> queryFlowRules(String app, String ip, Integer port) {
@@ -87,13 +91,93 @@ public class GatewayFlowRuleController {
         }
 
         try {
-            List<GatewayFlowRuleEntity> rules = sentinelApiClient.fetchGatewayFlowRules(app, ip, port).get();
+            List<GatewayFlowRuleEntity> rules;
+
+            // 优先从 Nacos 获取规则
+            if (gatewayFlowRuleNacosProvider != null) {
+                try {
+                    List<GatewayFlowRule> nacosRules = gatewayFlowRuleNacosProvider.getRules(app);
+                    rules = convertFromGatewayFlowRules(nacosRules, app, ip, port);
+                    logger.info("Successfully fetched rules from Nacos for app: {}, count: {}", app, rules.size());
+                } catch (Exception e) {
+                    logger.warn("Failed to get rules from Nacos for app: {}, fallback to client", app, e);
+                    // 如果从 Nacos 获取失败，回退到从客户端获取
+                    rules = sentinelApiClient.fetchGatewayFlowRules(app, ip, port).get();
+                }
+            } else {
+                // 如果 Nacos provider 不可用，从客户端获取
+                rules = sentinelApiClient.fetchGatewayFlowRules(app, ip, port).get();
+            }
+
+            // 保存到内存存储
             repository.saveAll(rules);
             return Result.ofSuccess(rules);
         } catch (Throwable throwable) {
             logger.error("query gateway flow rules error:", throwable);
             return Result.ofThrowable(-1, throwable);
         }
+    }
+
+    /**
+     * 将 GatewayFlowRule 列表转换为 GatewayFlowRuleEntity 列表
+     */
+    private List<GatewayFlowRuleEntity> convertFromGatewayFlowRules(List<GatewayFlowRule> rules, String app, String ip, Integer port) {
+        if (rules == null) {
+            return new ArrayList<>();
+        }
+        return rules.stream()
+                .map(rule -> convertToGatewayFlowRuleEntity(rule, app, ip, port))
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * 将单个 GatewayFlowRule 转换为 GatewayFlowRuleEntity
+     */
+    private GatewayFlowRuleEntity convertToGatewayFlowRuleEntity(GatewayFlowRule rule, String app, String ip, Integer port) {
+        GatewayFlowRuleEntity entity = new GatewayFlowRuleEntity();
+
+        // 设置基本信息
+        entity.setApp(app);
+        entity.setIp(ip);
+        entity.setPort(port);
+
+        // 设置资源
+        entity.setResource(rule.getResource());
+        entity.setResourceMode(rule.getResourceMode());
+
+        // 设置限流规则
+        entity.setGrade(rule.getGrade());
+        entity.setCount(rule.getCount());
+
+        // 转换时间间隔：将秒转换为原来的 interval 和 intervalUnit
+        // 这里我们假设从 Nacos 获取的规则都是以秒为单位的
+        long intervalSec = rule.getIntervalSec();
+        entity.setInterval(intervalSec);
+        entity.setIntervalUnit(INTERVAL_UNIT_SECOND); // 假设都是秒
+
+        // 设置控制行为
+        entity.setControlBehavior(rule.getControlBehavior());
+
+        // 处理可能为 null 的字段
+        entity.setBurst(rule.getBurst());
+        entity.setMaxQueueingTimeoutMs(rule.getMaxQueueingTimeoutMs());
+
+        // 转换参数项
+        if (rule.getParamItem() != null) {
+            GatewayParamFlowItemEntity paramItemEntity = new GatewayParamFlowItemEntity();
+            paramItemEntity.setParseStrategy(rule.getParamItem().getParseStrategy());
+            paramItemEntity.setFieldName(rule.getParamItem().getFieldName());
+            paramItemEntity.setPattern(rule.getParamItem().getPattern());
+            paramItemEntity.setMatchStrategy(rule.getParamItem().getMatchStrategy());
+            entity.setParamItem(paramItemEntity);
+        }
+
+        // 设置时间戳
+        Date now = new Date();
+        entity.setGmtCreate(now);
+        entity.setGmtModified(now);
+
+        return entity;
     }
 
     @PostMapping("/new.json")
