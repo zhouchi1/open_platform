@@ -13,8 +13,8 @@ spring:
             namespace:
             username: nacos
             password: nacos
-            group-id: DEFAULT_GROUP
-            data-id: sentinel-dashboard-service
+            data-id: '%s-flow-rules'  # 改为data-id，并用单引号括起来
+            group-id: SENTINEL_GROUP
             data-type: json
             rule-type: flow
         ds2:
@@ -23,8 +23,8 @@ spring:
             namespace:
             username: nacos
             password: nacos
-            dataId: sentinel-dashboard-service
-            groupId: DEFAULT_GROUP
+            data-id: '%s-degrade-rules'  # 改为data-id，并用单引号括起来
+            group-id: SENTINEL_GROUP
             data-type: json
             rule-type: degrade
 
