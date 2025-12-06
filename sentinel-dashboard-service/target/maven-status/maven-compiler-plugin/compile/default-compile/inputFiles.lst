@@ -17,6 +17,7 @@ C:\Users\21779\IdeaProjects\open_platform\sentinel-dashboard-service\src\main\ja
 C:\Users\21779\IdeaProjects\open_platform\sentinel-dashboard-service\src\main\java\com\alibaba\csp\sentinel\dashboard\repository\metric\InMemoryMetricsRepository.java
 C:\Users\21779\IdeaProjects\open_platform\sentinel-dashboard-service\src\main\java\com\alibaba\csp\sentinel\dashboard\domain\cluster\state\ClusterUniversalStatePairVO.java
 C:\Users\21779\IdeaProjects\open_platform\sentinel-dashboard-service\src\main\java\com\alibaba\csp\sentinel\dashboard\auth\LoginAuthenticationFilter.java
+C:\Users\21779\IdeaProjects\open_platform\sentinel-dashboard-service\src\main\java\com\alibaba\csp\sentinel\dashboard\config\GatewayNacosConfig.java
 C:\Users\21779\IdeaProjects\open_platform\sentinel-dashboard-service\src\main\java\com\alibaba\csp\sentinel\dashboard\repository\gateway\InMemGatewayFlowRuleStore.java
 C:\Users\21779\IdeaProjects\open_platform\sentinel-dashboard-service\src\main\java\com\alibaba\csp\sentinel\dashboard\config\DashboardConfig.java
 C:\Users\21779\IdeaProjects\open_platform\sentinel-dashboard-service\src\main\java\com\alibaba\csp\sentinel\dashboard\domain\cluster\ClusterAppSingleServerAssignRequest.java

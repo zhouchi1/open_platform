@@ -27,7 +27,6 @@ com\zhouzhou\cloud\payservice\openfeign\wx\WxOpenFeignApi.class
 com\zhouzhou\cloud\payservice\dto\wxpay\WxPayCallBackDecryptSceneInfoDTO.class
 com\zhouzhou\cloud\payservice\request\pay\wxpay\WxPayReFoundReq.class
 com\zhouzhou\cloud\payservice\service\impl\PaymentServiceImpl.class
-com\zhouzhou\cloud\payservice\config\WxPayOpenFeignConfig.class
 com\zhouzhou\cloud\payservice\dto\wxpay\WxPayCallBackDecryptPromotionGoodsDTO.class
 com\zhouzhou\cloud\payservice\controller\WxPayController.class
 com\zhouzhou\cloud\payservice\strategy\PaymentStrategy.class

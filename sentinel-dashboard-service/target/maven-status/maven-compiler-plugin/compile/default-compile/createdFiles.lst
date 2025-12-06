@@ -92,6 +92,7 @@ com\alibaba\csp\sentinel\dashboard\datasource\entity\gateway\ApiDefinitionEntity
 com\alibaba\csp\sentinel\dashboard\domain\vo\gateway\api\AddApiReqVo.class
 com\alibaba\csp\sentinel\dashboard\domain\cluster\ConnectionDescriptorVO.class
 com\alibaba\csp\sentinel\dashboard\rule\FlowRuleApiPublisher.class
+com\alibaba\csp\sentinel\dashboard\config\GatewayNacosConfig.class
 com\alibaba\csp\sentinel\dashboard\metric\MetricFetcher$3.class
 com\alibaba\csp\sentinel\dashboard\auth\FakeAuthServiceImpl$AuthUserImpl.class
 com\alibaba\csp\sentinel\dashboard\controller\DemoController$RunTask.class
