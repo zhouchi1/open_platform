@@ -22,13 +22,10 @@ public class MessageCenterDetail extends BaseEntity {
     @Schema(name = "消息主表Id")
     private String messageMasterId;
 
-    @Schema(name = "接收消息平台唯一标识Id")
-    private String receiveMessageAppId;
-
     @Schema(name = "接收消息用户唯一标识Id")
     private String receiveMessageUserId;
 
-    @Schema(name = "消息接收状态枚举")
-    private MessageReceiveEnum messageReceiveEnum;
+    @Schema(name = "消息接收状态")
+    private Boolean receiveStatus;
 }
 

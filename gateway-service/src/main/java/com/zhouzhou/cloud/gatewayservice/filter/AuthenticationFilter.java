@@ -45,6 +45,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.zhouzhou.cloud.common.constant.AuthConstant.UN_AUTH;
+import static com.zhouzhou.cloud.gatewayservice.constant.Constants.OFFLINE_MESSAGE_BY_USER;
 
 /**
  * @Author: Sr.Zhou
@@ -204,17 +205,17 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
                 }
             }
 
-            return buildLoginSuccessResponse(exchange, token, wsAddress);
+            return buildLoginSuccessResponse(exchange, token);
         } catch (NacosException e) {
             log.error("Nacos discovery error", e);
-            return buildLoginSuccessResponse(exchange, token, null);
+            return buildLoginSuccessResponse(exchange, token);
         } catch (Exception e) {
             log.error("Unexpected login success processing error", e);
-            return buildLoginSuccessResponse(exchange, token, null);
+            return buildLoginSuccessResponse(exchange, token);
         }
     }
 
-    private Mono<Void> buildLoginSuccessResponse(ServerWebExchange exchange, String token, String websocketAddress) {
+    private Mono<Void> buildLoginSuccessResponse(ServerWebExchange exchange, String token) {
         exchange.getResponse().getHeaders().add(HttpHeaders.AUTHORIZATION, "Bearer " + token);
         exchange.getResponse().getHeaders().setContentType(MediaType.APPLICATION_JSON);
 
@@ -222,7 +223,6 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
         result.put("accessToken", token);
         result.put("tokenType", "Bearer");
         result.put("expiresIn", 3600);
-//        if (websocketAddress != null) result.put("websocketServer", websocketAddress);
 
         byte[] respBytes = JsonUtils.toJson(result).getBytes(StandardCharsets.UTF_8);
         return exchange.getResponse().writeWith(Mono.just(exchange.getResponse().bufferFactory().wrap(respBytes)));
@@ -287,6 +287,9 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
         MessageDTO messageDTO = new MessageDTO();
         messageDTO.setMessage(message);
         messageDTO.setTargetUserIds(targetUserIds);
+        messageDTO.setSendUserId(userDTO.getUserResp().getUserId());
+        messageDTO.setMessageId(UUID.randomUUID().toString());
+        messageDTO.setType("测试");
 
         try {
             rabbitMqSenderApi.sendTopicMessage("topicExchange", "topic.routing.key1", JSON.toJSONString(messageDTO));
@@ -294,17 +297,15 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
             log.warn("MQ send error, continue", e);
         }
 
-        for (String targetUserId : targetUserIds){
+        for (String targetUserId : targetUserIds) {
             String targetHost = (String) redisUtil.get(targetUserId);
             if (!ObjectUtils.isEmpty(targetHost)) {
+                log.info("获取到targetHost");
                 return forwardMessageToWebSocket(exchange, request, messageDTO, targetHost, userDTO);
             }
 
-            try {
-                rabbitMqSenderApi.sendTopicMessage("topicExchange", "topic.routing.key2", JSON.toJSONString(messageDTO));
-            } catch (Exception e) {
-                log.warn("MQ offline send error, continue", e);
-            }
+            // 将消息放入到Redis缓存中 抗高并发
+            redisUtil.hSet(OFFLINE_MESSAGE_BY_USER + targetUserId, messageDTO.getMessageId(), com.alibaba.fastjson2.JSON.toJSONString(message));
         }
 
         return buildSuccessResponse(exchange, "Message sent to offline queue");

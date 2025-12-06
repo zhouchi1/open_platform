@@ -86,18 +86,6 @@ public class RedisMessageListener {
                             return;
                         }
                         channel.writeAndFlush(new TextWebSocketFrame(payload));
-                        SecurityCheckCompleteDTO securityInfo = channel.attr(AttributeKeyUtils.SECURITY_CHECK_COMPLETE_ATTRIBUTE_KEY).get();
-                        if (ObjectUtils.isEmpty(securityInfo)) {
-                            return;
-                        }
-                        // 消息中心-消息持久化
-                        MessageCenter messageCenter = new MessageCenter();
-                        messageCenter.setMessageCode(messageDTO.getMessageId());
-                        messageCenter.setMessage(messageDTO.getMessage());
-                        messageCenter.setType(MessageKindEnum.JOIN_MESSAGE);
-                        messageCenter.setMessageStatus(MessageReadStatusEnum.UNREAD);
-                        messageCenter.setUserCode(securityInfo.getUserCode());
-                        messageCenterMapper.insert(messageCenter);
                     });
                 } catch (UnknownHostException e) {
                     e.printStackTrace();

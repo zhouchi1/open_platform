@@ -23,8 +23,6 @@ import java.time.Duration;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-import java.util.UUID;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.zhouzhou.cloud.websocketservice.constant.ConnectConstants.*;
 
@@ -64,10 +62,6 @@ public class SendMessageService {
 
         userIds.parallelStream().forEach(userId -> {
 
-            String messageId = storeOfflineMessage(userId, messageDTO);
-
-            AtomicBoolean deleteOfflineMessage = new AtomicBoolean(false);
-
             for (String node : nodeSet) {
                 String channelId = (String) stringRedisTemplate.opsForHash().get(NODE_CHANNEL_USER_INFO + node, userId);
 
@@ -81,10 +75,10 @@ public class SendMessageService {
                             if (channel != null && channel.isActive()) {
                                 log.info("消息发送中，消息内容：" + JSON.toJSONString(messageDTO));
                                 channel.writeAndFlush(new TextWebSocketFrame(JSON.toJSONString(messageDTO))).addListener((ChannelFutureListener) future -> {
-
-                                    log.info("消息发送成功,future状态响应为：" + future.isSuccess());
-                                    if (future.isSuccess()) {
-                                        deleteOffLineMessage(messageId, userId);
+                                    if (!future.isSuccess()) {
+                                        storeOfflineMessage(userId, messageDTO);
+                                    } else {
+                                        log.info("消息发送成功,future状态响应为：" + future.isSuccess());
                                     }
                                 });
                             } else {
@@ -107,18 +101,7 @@ public class SendMessageService {
         return Objects.equals(node, localNode);
     }
 
-    private String storeOfflineMessage(String userId, MessageDTO message) {
-        long expireTime = System.currentTimeMillis() + Duration.ofDays(3).toMillis();
-
-        String messageId = UUID.randomUUID().toString();
-        message.setMessageId(messageId);
-        stringRedisTemplate.opsForHash().put(OFFLINE_MESSAGE_BY_USER + userId, messageId, JSON.toJSONString(message));
-        stringRedisTemplate.opsForZSet().add(OFFLINE_MESSAGE_BY_USER_EXPIRE, messageId, (double) expireTime);
-        return messageId;
-    }
-
-    private void deleteOffLineMessage(String messageId, String userId) {
-        stringRedisTemplate.opsForHash().delete(OFFLINE_MESSAGE_BY_USER + userId, messageId);
-        stringRedisTemplate.opsForZSet().remove(OFFLINE_MESSAGE_BY_USER_EXPIRE, messageId);
+    private void storeOfflineMessage(String userId, MessageDTO message) {
+        stringRedisTemplate.opsForHash().put(OFFLINE_MESSAGE_BY_USER + userId, message.getMessageId(), JSON.toJSONString(message));
     }
 }

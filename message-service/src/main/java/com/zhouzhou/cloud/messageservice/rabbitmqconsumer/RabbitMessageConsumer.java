@@ -1,7 +1,7 @@
 package com.zhouzhou.cloud.messageservice.rabbitmqconsumer;
 
 import cn.hutool.bloomfilter.BitMapBloomFilter;
-import com.zhouzhou.cloud.messageservice.rabbitmqconsumer.process.ChatMessageCacheProcess;
+import com.zhouzhou.cloud.messageservice.rabbitmqconsumer.process.ChatMessageConfirmProcess;
 import com.zhouzhou.cloud.messageservice.rabbitmqconsumer.process.ChatMessagePersistenceProcess;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 public class RabbitMessageConsumer {
 
     @Resource
-    private ChatMessageCacheProcess chatMessageCacheProcess;
+    private ChatMessageConfirmProcess chatMessageConfirmProcess;
 
     @Resource
     private ChatMessagePersistenceProcess chatMessagePersistenceProcess;
@@ -70,7 +70,7 @@ public class RabbitMessageConsumer {
         bloomFilter.add(messageId);
 
         try {
-            chatMessageCacheProcess.processMessage(message);
+            chatMessageConfirmProcess.processMessage(message);
         } catch (Exception e) {
             log.error("消息处理异常: " + e.getMessage());
         }
