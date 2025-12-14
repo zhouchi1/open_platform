@@ -6,10 +6,10 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info,prometheus  # 暴露 prometheus 指标
+        include: health,info,prometheus
   endpoint:
     prometheus:
-      enabled: true  # 显式启用 prometheus endpoint
+      enabled: true
   prometheus:
     metrics:
       export:
@@ -26,7 +26,3 @@ dubbo:
     name: dubbo
     port: 28555
     serialization: fastjson2
-  security:
-    serialize:
-      allow-list:
-        - com.zhouzhou.cloud.common.service.excepetions.*

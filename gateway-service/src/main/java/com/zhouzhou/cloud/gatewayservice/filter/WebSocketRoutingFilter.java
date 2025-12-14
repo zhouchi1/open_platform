@@ -28,6 +28,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import static com.zhouzhou.cloud.common.constant.RedisPrefixConstants.AUTH_REDIS_PREFIX;
+import static com.zhouzhou.cloud.common.constant.RedisPrefixConstants.AUTH_USER_ID;
+
 /**
  * @Author: Sr.Zhou
  * @CreateTime: 2025-05-29
@@ -55,7 +58,7 @@ public class WebSocketRoutingFilter implements GlobalFilter, Ordered {
         URI originalUri = exchange.getAttribute(ServerWebExchangeUtils.GATEWAY_REQUEST_URL_ATTR);
         ServerHttpRequest request = exchange.getRequest();
 
-        if (originalUri != null && originalUri.getPath().startsWith("/open-platform/websocket")) {
+        if (originalUri != null && originalUri.getPath().startsWith("/connect/websocket")) {
 
             log.info("进入websocket连接请求处理");
 
@@ -72,7 +75,7 @@ public class WebSocketRoutingFilter implements GlobalFilter, Ordered {
             log.info("获取token 进行身份授权认证: {}", token);
 
             // 2. 验证Token并获取用户信息 - 使用 justOrEmpty 确保执行
-            return Mono.justOrEmpty((String) redisUtil.get(token))
+            return Mono.justOrEmpty((String) redisUtil.get(AUTH_REDIS_PREFIX + token))
                     .flatMap(userInfo -> {
                         log.info("Redis查询结果: {}", userInfo);
 
@@ -91,7 +94,7 @@ public class WebSocketRoutingFilter implements GlobalFilter, Ordered {
 
                         // 3. 获取用户绑定的Netty服务器地址
                         String bindingKey = userLoginDTO.getUserResp().getUserId();
-                        String address = (String) redisUtil.get(bindingKey);
+                        String address = (String) redisUtil.get(AUTH_USER_ID + bindingKey);
 
                         log.info("获取netty服务器地址: {}", address);
 
@@ -155,11 +158,11 @@ public class WebSocketRoutingFilter implements GlobalFilter, Ordered {
 
             // 选择第一个实例（你也可以用更复杂的选择策略）
             Instance instance = instances.get(0);
-
-            String newBinding = instance.getIp() + ":" + instance.getPort();
+            String nettyPort = instance.getMetadata().get("netty-port");
+            String newBinding = instance.getIp() + ":" + nettyPort;
             String bindingKey = userLoginDTO.getUserResp().getUserId();
 
-            redisUtil.set(bindingKey, newBinding, -1);
+            redisUtil.set(AUTH_USER_ID + bindingKey, newBinding, -1);
 
             log.info("Rebind user {} to new Netty instance: {}", bindingKey, newBinding);
 

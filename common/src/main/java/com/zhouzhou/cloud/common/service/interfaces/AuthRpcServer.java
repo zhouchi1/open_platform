@@ -5,7 +5,7 @@ import com.zhouzhou.cloud.common.dto.UserIdentityConfirmDTO;
 
 public interface AuthRpcServer {
 
-    String getTokenFromAuthServer(UserIdentityConfirmDTO userIdentityConfirmDTO) throws Exception;
+    String checkUserNameAndPassword(UserIdentityConfirmDTO userIdentityConfirmDTO) throws Exception;
 
     Boolean checkTokenValidity(String token);
 

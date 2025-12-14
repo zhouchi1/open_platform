@@ -11,7 +11,8 @@ import com.zhouzhou.cloud.common.service.resp.SystemUserResp;
 import com.zhouzhou.cloud.common.utils.RedisUtil;
 import com.zhouzhou.cloud.common.dto.UserIdentityInfoDTO;
 import jakarta.annotation.Resource;
-import org.apache.commons.lang3.time.DateUtils;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.time.DateUtils;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.apache.dubbo.config.annotation.DubboService;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,13 +21,16 @@ import org.springframework.util.ObjectUtils;
 
 import java.util.Date;
 
+import static com.zhouzhou.cloud.common.constant.AuthConstant.AUTH_PASS;
 import static com.zhouzhou.cloud.common.constant.AuthConstant.UN_AUTH;
+import static com.zhouzhou.cloud.common.constant.RedisPrefixConstants.AUTH_REDIS_PREFIX;
 
 /**
  * @Author: Sr.Zhou
  * @CreateTime: 2025-03-30
  * @Description: 获取登录Token服务实现
  */
+@Slf4j
 @RefreshScope
 @DubboService(version = "1.0.0")
 public class GateWayOpenServiceV1 implements AuthRpcServer {
@@ -50,8 +54,7 @@ public class GateWayOpenServiceV1 implements AuthRpcServer {
      * @return valid token or UN_AUTH
      */
     @Override
-    public String getTokenFromAuthServer(UserIdentityConfirmDTO userIdentityConfirmDTO) throws Exception {
-
+    public String checkUserNameAndPassword(UserIdentityConfirmDTO userIdentityConfirmDTO) throws Exception {
         Boolean isAuth = userRpcServer.authConfirm(userIdentityConfirmDTO);
 
         // 如果身份验证不通过则直接返回未授权字符串代表未授权
@@ -85,7 +88,7 @@ public class GateWayOpenServiceV1 implements AuthRpcServer {
      */
     @Override
     public Boolean checkTokenValidity(String token) {
-        return !ObjectUtils.isEmpty(redisUtil.get(token));
+        return !ObjectUtils.isEmpty(redisUtil.get(AUTH_REDIS_PREFIX + token));
     }
 
     /**
@@ -96,7 +99,7 @@ public class GateWayOpenServiceV1 implements AuthRpcServer {
      */
     @Override
     public UserIdentityInfoDTO queryUserIdentityByToken(String token) {
-        UserLoginDTO userLoginDTO = JSONObject.parseObject((String) redisUtil.get(token), UserLoginDTO.class);
+        UserLoginDTO userLoginDTO = JSONObject.parseObject((String) redisUtil.get(AUTH_REDIS_PREFIX + token), UserLoginDTO.class);
         UserIdentityInfoDTO userIdentityInfoDTO = new UserIdentityInfoDTO();
         userIdentityInfoDTO.setUserId(userLoginDTO.getUserResp().getUserId());
         return userIdentityInfoDTO;

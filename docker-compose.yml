@@ -14,7 +14,6 @@ services:
     depends_on:
       - ai-service
       - auth-service
-      - email-service
       - gateway-service
       - message-service
       - order-service
@@ -54,20 +53,6 @@ services:
       - JAVA_OPTS=-Xms256m -Xmx512m
     ports:
       - "8184:8184"
-    networks:
-      - app-network
-
-  email-service:
-    build:
-      context: ./email-service
-      dockerfile: Dockerfile
-    container_name: email-service
-    environment:
-      - SW_AGENT_NAME=email-service
-      - SW_AGENT_COLLECTOR_BACKEND_SERVICE=host.docker.internal:11800
-      - JAVA_OPTS=-Xms256m -Xmx512m
-    ports:
-      - "8083:8083"
     networks:
       - app-network
 

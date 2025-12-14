@@ -6,7 +6,6 @@ import com.zhouzhou.cloud.common.entity.UserInfo;
 import com.zhouzhou.cloud.common.service.interfaces.UserRpcServer;
 import com.zhouzhou.cloud.common.service.resp.SystemUserResp;
 import com.zhouzhou.cloud.common.mapper.UserInfoMapper;
-import com.zhouzhou.cloud.common.utils.BizExUtil;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -27,9 +26,13 @@ public class UserRpcServerImplV1 implements UserRpcServer {
         queryWrapper.eq(UserInfo::getId, userIdentityConfirmDTO.getUserId());
         UserInfo userInfo = userInfoMapper.selectOne(queryWrapper);
 
+        if (ObjectUtils.isEmpty(userInfo)){
+            return Boolean.FALSE;
+        }
+
         // 输入的密码错误
         if (!StringUtils.equals(DigestUtils.md5DigestAsHex(userIdentityConfirmDTO.getUserPassword().getBytes()),
-                userInfo.getPassword())){
+                userInfo.getUserPassword())){
             return Boolean.FALSE;
         }
 

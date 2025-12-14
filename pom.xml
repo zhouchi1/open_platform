@@ -12,7 +12,6 @@
         <module>common</module>
         <module>order-service</module>
         <module>pay-service</module>
-        <module>email-service</module>
         <module>task-service</module>
         <module>message-service</module>
         <module>websocket-service</module>
@@ -34,7 +33,7 @@
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <lombok.version>1.18.24</lombok.version>
-        <dubbo.version>3.2.16</dubbo.version>
+        <dubbo.version>3.3.0</dubbo.version>
         <mysql.version>8.0.33</mysql.version>
         <baidu-protobuf.version>2.4.9</baidu-protobuf.version>
         <commons-lang3.version>3.12.0</commons-lang3.version>
@@ -42,7 +41,7 @@
         <java-jwt.version>3.16.0</java-jwt.version>
         <seata.version>1.6.1</seata.version>
         <mybatis-plus.version>3.5.5</mybatis-plus.version>
-        <!--        <shardingsphere.version>5.1.0</shardingsphere.version>-->
+        <shardingsphere.version>5.5.2</shardingsphere.version>
         <persistence-api.version>1.0</persistence-api.version>
         <jjwt.version>0.12.6</jjwt.version>
         <hutool.version>5.8.12</hutool.version>
@@ -283,12 +282,11 @@
                 <version>${knfe4j.version}</version>
             </dependency>
 
-            <!--            <dependency>-->
-            <!--                <groupId>org.apache.shardingsphere</groupId>-->
-            <!--                <artifactId>shardingsphere-jdbc-core-spring-boot-starter</artifactId>-->
-            <!--                <version>${shardingsphere.version}</version>-->
-            <!--            </dependency>-->
-
+<!--            <dependency>-->
+<!--                <groupId>org.apache.shardingsphere</groupId>-->
+<!--                <artifactId>shardingsphere-jdbc</artifactId>-->
+<!--                <version>${shardingsphere.version}</version>-->
+<!--            </dependency>-->
         </dependencies>
     </dependencyManagement>
 </project>

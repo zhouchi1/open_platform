@@ -45,6 +45,7 @@
       <set>
         <option value="$PROJECT_DIR$/address-service/pom.xml" />
         <option value="$PROJECT_DIR$/ai-chat-service/pom.xml" />
+        <option value="$PROJECT_DIR$/email-service/pom.xml" />
         <option value="$PROJECT_DIR$/pgvectordemo-service/pom.xml" />
         <option value="$PROJECT_DIR$/product-service/pom.xml" />
       </set>

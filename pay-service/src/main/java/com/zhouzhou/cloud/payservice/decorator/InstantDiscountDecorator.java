@@ -29,7 +29,7 @@ public class InstantDiscountDecorator extends PaymentStrategyDecorator {
         }
 
         // 检查用户身份条件（如新用户专享）
-        if (promotion.getPromotionName().contains("新用户") && !user.getIsNewUser()) {
+        if (promotion.getPromotionName().contains("新用户")) {
             return false;
         }
 

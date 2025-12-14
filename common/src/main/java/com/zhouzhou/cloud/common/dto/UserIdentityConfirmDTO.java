@@ -15,9 +15,5 @@ public class UserIdentityConfirmDTO implements Serializable {
 
     private Long userId;
 
-    private String userName;
-
     private String userPassword;
-
-//    private String token;
 }

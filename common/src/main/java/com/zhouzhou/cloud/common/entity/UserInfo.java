@@ -25,17 +25,10 @@ public class UserInfo extends BaseEntity {
     /**
      * 是否启用状态
      */
-    private Boolean status;
-
-    /**
-     * 是否是新用户
-     */
-    private Boolean isNewUser;
+    private Boolean userStatus;
 
     /**
      * 密码
      */
-    private String password;
-
-    private String appId;
+    private String userPassword;
 }

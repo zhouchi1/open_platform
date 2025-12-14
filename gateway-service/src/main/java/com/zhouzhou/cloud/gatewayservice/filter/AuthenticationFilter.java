@@ -45,12 +45,14 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.zhouzhou.cloud.common.constant.AuthConstant.UN_AUTH;
+import static com.zhouzhou.cloud.common.constant.RedisPrefixConstants.AUTH_REDIS_PREFIX;
+import static com.zhouzhou.cloud.common.constant.RedisPrefixConstants.AUTH_USER_ID;
 import static com.zhouzhou.cloud.gatewayservice.constant.Constants.OFFLINE_MESSAGE_BY_USER;
 
 /**
  * @Author: Sr.Zhou
  * @CreateTime: 2025-05-10
- * @Description: 安全、响应式、状态码清晰的全局认证过滤器
+ * @Description: 全局认证过滤器
  */
 @Component
 public class AuthenticationFilter implements GlobalFilter, Ordered {
@@ -165,7 +167,7 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
     }
 
     private Mono<Void> processLogin(ServerWebExchange exchange, UserIdentityConfirmDTO userDTO) {
-        return Mono.fromCallable(() -> authRpcServer.getTokenFromAuthServer(userDTO))
+        return Mono.fromCallable(() -> authRpcServer.checkUserNameAndPassword(userDTO))
                 .subscribeOn(Schedulers.boundedElastic())
                 .flatMap(token -> {
                     if (UN_AUTH.equals(token)) {
@@ -191,14 +193,14 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
             Instance selected = instances.isEmpty() ? null : instances.get(new Random().nextInt(instances.size()));
             String wsAddress = selected == null ? null : selected.getIp() + ":" + selected.getPort();
 
-            String userInfoJson = (String) redisUtil.get(token);
+            String userInfoJson = (String) redisUtil.get(AUTH_REDIS_PREFIX + token);
             UserLoginDTO userLoginDTO;
             if (userInfoJson != null) {
                 try {
                     userLoginDTO = JSONObject.parseObject(userInfoJson, UserLoginDTO.class);
                     if (userLoginDTO != null && userLoginDTO.getUserResp() != null &&
                             userLoginDTO.getUserResp().getUserId() != null && wsAddress != null) {
-                        redisUtil.set(userLoginDTO.getUserResp().getUserId(), wsAddress, 3600);
+                        redisUtil.set(AUTH_USER_ID + userLoginDTO.getUserResp().getUserId(), wsAddress, 3600);
                     }
                 } catch (Exception e) {
                     log.warn("User info parse error, continue", e);
@@ -221,7 +223,6 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
 
         Map<String, Object> result = new HashMap<>();
         result.put("accessToken", token);
-        result.put("tokenType", "Bearer");
         result.put("expiresIn", 3600);
 
         byte[] respBytes = JsonUtils.toJson(result).getBytes(StandardCharsets.UTF_8);
@@ -254,7 +255,7 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
 
     private Mono<Void> processMessageSend(ServerWebExchange exchange, String token) {
         ServerHttpRequest request = exchange.getRequest();
-        String userInfoJson = (String) redisUtil.get(token);
+        String userInfoJson = (String) redisUtil.get(AUTH_REDIS_PREFIX + token);
         if (userInfoJson == null) return buildUnauthorizedResponse(exchange, "User information not found");
 
         UserLoginDTO userDTO;
@@ -298,7 +299,7 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
         }
 
         for (String targetUserId : targetUserIds) {
-            String targetHost = (String) redisUtil.get(targetUserId);
+            String targetHost = (String) redisUtil.get(AUTH_USER_ID + targetUserId);
             if (!ObjectUtils.isEmpty(targetHost)) {
                 log.info("获取到targetHost");
                 return forwardMessageToWebSocket(exchange, request, messageDTO, targetHost, userDTO);
@@ -324,7 +325,7 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
                 Instance instance = instances.get(0);
                 targetHost = instance.getIp() + ":" + instance.getPort();
                 try {
-                    redisUtil.set(userDTO.getUserResp().getUserId(), targetHost, -1);
+                    redisUtil.set(AUTH_USER_ID + userDTO.getUserResp().getUserId(), targetHost, -1);
                 } catch (Exception e) {
                     log.warn("Update Redis mapping failed", e);
                 }

@@ -1,6 +1,6 @@
 server:
-  port: 9400 # 原8094
-  shutdown: graceful # 启用优雅停机
+  port: 9400
+  shutdown: graceful
 
 management:
   endpoints:
@@ -28,10 +28,6 @@ dubbo:
     name: dubbo
     port: 24894
     serialization: fastjson2
-  security:
-    serialize:
-      allow-list:
-        - com.zhouzhou.cloud.common.service.excepetions.*
 
 spring:
   lifecycle:

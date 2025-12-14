@@ -27,7 +27,7 @@ public class SecurityConfig {
                 .csrf().disable()
                 // 按需进行访问鉴权
                 .authorizeExchange(exchanges -> exchanges
-                        .pathMatchers("/login","/open-platform/websocket","/chat/sendMessage","/someBusyThing/doSomeBusyWork").permitAll()
+                        .pathMatchers("/login","/connect/websocket","/chat/sendMessage").permitAll()
                         .anyExchange().authenticated()
                 );
         return http.build();
@@ -38,6 +38,7 @@ public class SecurityConfig {
     WebSocketClient tomcatWebSocketClient() {
         return new TomcatWebSocketClient();
     }
+
     @Bean
     @Primary
     public RequestUpgradeStrategy requestUpgradeStrategy() {
