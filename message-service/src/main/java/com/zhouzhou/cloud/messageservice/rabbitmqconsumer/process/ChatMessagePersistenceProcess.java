@@ -10,6 +10,7 @@ import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.Message;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 
@@ -23,6 +24,7 @@ public class ChatMessagePersistenceProcess {
     @Resource
     private MessageCenterDetailMapper messageCenterDetailMapper;
 
+    @Transactional(rollbackFor = Exception.class)
     public void processMessage(Message message) {
 
         String deserializeMessage = new String(message.getBody());

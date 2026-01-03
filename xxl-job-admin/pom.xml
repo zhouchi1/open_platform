@@ -5,6 +5,7 @@
 		<groupId>com.xuxueli</groupId>
 		<artifactId>xxl-job</artifactId>
 		<version>3.0.0</version>
+		<relativePath/>
 	</parent>
 	<artifactId>xxl-job-admin</artifactId>
 	<packaging>jar</packaging>

@@ -1,6 +1,7 @@
 package com.zhouzhou.cloud.messageservice.rabbitmqconsumer;
 
 import cn.hutool.bloomfilter.BitMapBloomFilter;
+import com.rabbitmq.client.Channel;
 import com.zhouzhou.cloud.messageservice.rabbitmqconsumer.process.ChatMessageConfirmProcess;
 import com.zhouzhou.cloud.messageservice.rabbitmqconsumer.process.ChatMessagePersistenceProcess;
 import jakarta.annotation.Resource;
@@ -8,6 +9,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
+
+import java.io.IOException;
 
 @Slf4j
 @Component
@@ -24,8 +27,8 @@ public class RabbitMessageConsumer {
      */
     public static BitMapBloomFilter bloomFilter = new BitMapBloomFilter(100);
 
-    @RabbitListener(queues = "topicQueue1")
-    public void receiveMessageTopicQueue2(Message message) {
+    @RabbitListener(queues = "topicQueue1", ackMode = "MANUAL")
+    public void receiveMessageTopicQueue2(Message message, Channel channel) throws IOException {
 
         String messageId = message.getMessageProperties().getMessageId();
 
@@ -45,13 +48,15 @@ public class RabbitMessageConsumer {
 
         try {
             chatMessagePersistenceProcess.processMessage(message);
+            channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
         } catch (Exception e) {
+            channel.basicNack(message.getMessageProperties().getDeliveryTag(), false, true);
             log.error("消息处理异常: " + e.getMessage());
         }
     }
 
-    @RabbitListener(queues = "topicQueue2")
-    public void receiveMessageTopicQueue1(Message message) {
+    @RabbitListener(queues = "topicQueue2", ackMode = "MANUAL")
+    public void receiveMessageTopicQueue1(Message message,Channel channel) throws IOException {
 
         String messageId = message.getMessageProperties().getMessageId();
 
@@ -71,7 +76,9 @@ public class RabbitMessageConsumer {
 
         try {
             chatMessageConfirmProcess.processMessage(message);
+            channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
         } catch (Exception e) {
+            channel.basicNack(message.getMessageProperties().getDeliveryTag(), false, true);
             log.error("消息处理异常: " + e.getMessage());
         }
     }

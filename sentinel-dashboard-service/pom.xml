@@ -6,6 +6,7 @@
         <groupId>com.alibaba.csp</groupId>
         <artifactId>sentinel-parent</artifactId>
         <version>1.8.6</version>
+        <relativePath/>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
