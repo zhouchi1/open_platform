@@ -1,11 +1,8 @@
-package com.zhouzhou.cloud.messageservice.config;
+package com.zhouzhou.cloud.common.config;
 
 import com.alibaba.cloud.nacos.NacosConfigManager;
-import com.alibaba.nacos.api.NacosFactory;
 import com.alibaba.nacos.api.common.Constants;
-import com.alibaba.nacos.api.config.ConfigService;
 import com.alibaba.nacos.api.exception.NacosException;
-import com.alibaba.nacos.shaded.com.google.common.base.Preconditions;
 import com.zhouzhou.cloud.common.service.excepetions.BizException;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;

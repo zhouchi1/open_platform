@@ -1,4 +1,4 @@
-package com.zhouzhou.cloud.messageservice.config;
+package com.zhouzhou.cloud.common.config;
 
 import lombok.Getter;
 import org.springframework.context.ApplicationContext;
