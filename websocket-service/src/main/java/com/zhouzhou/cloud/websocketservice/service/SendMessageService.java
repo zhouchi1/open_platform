@@ -66,19 +66,19 @@ public class SendMessageService {
                 String channelId = (String) stringRedisTemplate.opsForHash().get(NODE_CHANNEL_USER_INFO + node, userId);
 
                 if (!StringUtils.isEmpty(channelId)) {
-                    log.info("已找到对应本台服务器的node节点，进行消息发送：，channelId：" + channelId);
+                    log.info("已找到对应本台服务器的node节点，进行消息发送：，channelId：{}", channelId);
                     try {
                         if (isCurrentNode(node)) {
                             // 需要去除前后的"字符
                             String cleanChannelId = channelId.substring(1, channelId.length() - 1);
                             Channel channel = ChannelConfig.getChannel(cleanChannelId);
                             if (channel != null && channel.isActive()) {
-                                log.info("消息发送中，消息内容：" + JSON.toJSONString(messageDTO));
+                                log.info("消息发送中，消息内容：{}", JSON.toJSONString(messageDTO));
                                 channel.writeAndFlush(new TextWebSocketFrame(JSON.toJSONString(messageDTO))).addListener((ChannelFutureListener) future -> {
                                     if (!future.isSuccess()) {
                                         storeOfflineMessage(userId, messageDTO);
                                     } else {
-                                        log.info("消息发送成功,future状态响应为：" + future.isSuccess());
+                                        log.info("消息发送成功,future状态响应为：{}", future.isSuccess());
                                     }
                                 });
                             } else {

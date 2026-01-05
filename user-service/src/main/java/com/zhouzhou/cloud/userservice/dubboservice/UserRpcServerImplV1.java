@@ -32,7 +32,7 @@ public class UserRpcServerImplV1 implements UserRpcServer {
 
         // 输入的密码错误
         if (!StringUtils.equals(DigestUtils.md5DigestAsHex(userIdentityConfirmDTO.getUserPassword().getBytes()),
-                userInfo.getUserPassword())){
+                userInfo.getPassword())){
             return Boolean.FALSE;
         }
 

@@ -1,15 +1,18 @@
+nacos:
+  server-addr: 10.0.0.253:8848,10.0.0.253:8850,10.0.0.253:8852
+  config:
+    namespace: public
+    group: DEV_GROUP
+
 spring:
   application:
     name: user-service
   cloud:
     nacos:
       config:
-        server-addr: 10.0.0.253:8848,10.0.0.253:8850,10.0.0.253:8852
+        server-addr: ${nacos.server-addr}
         # 扩展配置（共享配置）
         extension-configs:
-          - data-id: database-dev-config.yaml
-            group: DEV_GROUP
-            refresh: true
           - data-id: user-dev-config.yaml
             group: DEV_GROUP
             refresh: true
@@ -18,7 +21,11 @@ spring:
             refresh: true
       discovery:
         enabled: true
-        server-addr: 10.0.0.253:8848,10.0.0.253:8850,10.0.0.253:8852
-        namespace: public
+        server-addr: ${nacos.server-addr}
+        namespace: ${nacos.config.namespace}
+
+  datasource:
+    driver-class-name: org.apache.shardingsphere.driver.ShardingSphereDriver
+    url: jdbc:shardingsphere:nacos:shardingsphere-config.yaml?serverAddr=${nacos.server-addr}&namespace=${nacos.config.namespace}&group=${nacos.config.group}
   main:
     allow-bean-definition-overriding: true

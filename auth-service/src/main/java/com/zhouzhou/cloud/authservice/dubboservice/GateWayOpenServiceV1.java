@@ -73,7 +73,7 @@ public class GateWayOpenServiceV1 implements AuthRpcServer {
         String accessToken = JwtUtils.createAccessToken(secretJwt, userLoginDTO, DateUtils.addSeconds(new Date(), expire));
 
         // 将生成的放置在Redis中缓存 用于服务端主动的进行Token失效处理 并用于之后的身份认证校验（但违背了JWT设计理念-去除服务端中心化存储）
-        redisUtil.set(accessToken, JSON.toJSONString(userLoginDTO), expire);
+        redisUtil.set(AUTH_REDIS_PREFIX + accessToken, JSON.toJSONString(userLoginDTO), expire);
 
         // 将生成的JWT Token返回至客户端
         return accessToken;
